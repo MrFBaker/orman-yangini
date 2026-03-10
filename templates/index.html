@@ -323,19 +323,23 @@
     #sayfa-yontem { max-width: 1060px; }
 
     .yontem-nav {
-      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 32px;
-      padding: 14px 18px; background: #162030;
-      border: 1px solid #223047; border-radius: 12px;
+      display: flex; gap: 6px; flex-wrap: wrap;
+      padding: 10px 16px; background: #0c1a28;
+      border-bottom: 1px solid #1a2a3a;
+      position: sticky; top: 56px; z-index: 50;
+      /* sayfa padding'ini aşıp tam genişliğe yay */
+      margin-left: -16px; margin-right: -16px; margin-bottom: 32px;
     }
     .yontem-nav a {
       font-size: 0.78rem; font-weight: 700; color: #556070;
-      background: #0f1923; border: 1px solid #2c4060;
+      background: transparent; border: 1px solid #2c4060;
       border-radius: 6px; padding: 5px 12px; text-decoration: none;
-      transition: color 0.15s, border-color 0.15s;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      white-space: nowrap;
     }
-    .yontem-nav a:hover { color: #f0a500; border-color: #f0a500; }
+    .yontem-nav a:hover { color: #f0a500; border-color: #f0a500; background: #0f1923; }
 
-    .yontem-bolum { margin-bottom: 36px; scroll-margin-top: 72px; }
+    .yontem-bolum { margin-bottom: 36px; scroll-margin-top: 116px; }
     .yontem-bolum h2 {
       font-size: 0.85rem; color: #f0a500; font-weight: 800;
       text-transform: uppercase; letter-spacing: 1.5px;
