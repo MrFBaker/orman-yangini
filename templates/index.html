@@ -157,6 +157,75 @@
 
     footer { margin-top: 40px; font-size: 0.75rem; color: #3a5070; text-align: center; }
 
+    /* İKİ SÜTUN DÜZENI */
+    .ana-icerik {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+      width: 100%;
+      max-width: 920px;
+      align-items: start;
+    }
+
+    /* SOL PANEL */
+    .hakkinda-panel {
+      background: #162030;
+      border: 1px solid #223047;
+      border-radius: 14px;
+      padding: 24px 20px;
+      position: sticky;
+      top: 20px;
+    }
+    .hakkinda-panel h3 {
+      font-size: 0.78rem;
+      color: #7eb8e0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #223047;
+    }
+    .hakkinda-panel p {
+      font-size: 0.82rem;
+      color: #8a9bb0;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .hakkinda-bolum { margin-bottom: 20px; }
+    .hakkinda-bolum h4 { font-size: 0.72rem; color: #f0a500; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+    .komponent-liste { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .komponent-liste li {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 0.78rem; color: #c0d0e0; line-height: 1.4;
+    }
+    .komponent-badge {
+      font-size: 0.7rem; font-weight: 700;
+      background: #0f1923; border: 1px solid #2c4060;
+      border-radius: 4px; padding: 1px 5px;
+      color: #f0a500; white-space: nowrap; flex-shrink: 0;
+    }
+    .risk-liste { display: flex; flex-direction: column; gap: 5px; }
+    .risk-satir {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.78rem;
+    }
+    .risk-nokta { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .risk-adi { color: #c0d0e0; flex: 1; }
+    .risk-aralik { color: #556070; font-size: 0.7rem; }
+
+    /* SAĞ SÜTUN — mevcut elementlerin max-width'ini kaldır */
+    .sag-sutun { display: flex; flex-direction: column; align-items: stretch; }
+    .sag-sutun .sekmeler { max-width: none; }
+    .sag-sutun .kart { max-width: none; }
+    .sag-sutun #sonuc-alani { max-width: none; }
+    .sag-sutun #nasa-sonuc-alani { max-width: none; }
+    .sag-sutun .hata-mesaji { max-width: none; }
+
+    @media (max-width: 700px) {
+      .ana-icerik { grid-template-columns: 1fr; }
+      .hakkinda-panel { position: static; }
+    }
+
     /* İstatistik özeti */
     .istatistik-grid {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
@@ -187,6 +256,46 @@
   <h1>&#x1F525; FWI Yangın Hava İndeksi</h1>
   <p>Meteorolojik Veri Tabanlı Orman Yangını Erken Uyarı Sistemi</p>
 </header>
+
+<div class="ana-icerik">
+
+<!-- SOL: PROJE HAKKINDA -->
+<aside class="hakkinda-panel">
+  <h3>Proje Hakkında</h3>
+  <p>Bu sistem, <strong>Kanada Orman Yangını Hava İndeksi (FWI)</strong> yöntemini kullanarak meteorolojik verilerden yangın tehlike seviyesini hesaplar.</p>
+  <p>Meteoroloji Mühendisliği Tasarım Projesi kapsamında geliştirilmiştir.</p>
+
+  <div class="hakkinda-bolum">
+    <h4>FWI Bileşenleri</h4>
+    <ul class="komponent-liste">
+      <li><span class="komponent-badge">FFMC</span> İnce yakıt nemi kodu</li>
+      <li><span class="komponent-badge">DMC</span> Döküntü nem kodu</li>
+      <li><span class="komponent-badge">DC</span> Kuraklık kodu</li>
+      <li><span class="komponent-badge">ISI</span> Başlangıç yayılma indeksi</li>
+      <li><span class="komponent-badge">BUI</span> Birikim kullanım indeksi</li>
+      <li><span class="komponent-badge">FWI</span> Yangın hava indeksi</li>
+    </ul>
+  </div>
+
+  <div class="hakkinda-bolum">
+    <h4>Tehlike Sınıfları</h4>
+    <div class="risk-liste">
+      <div class="risk-satir"><div class="risk-nokta" style="background:#7ed87e"></div><span class="risk-adi">Düşük</span><span class="risk-aralik">FWI &lt; 5</span></div>
+      <div class="risk-satir"><div class="risk-nokta" style="background:#f5e042"></div><span class="risk-adi">Orta</span><span class="risk-aralik">5 – 10</span></div>
+      <div class="risk-satir"><div class="risk-nokta" style="background:#ffa040"></div><span class="risk-adi">Yüksek</span><span class="risk-aralik">10 – 20</span></div>
+      <div class="risk-satir"><div class="risk-nokta" style="background:#ff5555"></div><span class="risk-adi">Çok Yüksek</span><span class="risk-aralik">20 – 30</span></div>
+      <div class="risk-satir"><div class="risk-nokta" style="background:#cc77ff"></div><span class="risk-adi">Aşırı</span><span class="risk-aralik">FWI ≥ 30</span></div>
+    </div>
+  </div>
+
+  <div class="hakkinda-bolum">
+    <h4>Veri Kaynağı</h4>
+    <p style="margin-bottom:0">NASA POWER (MERRA-2) uydu tabanlı yeniden analiz verisi kullanılmaktadır. Sıcaklık maksimum, rüzgar maksimum, nem günlük ortalama değerler alınır.</p>
+  </div>
+</aside>
+
+<!-- SAĞ: MEVCUT FORM -->
+<div class="sag-sutun">
 
 <!-- SEKMELER -->
 <div class="sekmeler">
@@ -312,6 +421,9 @@
     </table>
   </div>
 </div>
+
+</div><!-- sag-sutun -->
+</div><!-- ana-icerik -->
 
 <footer>
   Van Wagner (1987) · Canadian Forest Fire Weather Index System<br>
