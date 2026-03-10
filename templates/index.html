@@ -83,7 +83,7 @@
     details { margin-top: 16px; }
     details summary { cursor: pointer; font-size: 0.82rem; color: #8a9bb0; user-select: none; padding: 4px 0; }
     details summary:hover { color: #7eb8e0; }
-    .onceki-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 14px; }
+    .onceki-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; width: 100%; box-sizing: border-box; }
 
     .btn {
       width: 100%; margin-top: 24px; padding: 14px;
