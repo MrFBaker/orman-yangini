@@ -29,6 +29,7 @@ def warmup_fwi(lat, lon, baslangic):
             temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
             precip=gun["precip"], month=ay,
             ffmc0=ffmc0, dmc0=dmc0, dc0=dc0,
+            lat=lat,
         )
         ffmc0, dmc0, dc0 = r["ffmc"], r["dmc"], r["dc"]
     return ffmc0, dmc0, dc0
@@ -42,6 +43,7 @@ def index():
 def hesapla():
     try:
         data = request.get_json()
+        lat_v = float(data["lat"]) if "lat" in data else None
         sonuc = f.hesapla(
             temp   = float(data["temp"]),
             rh     = float(data["rh"]),
@@ -51,6 +53,7 @@ def hesapla():
             ffmc0  = float(data.get("ffmc0", f.FFMC_BASLANGIC)),
             dmc0   = float(data.get("dmc0",  f.DMC_BASLANGIC)),
             dc0    = float(data.get("dc0",   f.DC_BASLANGIC)),
+            lat    = lat_v,
         )
         return jsonify({"ok": True, "sonuc": sonuc})
     except Exception as e:
@@ -85,6 +88,7 @@ def nasa_veri():
                 ffmc0  = ffmc0,
                 dmc0   = dmc0,
                 dc0    = dc0,
+                lat    = lat,
             )
             sonuclar.append({
                 "tarih":    gun["tarih"],
@@ -112,6 +116,7 @@ def csv_hesapla():
         ffmc0    = float(data.get("ffmc0", f.FFMC_BASLANGIC))
         dmc0     = float(data.get("dmc0",  f.DMC_BASLANGIC))
         dc0      = float(data.get("dc0",   f.DC_BASLANGIC))
+        lat_v    = float(data["lat"]) if "lat" in data and data["lat"] != "" else None
 
         sonuclar = []
         for satir in satirlar:
@@ -126,6 +131,7 @@ def csv_hesapla():
                 ffmc0  = ffmc0,
                 dmc0   = dmc0,
                 dc0    = dc0,
+                lat    = lat_v,
             )
             sonuclar.append({
                 "tarih":    tarih,
@@ -165,7 +171,8 @@ def test_yangin():
             r   = f.hesapla(
                 temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
                 precip=gun["precip"], month=ay,
-                ffmc0=ffmc0, dmc0=dmc0, dc0=dc0
+                ffmc0=ffmc0, dmc0=dmc0, dc0=dc0,
+                lat=o["lat"]
             )
             sonuclar.append({
                 "isim":     o["isim"],

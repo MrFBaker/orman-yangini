@@ -7,13 +7,46 @@ Referans kod: mesowx/CFFDRS, gagreene/cffdrs
 
 import math
 
-# --- AYLIK FAKTÖR TABLOLARI ---
+# --- AYLIK FAKTÖR TABLOLARI (Van Wagner 1987 / gagreene cffdrs) ---
 
-# Le: DMC gün uzunluğu faktörü (enlem >= 30°N, Türkiye için geçerli)
-LE = [6.5, 7.5, 9.0, 12.8, 13.9, 13.9, 12.4, 10.9, 9.4, 8.0, 7.0, 6.0]
+# Le: DMC gün uzunluğu faktörü
+LE_30N  = [6.5, 7.5, 9.0, 12.8, 13.9, 13.9, 12.4, 10.9, 9.4, 8.0, 7.0, 6.0]   # lat >= 30
+LE_10N  = [7.9, 8.4, 8.9, 9.5,  9.9,  10.2, 10.1, 9.7,  9.1, 8.6, 8.1, 7.8]   # 10 <= lat < 30
+LE_EQ   = [9.0]*12                                                                  # -10 <= lat < 10
+LE_10S  = [10.1,9.6, 9.1, 8.5,  8.1,  7.8,  7.9,  8.3,  8.9, 9.4, 9.9, 10.2]  # -30 <= lat < -10
+LE_30S  = [11.5,10.5,9.2, 7.9,  6.8,  6.2,  6.5,  7.4,  8.7, 10.0,11.2,11.8]  # lat < -30
 
-# Lf: DC gün uzunluğu faktörü (enlem >= 20°N, Türkiye için geçerli)
-LF = [-1.6, -1.6, -1.6, 0.9, 3.8, 5.8, 6.4, 5.0, 2.4, 0.4, -1.6, -1.6]
+# Lf: DC gün uzunluğu faktörü
+LF_20N  = [-1.6,-1.6,-1.6, 0.9,  3.8,  5.8,  6.4,  5.0,  2.4, 0.4,-1.6,-1.6]  # lat >= 20
+LF_EQ   = [1.4]*12                                                                  # -20 <= lat < 20
+LF_20S  = [6.4, 5.0, 2.4, 0.4, -1.6, -1.6, -1.6, -1.6, -1.6, 0.9, 3.8, 5.8]  # lat < -20
+
+# Varsayılan: Türkiye (lat ~37-42°N)
+LE = LE_30N
+LF = LF_20N
+
+
+def enleme_gore_tablolar(lat):
+    """Enleme göre Le ve Lf tablolarını döndürür."""
+    if lat >= 30:
+        le = LE_30N
+    elif lat >= 10:
+        le = LE_10N
+    elif lat >= -10:
+        le = LE_EQ
+    elif lat >= -30:
+        le = LE_10S
+    else:
+        le = LE_30S
+
+    if lat >= 20:
+        lf = LF_20N
+    elif lat >= -20:
+        lf = LF_EQ
+    else:
+        lf = LF_20S
+
+    return le, lf
 
 # --- BAŞLANGIÇ DEĞERLERİ (sezon başı) ---
 FFMC_BASLANGIC = 85.0
@@ -80,7 +113,7 @@ def ffmc(temp, rh, wind, precip, ffmc0):
     return max(0.0, min(101.0, result))
 
 
-def dmc(temp, rh, precip, dmc0, month):
+def dmc(temp, rh, precip, dmc0, month, le_tablo=None):
     """
     Duff Moisture Code (Döküntü Nem Kodu)
 
@@ -98,7 +131,7 @@ def dmc(temp, rh, precip, dmc0, month):
     if temp < -1.1:
         temp = -1.1
 
-    le = LE[month - 1]
+    le = (le_tablo if le_tablo is not None else LE)[month - 1]
 
     # Adım 1: Önceki nem içeriği
     mo = 20.0 + 280.0 / math.exp(0.023 * dmc0)
@@ -125,7 +158,7 @@ def dmc(temp, rh, precip, dmc0, month):
     return max(0.0, result)
 
 
-def dc(temp, precip, dc0, month):
+def dc(temp, precip, dc0, month, lf_tablo=None):
     """
     Drought Code (Kuraklık Kodu)
 
@@ -142,7 +175,7 @@ def dc(temp, precip, dc0, month):
     if temp < -2.8:
         temp = -2.8
 
-    lf = LF[month - 1]
+    lf = (lf_tablo if lf_tablo is not None else LF)[month - 1]
 
     # Adım 1: Önceki nem eşdeğeri
     q0 = 800.0 / math.exp(dc0 / 400.0)
@@ -265,7 +298,8 @@ def fwi_sinif(fwi_val):
 
 
 def hesapla(temp, rh, wind, precip, month,
-            ffmc0=FFMC_BASLANGIC, dmc0=DMC_BASLANGIC, dc0=DC_BASLANGIC):
+            ffmc0=FFMC_BASLANGIC, dmc0=DMC_BASLANGIC, dc0=DC_BASLANGIC,
+            lat=None):
     """
     Tüm FWI bileşenlerini hesaplar.
 
@@ -282,9 +316,10 @@ def hesapla(temp, rh, wind, precip, month,
     Döndürür:
         dict — tüm indeks değerleri ve tehlike sınıfı
     """
+    le_t, lf_t = enleme_gore_tablolar(lat) if lat is not None else (None, None)
     ffmc_val = ffmc(temp, rh, wind, precip, ffmc0)
-    dmc_val  = dmc(temp, rh, precip, dmc0, month)
-    dc_val   = dc(temp, precip, dc0, month)
+    dmc_val  = dmc(temp, rh, precip, dmc0, month, le_tablo=le_t)
+    dc_val   = dc(temp, precip, dc0, month, lf_tablo=lf_t)
     isi_val  = isi(ffmc_val, wind)
     bui_val  = bui(dmc_val, dc_val)
     fwi_val  = fwi(isi_val, bui_val)

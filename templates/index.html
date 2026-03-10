@@ -451,7 +451,7 @@
     <div class="bilgi-kart">
       <h3>Proje Hakkında</h3>
       <p>Bu sistem <strong>Meteoroloji Mühendisliği Tasarım Projesi</strong> kapsamında geliştirilmiştir. Ekip tarafından tasarlanan orman yangını erken uyarı sisteminin FWI hesaplama bileşenini oluşturmaktadır.</p>
-      <p style="margin-top:10px">Hesaplamalar tamamen <strong>Van Wagner (1987)</strong> referans formüllerine dayanmaktadır. NASA POWER uydu verisiyle otomatik veri çekimi desteklenmektedir.</p>
+      <p style="margin-top:10px">Hesaplamalar tamamen <strong>Van Wagner (1987)</strong> referans formüllerine dayanmaktadır. Open-Meteo saatlik yeniden analiz verisiyle otomatik veri çekimi desteklenmektedir.</p>
     </div>
 
     <div class="bilgi-kart">
@@ -590,6 +590,10 @@
             <div class="form-grup"><label>DMC₀</label><input type="number" id="dmc0" step="0.1" value="6" /></div>
             <div class="form-grup"><label>DC₀</label><input type="number" id="dc0" step="0.1" value="15" /></div>
           </div>
+          <div class="form-grup" style="margin-top:12px">
+            <label>Enlem (isteğe bağlı — Le/Lf düzeltmesi için)</label>
+            <input type="number" id="manuel-lat" step="0.01" placeholder="örn. 37.5 (Türkiye için boş bırakabilirsiniz)" />
+          </div>
         </details>
         <button class="btn" onclick="hesapla()">Hesapla</button>
       </div>
@@ -613,15 +617,19 @@
             <div class="form-grup"><label>DMC₀</label><input type="number" id="csv-dmc0" step="0.1" value="6" /></div>
             <div class="form-grup"><label>DC₀</label><input type="number" id="csv-dc0" step="0.1" value="15" /></div>
           </div>
+          <div class="form-grup" style="margin-top:12px">
+            <label>Enlem (isteğe bağlı — Le/Lf düzeltmesi için)</label>
+            <input type="number" id="csv-lat" step="0.01" placeholder="örn. 37.5" />
+          </div>
         </details>
         <button class="btn" id="csv-btn" onclick="csvHesapla()" disabled>CSV Yükle ve Hesapla</button>
       </div>
 
     </div>
 
-    <!-- PANEL 2: NASA -->
+    <!-- PANEL 2: Open-Meteo -->
     <div class="panel" id="panel-nasa">
-      <h2>NASA POWER Otomatik Veri</h2>
+      <h2>Open-Meteo Otomatik Veri</h2>
       <div class="info-notu">
         Open-Meteo saatlik veriden <strong>öğlen 12:00</strong> anlık sıcaklık, nem ve rüzgar değerleri alınır. Yağış günlük toplam olarak hesaplanır. Başlangıç değerleri Ocak 1'den ısıtılarak hesaplanır.
       </div>
@@ -996,6 +1004,8 @@
       dmc0:   parseFloat(document.getElementById("dmc0").value),
       dc0:    parseFloat(document.getElementById("dc0").value),
     };
+    const latVal = document.getElementById("manuel-lat").value;
+    if (latVal !== "") payload.lat = parseFloat(latVal);
     if (Object.values(payload).some(v => isNaN(v))) { gosterHata("Tüm alanları doldurun."); return; }
     try {
       const res  = await fetch("/hesapla", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
@@ -1233,6 +1243,8 @@
       dmc0:  parseFloat(document.getElementById("csv-dmc0").value),
       dc0:   parseFloat(document.getElementById("csv-dc0").value),
     };
+    const csvLatVal = document.getElementById("csv-lat").value;
+    if (csvLatVal !== "") payload.lat = parseFloat(csvLatVal);
 
     try {
       const res  = await fetch("/csv", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
