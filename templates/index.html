@@ -295,6 +295,62 @@
     .csv-alt   { font-size: 0.78rem; color: #556070; margin-top: 4px; }
     code { background: #0f1923; border: 1px solid #2c4060; border-radius: 4px; padding: 1px 6px; font-size: 0.78rem; color: #f0a500; }
 
+    /* HESAPLAMA YÖNTEMİ */
+    .yontem-bolum { margin-bottom: 32px; }
+    .yontem-bolum h2 {
+      font-size: 0.75rem; color: #f0a500; text-transform: uppercase;
+      letter-spacing: 1px; margin-bottom: 16px; padding-bottom: 10px;
+      border-bottom: 1px solid #1a2a3a;
+    }
+    .formul-kart {
+      background: #162030; border: 1px solid #223047;
+      border-radius: 12px; padding: 20px 22px; margin-bottom: 12px;
+    }
+    .formul-kart-baslik {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+    }
+    .formul-badge {
+      font-size: 0.85rem; font-weight: 800; background: #0f1923;
+      border: 1px solid #f0a500; border-radius: 6px;
+      padding: 4px 10px; color: #f0a500; flex-shrink: 0;
+    }
+    .formul-kart-baslik h3 { font-size: 0.95rem; color: #e0e0e0; font-weight: 600; }
+    .formul-kart-baslik .aciklama { font-size: 0.78rem; color: #556070; margin-left: auto; }
+    .formul-satirlar { display: flex; flex-direction: column; gap: 8px; }
+    .formul-satir {
+      display: grid; grid-template-columns: 180px 1fr;
+      gap: 12px; align-items: start; font-size: 0.82rem;
+    }
+    .formul-etiket { color: #7eb8e0; font-weight: 600; padding-top: 2px; }
+    .formul-deger  { color: #c0d0e0; line-height: 1.6; }
+    .formul-deger .f { font-family: monospace; background: #0f1923; border: 1px solid #1a2a3a; border-radius: 4px; padding: 2px 7px; color: #ffc060; font-size: 0.8rem; display: inline-block; margin: 1px 0; }
+    .formul-not {
+      margin-top: 10px; padding: 8px 12px;
+      background: #0f2030; border-left: 3px solid #7eb8e0;
+      border-radius: 0 6px 6px 0; font-size: 0.78rem; color: #8a9bb0;
+    }
+    .girdi-etiketler { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .girdi-badge {
+      font-size: 0.7rem; background: #0f1923; border: 1px solid #2c4060;
+      border-radius: 4px; padding: 2px 7px; color: #c0d0e0;
+    }
+    .esik-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    }
+    .esik-kutu {
+      background: #0f1923; border: 1px solid #2c4060;
+      border-radius: 8px; padding: 12px; text-align: center;
+    }
+    .esik-kutu .ad  { font-size: 0.7rem; color: #7eb8e0; text-transform: uppercase; margin-bottom: 6px; }
+    .esik-kutu .dg  { font-size: 1.1rem; font-weight: 700; color: #f0a500; }
+    .esik-kutu .alt { font-size: 0.7rem; color: #556070; margin-top: 2px; }
+
+    @media (max-width: 600px) {
+      .formul-satir { grid-template-columns: 1fr; gap: 2px; }
+      .formul-etiket { color: #7eb8e0; font-size: 0.75rem; }
+      .esik-grid { grid-template-columns: 1fr; }
+    }
+
     /* DOĞRULAMA KARTLARI */
     .test-kart {
       background: #162030; border: 1px solid #223047;
@@ -376,6 +432,7 @@
   <div class="nav-linkler">
     <button class="nav-link aktif" onclick="sayfaAc('hakkinda', this)">Proje Hakkında</button>
     <button class="nav-link" onclick="sayfaAc('hesap', this)">Hesaplayıcı</button>
+    <button class="nav-link" onclick="sayfaAc('yontem', this)">Hesaplama Yöntemi</button>
     <button class="nav-link" onclick="sayfaAc('dogrulama', this)">Doğrulama</button>
   </div>
 </nav>
@@ -639,7 +696,229 @@
 </div><!-- sayfa-hesap -->
 
 <!-- ══════════════════════════════════════════ -->
-<!-- SAYFA 3: DOĞRULAMA                        -->
+<!-- SAYFA 3: HESAPLAMA YÖNTEMİ               -->
+<!-- ══════════════════════════════════════════ -->
+<div class="sayfa" id="sayfa-yontem">
+
+  <div class="hero">
+    <h1>Hesaplama Yöntemi</h1>
+    <p>Van Wagner (1987) — Canadian Forest Fire Weather Index System. Her bileşen için kullanılan girdiler, eşikler ve formüller.</p>
+  </div>
+
+  <!-- GİRDİLER -->
+  <div class="yontem-bolum">
+    <h2>Meteorolojik Girdiler</h2>
+    <div class="formul-kart">
+      <div class="formul-satirlar">
+        <div class="formul-satir"><span class="formul-etiket">T — Sıcaklık</span><span class="formul-deger">Öğlen 12:00 LST anlık ölçüm · Birim: °C</span></div>
+        <div class="formul-satir"><span class="formul-etiket">H — Bağıl Nem</span><span class="formul-deger">Öğlen 12:00 LST anlık ölçüm · Birim: %</span></div>
+        <div class="formul-satir"><span class="formul-etiket">W — Rüzgar Hızı</span><span class="formul-deger">Öğlen 12:00 LST anlık ölçüm · Birim: km/h</span></div>
+        <div class="formul-satir"><span class="formul-etiket">r — Yağış</span><span class="formul-deger">Günlük toplam (00:00–24:00) · Birim: mm</span></div>
+        <div class="formul-satir"><span class="formul-etiket">Ay</span><span class="formul-deger">Gün uzunluğu düzeltme faktörü (Le, Lf) için gerekli — Türkiye: ≥30°N</span></div>
+      </div>
+      <div class="formul-not">Tüm hesaplar önceki günden taşınan FFMC₀, DMC₀, DC₀ başlangıç değerleriyle zincir şeklinde ilerler. Sezon başlangıcı varsayılan değerleri: FFMC₀=85, DMC₀=6, DC₀=15.</div>
+    </div>
+  </div>
+
+  <!-- FFMC -->
+  <div class="yontem-bolum">
+    <h2>1. FFMC — İnce Yakıt Nemi Kodu</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">FFMC</span>
+        <h3>İnce yüzey yakıtlarının nem içeriğini kodlar</h3>
+        <span class="aciklama">Aralık: 0–101</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Nem içeriğine dönüşüm</span>
+          <span class="formul-deger"><span class="f">m₀ = 147.2 × (101 − FFMC₀) / (59.5 + FFMC₀)</span></span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Yağış düzeltmesi (r > 0.5 mm)</span>
+          <span class="formul-deger"><span class="f">rf = r − 0.5</span> &nbsp;→&nbsp; m₀ yağışla ıslak nem değerine güncellenir</span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Denge nem içeriği</span>
+          <span class="formul-deger">
+            <span class="f">Ed = 0.942×H⁰·⁶⁷⁹ + 11×e^((H−100)/10) + 0.18×(21.1−T)×(1−e^(−0.115H))</span><br>
+            <span class="f">Ew = 0.618×H⁰·⁷⁵³ + 10×e^((H−100)/10) + 0.18×(21.1−T)×(1−e^(−0.115H))</span>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Kuruma / ıslanma katsayısı</span>
+          <span class="formul-deger">m₀ > Ed ise kuruma: <span class="f">kd = 0.424×(1−(H/100)^1.7) + 0.0694×√W×(1−(H/100)^8)</span><br>m₀ &lt; Ew ise ıslanma: <span class="f">kw = kd × e^(0.0365T)</span></span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Yeni nem içeriği</span>
+          <span class="formul-deger"><span class="f">m = Ed + (m₀ − Ed) × 10^(−kd)</span> &nbsp;veya&nbsp; <span class="f">m = Ew − (Ew − m₀) × 10^(−kw)</span></span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Koda geri dönüşüm</span>
+          <span class="formul-deger"><span class="f">FFMC = 59.5 × (250 − m) / (147.2 + m)</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DMC -->
+  <div class="yontem-bolum">
+    <h2>2. DMC — Döküntü Nem Kodu</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">DMC</span>
+        <h3>Orta derinlikteki organik döküntü tabakasının nemi</h3>
+        <span class="aciklama">Aralık: 0–∞ (tipik: 0–300)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Yağış düzeltmesi (r > 1.5 mm)</span>
+          <span class="formul-deger"><span class="f">re = 0.92×r − 1.27</span><br><span class="f">Mo = 20 + e^(5.6348 − DMC₀/43.43)</span><br><span class="f">Mr = Mo + 1000×re / (48.73 + re×b)</span> &nbsp;(b koda bağlı katsayı)<br><span class="f">Pr = 244.72 − 43.43×ln(Mr − 20)</span></span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Sıcaklık faktörü</span>
+          <span class="formul-deger"><span class="f">K = 1.894 × (T + 1.1) × (100 − H) × Le × 10⁻⁶</span><br>Le: aylık gün uzunluğu faktörü (≥30°N tablosu)</span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Yeni DMC</span>
+          <span class="formul-deger"><span class="f">DMC = Pr + 100×K</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DC -->
+  <div class="yontem-bolum">
+    <h2>3. DC — Kuraklık Kodu</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">DC</span>
+        <h3>Derin toprak tabakasının uzun vadeli su açığı</h3>
+        <span class="aciklama">Aralık: 0–1000</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Yağış düzeltmesi (r > 2.8 mm)</span>
+          <span class="formul-deger"><span class="f">rd = 0.83×r − 1.27</span><br><span class="f">Qo = 800 × e^(−DC₀/400)</span><br><span class="f">Qr = Qo + 3.937×rd</span><br><span class="f">Dr = 400 × ln(800/Qr)</span></span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Günlük kuruma</span>
+          <span class="formul-deger"><span class="f">V = 0.36 × (T + 2.8) + Lf</span><br>Lf: aylık gün uzunluğu faktörü (≥20°N tablosu)</span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Yeni DC</span>
+          <span class="formul-deger"><span class="f">DC = Dr + 0.5×V</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ISI -->
+  <div class="yontem-bolum">
+    <h2>4. ISI — Başlangıç Yayılma İndeksi</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">ISI</span>
+        <h3>Yangın yayılma hızını tahmin eder (rüzgar + FFMC)</h3>
+        <span class="aciklama">Aralık: 0–∞ (tipik: 0–50)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Rüzgar faktörü</span>
+          <span class="formul-deger"><span class="f">fw = e^(0.05039×W)</span></span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Nem faktörü</span>
+          <span class="formul-deger"><span class="f">m = 147.2 × (101−FFMC) / (59.5+FFMC)</span><br><span class="f">ff = 91.9 × e^(−0.1386×m) × (1 + m^5.31 / 49300000)</span></span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">ISI</span>
+          <span class="formul-deger"><span class="f">ISI = 0.208 × fw × ff</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUI -->
+  <div class="yontem-bolum">
+    <h2>5. BUI — Birikim Kullanım İndeksi</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">BUI</span>
+        <h3>Yangının beslenebileceği toplam yakıt miktarı (DMC + DC)</h3>
+        <span class="aciklama">Aralık: 0–∞ (tipik: 0–200)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">DMC ≤ 0.4 × DC ise</span>
+          <span class="formul-deger"><span class="f">BUI = 0.8 × DMC × DC / (DMC + 0.4×DC)</span></span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">DMC > 0.4 × DC ise</span>
+          <span class="formul-deger"><span class="f">BUI = DMC × (1 − 0.8×DC / (DMC + 0.4×DC)) × (0.92 + (0.0114×DMC)^1.7)</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FWI -->
+  <div class="yontem-bolum">
+    <h2>6. FWI — Yangın Hava İndeksi</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">FWI</span>
+        <h3>Yangın şiddetini temsil eden nihai indeks (ISI + BUI)</h3>
+        <span class="aciklama">Aralık: 0–∞</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Yakıt tüketim faktörü</span>
+          <span class="formul-deger">BUI ≤ 80: <span class="f">fd = 0.626×BUI^0.809 + 2</span><br>BUI > 80: <span class="f">fd = 1000 / (25 + 108.64×e^(−0.023×BUI))</span></span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Ara değer B</span>
+          <span class="formul-deger"><span class="f">B = 0.1 × ISI × fd</span></span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">FWI</span>
+          <span class="formul-deger">B > 1: <span class="f">FWI = e^(2.72 × (0.434 × ln(B))^0.647)</span><br>B ≤ 1: <span class="f">FWI = B</span></span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">DSR (Günlük Şiddet)</span>
+          <span class="formul-deger"><span class="f">DSR = 0.0272 × FWI^1.77</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EŞİKLER -->
+  <div class="yontem-bolum">
+    <h2>Yağış Eşikleri ve Tehlike Sınıfları</h2>
+    <div class="formul-kart" style="margin-bottom:12px">
+      <div class="formul-kart-baslik"><span class="formul-badge">Yağış</span><h3>Yağış düzeltmesi minimum eşikleri</h3></div>
+      <div class="esik-grid">
+        <div class="esik-kutu"><div class="ad">FFMC için</div><div class="dg">r > 0.5 mm</div><div class="alt">altında etki yok</div></div>
+        <div class="esik-kutu"><div class="ad">DMC için</div><div class="dg">r > 1.5 mm</div><div class="alt">altında etki yok</div></div>
+        <div class="esik-kutu"><div class="ad">DC için</div><div class="dg">r > 2.8 mm</div><div class="alt">altında etki yok</div></div>
+      </div>
+    </div>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik"><span class="formul-badge">Sınıf</span><h3>FWI tehlike sınıfları</h3></div>
+      <div class="formul-satirlar">
+        <div class="formul-satir"><span class="formul-etiket" style="color:#7ed87e">Düşük</span><span class="formul-deger">FWI &lt; 5 — Normal koşullar</span></div>
+        <div class="formul-satir"><span class="formul-etiket" style="color:#f5e042">Orta</span><span class="formul-deger">5 ≤ FWI &lt; 10 — Dikkatli olunmalı</span></div>
+        <div class="formul-satir"><span class="formul-etiket" style="color:#ffa040">Yüksek</span><span class="formul-deger">10 ≤ FWI &lt; 20 — Yüksek risk</span></div>
+        <div class="formul-satir"><span class="formul-etiket" style="color:#ff5555">Çok Yüksek</span><span class="formul-deger">20 ≤ FWI &lt; 30 — Çok yüksek risk, izleme gerekli</span></div>
+        <div class="formul-satir"><span class="formul-etiket" style="color:#cc77ff">Aşırı</span><span class="formul-deger">FWI ≥ 30 — Kritik koşullar, aşırı tehlike</span></div>
+      </div>
+      <div class="formul-not">Kaynak: Van Wagner, C.E. (1987). Development and Structure of the Canadian Forest Fire Weather Index System. Canadian Forestry Service, Technical Report 35.</div>
+    </div>
+  </div>
+
+</div><!-- sayfa-yontem -->
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SAYFA 4: DOĞRULAMA                        -->
 <!-- ══════════════════════════════════════════ -->
 <div class="sayfa" id="sayfa-dogrulama">
 
