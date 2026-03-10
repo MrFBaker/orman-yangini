@@ -760,18 +760,44 @@
     <p>Van Wagner (1987) — Canadian Forest Fire Weather Index System. Her bileşen için kullanılan girdiler, eşikler ve formüller.</p>
   </div>
 
-  <!-- GİRDİLER -->
+  <!-- HESAPLAMA SIRASI -->
   <div class="yontem-bolum">
-    <h2>Meteorolojik Girdiler</h2>
+    <h2>Hesaplama Sırası ve Veri Akışı</h2>
     <div class="formul-kart">
       <div class="formul-satirlar">
-        <div class="formul-satir"><span class="formul-etiket">T — Sıcaklık</span><span class="formul-deger">Öğlen 12:00 LST anlık ölçüm · Birim: °C</span></div>
-        <div class="formul-satir"><span class="formul-etiket">H — Bağıl Nem</span><span class="formul-deger">Öğlen 12:00 LST anlık ölçüm · Birim: %</span></div>
-        <div class="formul-satir"><span class="formul-etiket">W — Rüzgar Hızı</span><span class="formul-deger">Öğlen 12:00 LST anlık ölçüm · Birim: km/h</span></div>
-        <div class="formul-satir"><span class="formul-etiket">r — Yağış</span><span class="formul-deger">Günlük toplam (00:00–24:00) · Birim: mm</span></div>
-        <div class="formul-satir"><span class="formul-etiket">Ay</span><span class="formul-deger">Gün uzunluğu düzeltme faktörü (Le, Lf) için gerekli — Türkiye: ≥30°N</span></div>
+        <div class="formul-satir">
+          <span class="formul-etiket" style="color:#7eb8e0">Günlük Meteoroloji</span>
+          <span class="formul-deger">
+            <span class="girdi-badge" style="color:#c0d0e0"><strong>T</strong> Sıcaklık (°C)</span>
+            <span class="girdi-badge" style="color:#c0d0e0"><strong>H</strong> Bağıl Nem (%)</span>
+            <span class="girdi-badge" style="color:#c0d0e0"><strong>W</strong> Rüzgar (km/h)</span>
+            <span class="girdi-badge" style="color:#c0d0e0"><strong>r</strong> Yağış (mm)</span>
+            — öğlen 12:00 LST ölçümü
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket" style="color:#7eb8e0">Önceki Gün Değerleri</span>
+          <span class="formul-deger">
+            <span class="girdi-badge"><strong>FFMC₀</strong></span>
+            <span class="girdi-badge"><strong>DMC₀</strong></span>
+            <span class="girdi-badge"><strong>DC₀</strong></span>
+            — zincirli hesapta bir önceki günden taşınır; sezon başı: 85 / 6 / 15
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket" style="color:#7eb8e0">Hesaplama Sırası</span>
+          <span class="formul-deger" style="line-height:2.2">
+            <span class="girdi-badge" style="color:#f0a500">1 FFMC</span> T, H, W, r, FFMC₀ →
+            <span class="girdi-badge" style="color:#f0a500">2 DMC</span> T, H, r, DMC₀, ay →
+            <span class="girdi-badge" style="color:#f0a500">3 DC</span> T, r, DC₀, ay<br>
+            <span class="girdi-badge" style="color:#5ddc8a">4 ISI</span> FFMC + W →
+            <span class="girdi-badge" style="color:#5ddc8a">5 BUI</span> DMC + DC →
+            <span class="girdi-badge" style="color:#ff9944">6 FWI</span> ISI + BUI →
+            <span class="girdi-badge" style="color:#cc77ff">DSR</span> FWI
+          </span>
+        </div>
       </div>
-      <div class="formul-not">Tüm hesaplar önceki günden taşınan FFMC₀, DMC₀, DC₀ başlangıç değerleriyle zincir şeklinde ilerler. Sezon başlangıcı varsayılan değerleri: FFMC₀=85, DMC₀=6, DC₀=15.</div>
+      <div class="formul-not">1–3 arası nem kodları (moisture codes) bağımsız olarak hesaplanır. 4–6 arası indeksler nem kodlarını birleştirir. Her günün çıktısı, ertesi günün girdi başlangıç değeridir.</div>
     </div>
   </div>
 
@@ -781,36 +807,57 @@
     <div class="formul-kart">
       <div class="formul-kart-baslik">
         <span class="formul-badge">FFMC</span>
-        <h3>İnce yüzey yakıtlarının nem içeriğini kodlar</h3>
-        <span class="aciklama">Aralık: 0–101</span>
+        <h3>İnce yüzey yakıtlarının nem içeriğini kodlar · Aralık: 0–101</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — sıcaklık (°C)</span>
+        <span class="girdi-badge">H — bağıl nem (%)</span>
+        <span class="girdi-badge">W — rüzgar (km/h)</span>
+        <span class="girdi-badge">r — yağış (mm)</span>
+        <span class="girdi-badge">FFMC₀ — önceki gün FFMC değeri</span>
       </div>
       <div class="formul-satirlar">
         <div class="formul-satir">
-          <span class="formul-etiket">Nem içeriğine dönüşüm</span>
-          <span class="formul-deger"><span class="f">m₀ = 147.2 × (101 − FFMC₀) / (59.5 + FFMC₀)</span></span>
-        </div>
-        <div class="formul-satir">
-          <span class="formul-etiket">Yağış düzeltmesi (r > 0.5 mm)</span>
-          <span class="formul-deger"><span class="f">rf = r − 0.5</span> &nbsp;→&nbsp; m₀ yağışla ıslak nem değerine güncellenir</span>
-        </div>
-        <div class="formul-satir">
-          <span class="formul-etiket">Denge nem içeriği</span>
+          <span class="formul-etiket">Adım 1 — Nem içeriğine dönüştür</span>
           <span class="formul-deger">
-            <span class="f">Ed = 0.942×H⁰·⁶⁷⁹ + 11×e^((H−100)/10) + 0.18×(21.1−T)×(1−e^(−0.115H))</span><br>
-            <span class="f">Ew = 0.618×H⁰·⁷⁵³ + 10×e^((H−100)/10) + 0.18×(21.1−T)×(1−e^(−0.115H))</span>
+            <span class="f">m₀ = 147.2 × (101 − FFMC₀) / (59.5 + FFMC₀)</span>
+            <br><small style="color:#556070">m₀: FFMC₀'ın karşılık geldiği nem içeriği (%)</small>
           </span>
         </div>
         <div class="formul-satir">
-          <span class="formul-etiket">Kuruma / ıslanma katsayısı</span>
-          <span class="formul-deger">m₀ > Ed ise kuruma: <span class="f">kd = 0.424×(1−(H/100)^1.7) + 0.0694×√W×(1−(H/100)^8)</span><br>m₀ &lt; Ew ise ıslanma: <span class="f">kw = kd × e^(0.0365T)</span></span>
+          <span class="formul-etiket">Adım 2 — Yağış düzeltmesi<br><small style="font-weight:400">(yalnızca r &gt; 0.5 mm ise)</small></span>
+          <span class="formul-deger">
+            <span class="f">rf = r − 0.5</span> &nbsp; (efektif yağış)
+            <br><span class="f">Δm = 42.5 × rf × e^(−100/(251−m₀)) × (1 − e^(−6.93/rf))</span>
+            <br><span class="f">m₀ = m₀ + Δm</span> &nbsp; (max 250)
+            <br><small style="color:#556070">rf: eşik altı çıkarılmış yağış · Δm: yağışın eklediği nem</small>
+          </span>
         </div>
         <div class="formul-satir">
-          <span class="formul-etiket">Yeni nem içeriği</span>
-          <span class="formul-deger"><span class="f">m = Ed + (m₀ − Ed) × 10^(−kd)</span> &nbsp;veya&nbsp; <span class="f">m = Ew − (Ew − m₀) × 10^(−kw)</span></span>
+          <span class="formul-etiket">Adım 3 — Denge nem içerikleri</span>
+          <span class="formul-deger">
+            <span class="f">Ed = 0.942×H^0.679 + 11×e^((H−100)/10) + 0.18×(21.1−T)×(1−e^(−0.115H))</span>
+            <br><span class="f">Ew = 0.618×H^0.753 + 10×e^((H−100)/10) + 0.18×(21.1−T)×(1−e^(−0.115H))</span>
+            <br><small style="color:#556070">Ed: kuruma denge nemi · Ew: ıslanma denge nemi</small>
+          </span>
         </div>
         <div class="formul-satir">
-          <span class="formul-etiket">Koda geri dönüşüm</span>
-          <span class="formul-deger"><span class="f">FFMC = 59.5 × (250 − m) / (147.2 + m)</span></span>
+          <span class="formul-etiket">Adım 4 — Kuruma veya ıslanma</span>
+          <span class="formul-deger">
+            <strong style="color:#ffa040">m₀ &gt; Ed ise (kuruma):</strong>
+            <span class="f">k = (0.424×(1−(H/100)^1.7) + 0.0694×√W×(1−(H/100)^8)) × 0.581 × e^(0.0365T)</span>
+            <span class="f">m = Ed + (m₀ − Ed) × 10^(−k)</span>
+            <br><strong style="color:#7eb8e0">m₀ &lt; Ew ise (ıslanma):</strong>
+            <span class="f">k = (0.424×(1−((100−H)/100)^1.7) + 0.0694×√W×(1−((100−H)/100)^8)) × 0.581 × e^(0.0365T)</span>
+            <span class="f">m = Ew − (Ew − m₀) × 10^(−k)</span>
+            <br><small style="color:#556070">k: kuruma/ıslanma hız katsayısı · m: yeni nem içeriği</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 5 — Koda dönüştür</span>
+          <span class="formul-deger">
+            <span class="f">FFMC = 59.5 × (250 − m) / (147.2 + m)</span>
+          </span>
         </div>
       </div>
     </div>
@@ -822,21 +869,36 @@
     <div class="formul-kart">
       <div class="formul-kart-baslik">
         <span class="formul-badge">DMC</span>
-        <h3>Orta derinlikteki organik döküntü tabakasının nemi</h3>
-        <span class="aciklama">Aralık: 0–∞ (tipik: 0–300)</span>
+        <h3>Orta derinlikteki organik tabakasının nem durumu · Aralık: 0–300+</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — sıcaklık (°C)</span>
+        <span class="girdi-badge">H — bağıl nem (%)</span>
+        <span class="girdi-badge">r — yağış (mm)</span>
+        <span class="girdi-badge">DMC₀ — önceki gün DMC değeri</span>
+        <span class="girdi-badge">Le — aylık gün uzunluğu faktörü (enleme göre)</span>
       </div>
       <div class="formul-satirlar">
         <div class="formul-satir">
-          <span class="formul-etiket">Yağış düzeltmesi (r > 1.5 mm)</span>
-          <span class="formul-deger"><span class="f">re = 0.92×r − 1.27</span><br><span class="f">Mo = 20 + e^(5.6348 − DMC₀/43.43)</span><br><span class="f">Mr = Mo + 1000×re / (48.73 + re×b)</span> &nbsp;(b koda bağlı katsayı)<br><span class="f">Pr = 244.72 − 43.43×ln(Mr − 20)</span></span>
+          <span class="formul-etiket">Adım 1 — Yağış düzeltmesi<br><small style="font-weight:400">(yalnızca r &gt; 1.5 mm ise)</small></span>
+          <span class="formul-deger">
+            <span class="f">re = 0.92×r − 1.27</span> &nbsp; (efektif yağış)
+            <br><span class="f">Mo = 20 + 280 / e^(0.023×DMC₀)</span> &nbsp; (önceki nem içeriği)
+            <br><span class="f">Mr = Mo + 1000×re / (48.77 + b×re)</span> &nbsp; (ıslak nem içeriği)
+            <br><span class="f">Pr = 244.72 − 43.43×ln(Mr − 20)</span> &nbsp; (yağış sonrası DMC)
+            <br><small style="color:#556070">re: efektif yağış · Mo: önceki nem · b: DMC₀'a bağlı katsayı (üç aralık)</small>
+          </span>
         </div>
         <div class="formul-satir">
-          <span class="formul-etiket">Sıcaklık faktörü</span>
-          <span class="formul-deger"><span class="f">K = 1.894 × (T + 1.1) × (100 − H) × Le × 10⁻⁶</span><br>Le: aylık gün uzunluğu faktörü (≥30°N tablosu)</span>
+          <span class="formul-etiket">Adım 2 — Günlük kuruma</span>
+          <span class="formul-deger">
+            <span class="f">K = 1.894 × (T + 1.1) × (100 − H) × Le × 0.0001</span>
+            <br><small style="color:#556070">T+1.1: ısı etkisi başlangıcı · (100−H): nemsizlik · Le: Temmuz ≥30°N = 12.4</small>
+          </span>
         </div>
         <div class="formul-satir">
-          <span class="formul-etiket">Yeni DMC</span>
-          <span class="formul-deger"><span class="f">DMC = Pr + 100×K</span></span>
+          <span class="formul-etiket">Adım 3 — Yeni DMC</span>
+          <span class="formul-deger"><span class="f">DMC = Pr + K</span></span>
         </div>
       </div>
     </div>
@@ -848,21 +910,35 @@
     <div class="formul-kart">
       <div class="formul-kart-baslik">
         <span class="formul-badge">DC</span>
-        <h3>Derin toprak tabakasının uzun vadeli su açığı</h3>
-        <span class="aciklama">Aralık: 0–1000</span>
+        <h3>Derin toprak tabakasının uzun vadeli su açığı · Aralık: 0–1000</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — sıcaklık (°C)</span>
+        <span class="girdi-badge">r — yağış (mm)</span>
+        <span class="girdi-badge">DC₀ — önceki gün DC değeri</span>
+        <span class="girdi-badge">Lf — aylık gün uzunluğu faktörü (enleme göre)</span>
       </div>
       <div class="formul-satirlar">
         <div class="formul-satir">
-          <span class="formul-etiket">Yağış düzeltmesi (r > 2.8 mm)</span>
-          <span class="formul-deger"><span class="f">rd = 0.83×r − 1.27</span><br><span class="f">Qo = 800 × e^(−DC₀/400)</span><br><span class="f">Qr = Qo + 3.937×rd</span><br><span class="f">Dr = 400 × ln(800/Qr)</span></span>
+          <span class="formul-etiket">Adım 1 — Yağış düzeltmesi<br><small style="font-weight:400">(yalnızca r &gt; 2.8 mm ise)</small></span>
+          <span class="formul-deger">
+            <span class="f">rd = 0.83×r − 1.27</span> &nbsp; (efektif yağış)
+            <br><span class="f">Q₀ = 800 × e^(−DC₀/400)</span> &nbsp; (önceki nem eşdeğeri)
+            <br><span class="f">Qr = Q₀ + 3.937×rd</span> &nbsp; (ıslak nem eşdeğeri)
+            <br><span class="f">Dr = 400 × ln(800/Qr)</span> &nbsp; (yağış sonrası DC)
+            <br><small style="color:#556070">rd: eşik üstü yağış · Q₀: DC'nin nem eşdeğeri</small>
+          </span>
         </div>
         <div class="formul-satir">
-          <span class="formul-etiket">Günlük kuruma</span>
-          <span class="formul-deger"><span class="f">V = 0.36 × (T + 2.8) + Lf</span><br>Lf: aylık gün uzunluğu faktörü (≥20°N tablosu)</span>
+          <span class="formul-etiket">Adım 2 — Potansiyel kuruma</span>
+          <span class="formul-deger">
+            <span class="f">V = 0.36 × (T + 2.8) + Lf</span>
+            <br><small style="color:#556070">T+2.8: sıcaklık eşiği · Lf: Temmuz ≥20°N = 6.4, Ocak = −1.6 (kış kısıtlaması)</small>
+          </span>
         </div>
         <div class="formul-satir">
-          <span class="formul-etiket">Yeni DC</span>
-          <span class="formul-deger"><span class="f">DC = Dr + 0.5×V</span></span>
+          <span class="formul-etiket">Adım 3 — Yeni DC</span>
+          <span class="formul-deger"><span class="f">DC = Dr + 0.5 × V</span></span>
         </div>
       </div>
     </div>
@@ -874,17 +950,27 @@
     <div class="formul-kart">
       <div class="formul-kart-baslik">
         <span class="formul-badge">ISI</span>
-        <h3>Yangın yayılma hızını tahmin eder (rüzgar + FFMC)</h3>
-        <span class="aciklama">Aralık: 0–∞ (tipik: 0–50)</span>
+        <h3>Yangının ilk yayılma hızı · Rüzgar ve FFMC birleşimi · Aralık: 0–50+</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">FFMC — aynı günün FFMC değeri (adım 1'den)</span>
+        <span class="girdi-badge">W — rüzgar hızı (km/h)</span>
       </div>
       <div class="formul-satirlar">
         <div class="formul-satir">
-          <span class="formul-etiket">Rüzgar faktörü</span>
-          <span class="formul-deger"><span class="f">fw = e^(0.05039×W)</span></span>
+          <span class="formul-etiket">Rüzgar faktörü (fw)</span>
+          <span class="formul-deger">
+            <span class="f">fw = e^(0.05039 × W)</span>
+            <br><small style="color:#556070">W büyüdükçe üstel olarak artar; 25 km/h → fw=3.5</small>
+          </span>
         </div>
         <div class="formul-satir">
-          <span class="formul-etiket">Nem faktörü</span>
-          <span class="formul-deger"><span class="f">m = 147.2 × (101−FFMC) / (59.5+FFMC)</span><br><span class="f">ff = 91.9 × e^(−0.1386×m) × (1 + m^5.31 / 49300000)</span></span>
+          <span class="formul-etiket">Nem faktörü (ff)</span>
+          <span class="formul-deger">
+            <span class="f">m = 147.2 × (101 − FFMC) / (59.5 + FFMC)</span> &nbsp; (FFMC'yi neme çevir)
+            <br><span class="f">ff = 91.9 × e^(−0.1386×m) × (1 + m^5.31 / 49300000)</span>
+            <br><small style="color:#556070">m: nem içeriği · ff: nem ne kadar düşükse o kadar yüksek</small>
+          </span>
         </div>
         <div class="formul-satir">
           <span class="formul-etiket">ISI</span>
@@ -900,17 +986,27 @@
     <div class="formul-kart">
       <div class="formul-kart-baslik">
         <span class="formul-badge">BUI</span>
-        <h3>Yangının beslenebileceği toplam yakıt miktarı (DMC + DC)</h3>
-        <span class="aciklama">Aralık: 0–∞ (tipik: 0–200)</span>
+        <h3>Yangının beslenebileceği toplam yakıt miktarı · Aralık: 0–200+</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">DMC — aynı günün DMC değeri (adım 2'den)</span>
+        <span class="girdi-badge">DC — aynı günün DC değeri (adım 3'ten)</span>
       </div>
       <div class="formul-satirlar">
         <div class="formul-satir">
-          <span class="formul-etiket">DMC ≤ 0.4 × DC ise</span>
-          <span class="formul-deger"><span class="f">BUI = 0.8 × DMC × DC / (DMC + 0.4×DC)</span></span>
+          <span class="formul-etiket">DMC ≤ 0.4 × DC ise<br><small style="font-weight:400">(DC baskın rejimdeyse)</small></span>
+          <span class="formul-deger">
+            <span class="f">BUI = 0.8 × DMC × DC / (DMC + 0.4×DC)</span>
+            <br><small style="color:#556070">İki kodun harmonik ortalamasına benzer bir birleştirme</small>
+          </span>
         </div>
         <div class="formul-satir">
-          <span class="formul-etiket">DMC > 0.4 × DC ise</span>
-          <span class="formul-deger"><span class="f">BUI = DMC × (1 − 0.8×DC / (DMC + 0.4×DC)) × (0.92 + (0.0114×DMC)^1.7)</span></span>
+          <span class="formul-etiket">DMC &gt; 0.4 × DC ise<br><small style="font-weight:400">(DMC baskın rejimdeyse)</small></span>
+          <span class="formul-deger">
+            <span class="f">P = 1 − 0.8×DC / (DMC + 0.4×DC)</span>
+            <br><span class="f">BUI = DMC − P × (0.92 + (0.0114×DMC)^1.7)</span>
+            <br><small style="color:#556070">P: DC'nin BUI'ye katkı oranı · DMC yüksekse BUI yaklaşık DMC'ye eşit</small>
+          </span>
         </div>
       </div>
     </div>
@@ -922,25 +1018,42 @@
     <div class="formul-kart">
       <div class="formul-kart-baslik">
         <span class="formul-badge">FWI</span>
-        <h3>Yangın şiddetini temsil eden nihai indeks (ISI + BUI)</h3>
-        <span class="aciklama">Aralık: 0–∞</span>
+        <h3>Yangın yoğunluğunu temsil eden nihai indeks · ISI × BUI birleşimi</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">ISI — aynı günün ISI değeri (adım 4'ten)</span>
+        <span class="girdi-badge">BUI — aynı günün BUI değeri (adım 5'ten)</span>
       </div>
       <div class="formul-satirlar">
         <div class="formul-satir">
-          <span class="formul-etiket">Yakıt tüketim faktörü</span>
-          <span class="formul-deger">BUI ≤ 80: <span class="f">fd = 0.626×BUI^0.809 + 2</span><br>BUI > 80: <span class="f">fd = 1000 / (25 + 108.64×e^(−0.023×BUI))</span></span>
+          <span class="formul-etiket">Adım 1 — Yakıt etkisi (fd)</span>
+          <span class="formul-deger">
+            BUI ≤ 80: <span class="f">fd = 0.626 × BUI^0.809 + 2</span>
+            <br>BUI &gt; 80: <span class="f">fd = 1000 / (25 + 108.64 × e^(−0.023×BUI))</span>
+            <br><small style="color:#556070">fd: yakıt miktarının yayılmayı artırma faktörü</small>
+          </span>
         </div>
         <div class="formul-satir">
-          <span class="formul-etiket">Ara değer B</span>
-          <span class="formul-deger"><span class="f">B = 0.1 × ISI × fd</span></span>
+          <span class="formul-etiket">Adım 2 — Ara değer (B)</span>
+          <span class="formul-deger">
+            <span class="f">B = 0.1 × ISI × fd</span>
+            <br><small style="color:#556070">Yayılma hızı × yakıt miktarı</small>
+          </span>
         </div>
         <div class="formul-satir">
-          <span class="formul-etiket">FWI</span>
-          <span class="formul-deger">B > 1: <span class="f">FWI = e^(2.72 × (0.434 × ln(B))^0.647)</span><br>B ≤ 1: <span class="f">FWI = B</span></span>
+          <span class="formul-etiket">Adım 3 — FWI</span>
+          <span class="formul-deger">
+            B ≤ 1: <span class="f">FWI = B</span>
+            <br>B &gt; 1: <span class="f">FWI = e^(2.72 × (0.434 × ln(B))^0.647)</span>
+            <br><small style="color:#556070">Düşük değerlerde doğrusal, yüksek değerlerde üstel ölçek</small>
+          </span>
         </div>
         <div class="formul-satir">
-          <span class="formul-etiket">DSR (Günlük Şiddet)</span>
-          <span class="formul-deger"><span class="f">DSR = 0.0272 × FWI^1.77</span></span>
+          <span class="formul-etiket">DSR — Günlük Şiddet Değeri</span>
+          <span class="formul-deger">
+            <span class="f">DSR = 0.0272 × FWI^1.77</span>
+            <br><small style="color:#556070">FWI'yi yangın söndürme zorluğuyla ilişkilendiren türetilmiş indeks</small>
+          </span>
         </div>
       </div>
     </div>
