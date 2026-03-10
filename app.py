@@ -156,8 +156,10 @@ def referans_test():
     """
     girdi = {"temp": 17, "rh": 42, "wind": 25, "precip": 0, "month": 7,
              "ffmc0": 85.0, "dmc0": 6.0, "dc0": 15.0}
-    beklenen = {"ffmc": 87.69, "dmc": 8.50, "dc": 19.80,
-                "isi": 10.85, "bui": 8.40, "fwi": 10.96}
+    # Referans: Van Wagner (1987) + cffdrs standart implementasyonu
+    # Lf(Temmuz, lat>=20N) = 6.4  →  DC = 21.76, BUI ve FWI buna göre
+    beklenen = {"ffmc": 87.69, "dmc": 8.47, "dc": 21.76,
+                "isi": 10.85, "bui": 8.59, "fwi": 10.14}
 
     sonuc = f.hesapla(
         temp=girdi["temp"], rh=girdi["rh"], wind=girdi["wind"],
