@@ -100,6 +100,48 @@ def nasa_veri():
     except Exception as e:
         return jsonify({"ok": False, "hata": str(e)}), 400
 
+@app.route("/csv", methods=["POST"])
+def csv_hesapla():
+    """
+    CSV satirlarından ardisik FWI hesaplar.
+    Girdi: { satirlar: [{tarih, temp, rh, wind, precip}, ...], ffmc0, dmc0, dc0 }
+    """
+    try:
+        data     = request.get_json()
+        satirlar = data["satirlar"]
+        ffmc0    = float(data.get("ffmc0", f.FFMC_BASLANGIC))
+        dmc0     = float(data.get("dmc0",  f.DMC_BASLANGIC))
+        dc0      = float(data.get("dc0",   f.DC_BASLANGIC))
+
+        sonuclar = []
+        for satir in satirlar:
+            tarih  = str(satir.get("tarih", ""))
+            ay     = int(tarih[4:6]) if len(tarih) == 8 else int(satir.get("month", 7))
+            r = f.hesapla(
+                temp   = float(satir["temp"]),
+                rh     = float(satir["rh"]),
+                wind   = float(satir["wind"]),
+                precip = float(satir["precip"]),
+                month  = ay,
+                ffmc0  = ffmc0,
+                dmc0   = dmc0,
+                dc0    = dc0,
+            )
+            sonuclar.append({
+                "tarih":    tarih,
+                "temp":     float(satir["temp"]),
+                "rh":       float(satir["rh"]),
+                "wind_kmh": float(satir["wind"]),
+                "precip":   float(satir["precip"]),
+                **r
+            })
+            ffmc0, dmc0, dc0 = r["ffmc"], r["dmc"], r["dc"]
+
+        return jsonify({"ok": True, "sonuclar": sonuclar})
+    except Exception as e:
+        return jsonify({"ok": False, "hata": str(e)}), 400
+
+
 @app.route("/test", methods=["GET"])
 def test_yangin():
     """

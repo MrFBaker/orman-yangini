@@ -267,6 +267,34 @@
 
     footer { margin-top: 40px; padding: 20px 16px; font-size: 0.75rem; color: #3a5070; text-align: center; }
 
+    /* ALT SEKMELER */
+    .alt-sekmeler {
+      display: flex; gap: 0; border-radius: 8px; overflow: hidden;
+      border: 1px solid #2c4060; width: fit-content;
+    }
+    .alt-sekme {
+      padding: 7px 20px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; border: none; background: #0f1923; color: #556070;
+      transition: background 0.2s, color 0.2s;
+    }
+    .alt-sekme.aktif { background: #1e3a5a; color: #7eb8e0; }
+    .alt-sekme:hover:not(.aktif) { color: #7eb8e0; }
+    .alt-panel { display: none; }
+    .alt-panel.aktif { display: block; }
+
+    /* CSV YÜKLEME */
+    .csv-yukle-alani {
+      margin-top: 14px; border: 2px dashed #2c4060; border-radius: 10px;
+      padding: 32px 20px; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .csv-yukle-alani:hover { border-color: #f0a500; background: #0f2030; }
+    .csv-yukle-alani.dolu { border-color: #3a7a3a; background: #0f2010; }
+    .csv-ikon { font-size: 2rem; margin-bottom: 8px; }
+    .csv-metin { font-size: 0.9rem; color: #c0d0e0; }
+    .csv-alt   { font-size: 0.78rem; color: #556070; margin-top: 4px; }
+    code { background: #0f1923; border: 1px solid #2c4060; border-radius: 4px; padding: 1px 6px; font-size: 0.78rem; color: #f0a500; }
+
     /* DOĞRULAMA KARTLARI */
     .test-kart {
       background: #162030; border: 1px solid #223047;
@@ -460,45 +488,78 @@
 
     <!-- PANEL 1: Manuel -->
     <div class="panel aktif" id="panel-manuel">
-      <h2>Meteorolojik Veriler (Öğlen Ölçümü)</h2>
-      <div class="form-grid">
-        <div class="form-grup">
-          <label>Sıcaklık (°C)</label>
-          <input type="number" id="temp" step="0.1" value="17" />
-        </div>
-        <div class="form-grup">
-          <label>Bağıl Nem (%)</label>
-          <input type="number" id="rh" step="1" min="0" max="100" value="42" />
-        </div>
-        <div class="form-grup">
-          <label>Rüzgar (km/h)</label>
-          <input type="number" id="wind" step="0.1" min="0" value="25" />
-        </div>
-        <div class="form-grup">
-          <label>Yağış (mm)</label>
-          <input type="number" id="precip" step="0.1" min="0" value="0" />
-        </div>
-        <div class="form-grup">
-          <label>Ay</label>
-          <select id="month">
-            <option value="1">Ocak</option><option value="2">Şubat</option>
-            <option value="3">Mart</option><option value="4">Nisan</option>
-            <option value="5">Mayıs</option><option value="6">Haziran</option>
-            <option value="7" selected>Temmuz</option><option value="8">Ağustos</option>
-            <option value="9">Eylül</option><option value="10">Ekim</option>
-            <option value="11">Kasım</option><option value="12">Aralık</option>
-          </select>
-        </div>
+
+      <!-- Alt sekmeler -->
+      <div class="alt-sekmeler">
+        <button class="alt-sekme aktif" onclick="altSekmeAc('tek', this)">Tek Gün</button>
+        <button class="alt-sekme" onclick="altSekmeAc('csv', this)">CSV Dosyası</button>
       </div>
-      <details>
-        <summary>&#9881; Önceki Gün Değerleri (Gelişmiş)</summary>
-        <div class="onceki-grid">
-          <div class="form-grup"><label>FFMC₀</label><input type="number" id="ffmc0" step="0.1" value="85" /></div>
-          <div class="form-grup"><label>DMC₀</label><input type="number" id="dmc0" step="0.1" value="6" /></div>
-          <div class="form-grup"><label>DC₀</label><input type="number" id="dc0" step="0.1" value="15" /></div>
+
+      <!-- Alt panel: Tek Gün -->
+      <div class="alt-panel aktif" id="alt-tek">
+        <div class="form-grid" style="margin-top:16px">
+          <div class="form-grup">
+            <label>Sıcaklık (°C)</label>
+            <input type="number" id="temp" step="0.1" value="17" />
+          </div>
+          <div class="form-grup">
+            <label>Bağıl Nem (%)</label>
+            <input type="number" id="rh" step="1" min="0" max="100" value="42" />
+          </div>
+          <div class="form-grup">
+            <label>Rüzgar (km/h)</label>
+            <input type="number" id="wind" step="0.1" min="0" value="25" />
+          </div>
+          <div class="form-grup">
+            <label>Yağış (mm)</label>
+            <input type="number" id="precip" step="0.1" min="0" value="0" />
+          </div>
+          <div class="form-grup">
+            <label>Ay</label>
+            <select id="month">
+              <option value="1">Ocak</option><option value="2">Şubat</option>
+              <option value="3">Mart</option><option value="4">Nisan</option>
+              <option value="5">Mayıs</option><option value="6">Haziran</option>
+              <option value="7" selected>Temmuz</option><option value="8">Ağustos</option>
+              <option value="9">Eylül</option><option value="10">Ekim</option>
+              <option value="11">Kasım</option><option value="12">Aralık</option>
+            </select>
+          </div>
         </div>
-      </details>
-      <button class="btn" onclick="hesapla()">Hesapla</button>
+        <details>
+          <summary>&#9881; Önceki Gün Değerleri (Gelişmiş)</summary>
+          <div class="onceki-grid">
+            <div class="form-grup"><label>FFMC₀</label><input type="number" id="ffmc0" step="0.1" value="85" /></div>
+            <div class="form-grup"><label>DMC₀</label><input type="number" id="dmc0" step="0.1" value="6" /></div>
+            <div class="form-grup"><label>DC₀</label><input type="number" id="dc0" step="0.1" value="15" /></div>
+          </div>
+        </details>
+        <button class="btn" onclick="hesapla()">Hesapla</button>
+      </div>
+
+      <!-- Alt panel: CSV -->
+      <div class="alt-panel" id="alt-csv">
+        <div class="info-notu" style="margin-top:16px">
+          CSV formatı: <code>tarih,temp,rh,wind,precip</code> — tarih YYYYMMDD, rüzgar km/h.
+          <a href="/static/ornek.csv" download style="color:#f0a500;margin-left:8px">Örnek indir</a>
+        </div>
+        <div class="csv-yukle-alani" id="csv-yukle-alani" onclick="document.getElementById('csv-input').click()">
+          <div class="csv-ikon">📂</div>
+          <div class="csv-metin">CSV dosyası seçmek için tıkla</div>
+          <div class="csv-alt" id="csv-dosya-adi">veya sürükle bırak</div>
+        </div>
+        <input type="file" id="csv-input" accept=".csv,.txt" style="display:none" onchange="csvDosyaSecildi(this)" />
+        <details style="margin-top:12px">
+          <summary>&#9881; Başlangıç Değerleri</summary>
+          <div class="onceki-grid" style="margin-top:12px">
+            <div class="form-grup"><label>FFMC₀</label><input type="number" id="csv-ffmc0" step="0.1" value="85" /></div>
+            <div class="form-grup"><label>DMC₀</label><input type="number" id="csv-dmc0" step="0.1" value="6" /></div>
+            <div class="form-grup"><label>DC₀</label><input type="number" id="csv-dc0" step="0.1" value="15" /></div>
+          </div>
+        </details>
+        <button class="btn" id="csv-btn" onclick="csvHesapla()" disabled>CSV Yükle ve Hesapla</button>
+      </div>
+
     </div>
 
     <!-- PANEL 2: NASA -->
@@ -819,6 +880,91 @@
     document.getElementById("val-dsr").textContent  = s.dsr;
     document.getElementById("sonuc-alani").style.display = "block";
     document.getElementById("sonuc-alani").scrollIntoView({ behavior: "smooth" });
+  }
+
+  function altSekmeAc(id, el) {
+    document.querySelectorAll(".alt-sekme").forEach(s => s.classList.remove("aktif"));
+    document.querySelectorAll(".alt-panel").forEach(p => p.classList.remove("aktif"));
+    el.classList.add("aktif");
+    document.getElementById("alt-" + id).classList.add("aktif");
+    document.getElementById("sonuc-alani").style.display = "none";
+    document.getElementById("nasa-sonuc-alani").style.display = "none";
+  }
+
+  let csvSatirlar = [];
+
+  function csvDosyaSecildi(input) {
+    const dosya = input.files[0];
+    if (!dosya) return;
+    const okuyucu = new FileReader();
+    okuyucu.onload = e => {
+      const satirlar = csvParse(e.target.result);
+      if (satirlar.length === 0) {
+        document.getElementById("csv-dosya-adi").textContent = "Hata: geçerli veri bulunamadı";
+        return;
+      }
+      csvSatirlar = satirlar;
+      const alan = document.getElementById("csv-yukle-alani");
+      alan.classList.add("dolu");
+      document.getElementById("csv-dosya-adi").textContent = `✓ ${dosya.name} — ${satirlar.length} satır yüklendi`;
+      document.getElementById("csv-btn").disabled = false;
+    };
+    okuyucu.readAsText(dosya);
+  }
+
+  function csvParse(metin) {
+    const satirlar = metin.trim().split(/\r?\n/).filter(s => s.trim());
+    if (satirlar.length < 2) return [];
+    const basliklar = satirlar[0].toLowerCase().split(",").map(h => h.trim());
+    const idx = {
+      tarih:  basliklar.indexOf("tarih"),
+      temp:   basliklar.indexOf("temp"),
+      rh:     basliklar.indexOf("rh"),
+      wind:   basliklar.indexOf("wind"),
+      precip: basliklar.indexOf("precip"),
+    };
+    if (idx.temp < 0 || idx.rh < 0 || idx.wind < 0 || idx.precip < 0) return [];
+    const sonuc = [];
+    for (let i = 1; i < satirlar.length; i++) {
+      const parcalar = satirlar[i].split(",").map(p => p.trim());
+      if (parcalar.length < 4) continue;
+      const satir = {
+        temp:   parseFloat(parcalar[idx.temp]),
+        rh:     parseFloat(parcalar[idx.rh]),
+        wind:   parseFloat(parcalar[idx.wind]),
+        precip: parseFloat(parcalar[idx.precip]),
+      };
+      if (idx.tarih >= 0) satir.tarih = parcalar[idx.tarih];
+      if (Object.values(satir).some(v => isNaN(v))) continue;
+      sonuc.push(satir);
+    }
+    return sonuc;
+  }
+
+  async function csvHesapla() {
+    if (!csvSatirlar.length) return;
+    document.getElementById("hata-mesaji").style.display = "none";
+    document.getElementById("nasa-sonuc-alani").style.display = "none";
+    const btn = document.getElementById("csv-btn");
+    btn.disabled = true; btn.textContent = "Hesaplanıyor...";
+
+    const payload = {
+      satirlar: csvSatirlar,
+      ffmc0: parseFloat(document.getElementById("csv-ffmc0").value),
+      dmc0:  parseFloat(document.getElementById("csv-dmc0").value),
+      dc0:   parseFloat(document.getElementById("csv-dc0").value),
+    };
+
+    try {
+      const res  = await fetch("/csv", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const json = await res.json();
+      if (!json.ok) { gosterHata(json.hata); return; }
+      gosterNasaTablo(json.sonuclar);
+    } catch (e) {
+      gosterHata("Hata: " + e.message);
+    } finally {
+      btn.disabled = false; btn.textContent = "CSV Yükle ve Hesapla";
+    }
   }
 
   async function testCalistir() {
