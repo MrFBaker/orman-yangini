@@ -1449,7 +1449,7 @@
       const res  = await fetch("/referans");
       const json = await res.json();
       if (!json.ok) { btn.textContent = "Hata oluştu"; btn.disabled = false; return; }
-      gosterReferansSonucu(json.karsilastirma);
+      gosterReferansSonucu(json.karsilastirma, json.adimlar);
       document.getElementById("ref-sonuc-alani").style.display = "block";
     } catch (e) {
       btn.textContent = "Sunucu hatası";
@@ -1459,16 +1459,20 @@
     }
   }
 
-  function gosterReferansSonucu(k) {
+  function gosterReferansSonucu(k, adimlar) {
     const etiketler = {ffmc:"FFMC",dmc:"DMC",dc:"DC",isi:"ISI",bui:"BUI",fwi:"FWI"};
     const tumGecti = Object.values(k).every(v => v.gecti);
-    let html = `<div style="margin-bottom:14px;padding:12px 16px;border-radius:8px;background:${tumGecti?"#0a2a1a":"#2a1010"};border:1px solid ${tumGecti?"#2a7a4a":"#7a2a2a"}">
-      <span style="font-size:1.1rem;font-weight:700;color:${tumGecti?"#5ddc8a":"#ff7070"}">
+
+    // ── Özet tablo ────────────────────────────────────────────────
+    let html = `<div style="margin-bottom:16px;padding:12px 16px;border-radius:8px;
+        background:${tumGecti?"#0a2a1a":"#2a1010"};border:1px solid ${tumGecti?"#2a7a4a":"#7a2a2a"}">
+      <span style="font-size:1.05rem;font-weight:700;color:${tumGecti?"#5ddc8a":"#ff7070"}">
         ${tumGecti?"✓ Tüm değerler referansla uyumlu":"✗ Sapma tespit edildi"}
       </span>
-      <span style="font-size:0.78rem;color:#8a9bb0;margin-left:12px">Van Wagner (1987) Tablo 1 — tolerans: ±0.1</span>
+      <span style="font-size:0.78rem;color:#8a9bb0;margin-left:10px">Van Wagner (1987) — tolerans: ±0.1</span>
     </div>
-    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+    <div style="overflow-x:auto;margin-bottom:24px">
+    <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
       <thead><tr style="border-bottom:1px solid #1a2a3a">
         <th style="text-align:left;padding:8px 12px;color:#7eb8e0">İndeks</th>
         <th style="text-align:right;padding:8px 12px;color:#7eb8e0">Beklenen</th>
@@ -1482,10 +1486,70 @@
         <td style="padding:9px 12px;text-align:right;color:#8a9bb0">${v.beklenen}</td>
         <td style="padding:9px 12px;text-align:right;color:#e0e0e0;font-weight:600">${v.hesaplanan}</td>
         <td style="padding:9px 12px;text-align:right;color:${v.gecti?"#5ddc8a":"#ff7070"}">${v.fark}</td>
-        <td style="padding:9px 12px;text-align:center;font-size:1rem">${v.gecti?"✓":"✗"}</td>
+        <td style="padding:9px 12px;text-align:center">${v.gecti?"✓":"✗"}</td>
       </tr>`;
     }
     html += "</tbody></table></div>";
+
+    // ── Ara adımlar ───────────────────────────────────────────────
+    const adimAcikla = {
+      ffmc: [
+        ["m₀ = 147.2×(101−85)/(59.5+85)", adimlar.ffmc.mo],
+        ["Ed (kuruma denge nemi)",           adimlar.ffmc.ed],
+        ["Ew (ıslanma denge nemi)",          adimlar.ffmc.ew],
+        ["k₀d (hız katsayısı ham)",         adimlar.ffmc.k0d],
+        ["kd = k₀d × 0.581 × e^(0.0365×17)", adimlar.ffmc.kd],
+        ["m = Ed + (m₀−Ed) / 10^kd",        adimlar.ffmc.m],
+        ["FFMC = 59.5×(250−m)/(147.2+m)",   adimlar.ffmc.sonuc],
+      ],
+      dmc: [
+        ["Le (Temmuz, ≥30°N tablosu, index 6)", adimlar.dmc.Le],
+        ["K = 1.894×(17+1.1)×(100−42)×Le×0.0001", adimlar.dmc.K],
+        ["DMC = DMC₀ + K = 6 + K",           adimlar.dmc.sonuc],
+      ],
+      dc: [
+        ["Lf (Temmuz, ≥20°N tablosu, index 6)", adimlar.dc.Lf],
+        ["V = 0.36×(17+2.8) + Lf",           adimlar.dc.V],
+        ["DC = DC₀ + 0.5×V → " + adimlar.dc["DC_0+0.5V"], adimlar.dc.sonuc],
+      ],
+      isi: [
+        ["m (FFMC→nem)",   adimlar.isi.m],
+        ["fw = e^(0.05039×25)",  adimlar.isi.fw],
+        ["ff = 91.9×e^(−0.1386m)×(1+m⁵·³¹/49300000)", adimlar.isi.ff],
+        ["ISI = 0.208 × fw × ff", adimlar.isi.sonuc],
+      ],
+      bui: [
+        ["Kural: " + adimlar.bui.kural, ""],
+        ["BUI", adimlar.bui.sonuc],
+      ],
+      fwi: [
+        ["fd = 0.626×BUI^0.809 + 2", adimlar.fwi.fd],
+        ["B = 0.1 × ISI × fd",       adimlar.fwi.B],
+        ["FWI = e^(2.72×(0.434×ln(B))^0.647)", adimlar.fwi.sonuc],
+      ],
+    };
+
+    html += `<div style="font-size:0.75rem;color:#f0a500;text-transform:uppercase;
+        letter-spacing:1px;margin-bottom:12px">Ara Hesaplama Adımları</div>`;
+
+    for (const [idx, satirlar] of Object.entries(adimAcikla)) {
+      html += `<div style="background:#0f1923;border:1px solid #1a2a3a;border-radius:8px;
+          padding:12px 16px;margin-bottom:10px">
+        <div style="font-size:0.78rem;font-weight:700;color:#f0a500;margin-bottom:10px">
+          ${etiketler[idx]}
+        </div>`;
+      for (const [aciklama, deger] of satirlar) {
+        html += `<div style="display:flex;justify-content:space-between;align-items:baseline;
+            padding:4px 0;border-bottom:1px solid #111a22;gap:16px">
+          <span style="font-size:0.78rem;color:#8a9bb0;font-family:monospace">${aciklama}</span>
+          <span style="font-size:0.85rem;font-weight:600;color:#c0d0e0;white-space:nowrap">
+            ${deger !== "" ? "= " + deger : ""}
+          </span>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+
     document.getElementById("ref-tablo").innerHTML = html;
   }
 

@@ -152,33 +152,112 @@ def csv_hesapla():
 def referans_test():
     """
     Van Wagner (1987) referans değerleriyle formül doğrulaması.
-    Tablo 1'deki girdi/çıktı çifti kullanılır.
+    Ara adımlar da döndürülür — kullanıcı her sayıyı elle doğrulayabilir.
     """
-    girdi = {"temp": 17, "rh": 42, "wind": 25, "precip": 0, "month": 7,
-             "ffmc0": 85.0, "dmc0": 6.0, "dc0": 15.0}
-    # Referans: Van Wagner (1987) + cffdrs standart implementasyonu
-    # Lf(Temmuz, lat>=20N) = 6.4  →  DC = 21.76, BUI ve FWI buna göre
+    import math as _m
+    T, H, W, r, ay = 17, 42, 25, 0, 7
+    FFMC0, DMC0, DC0 = 85.0, 6.0, 15.0
+
+    # ── FFMC ara adımlar ──────────────────────────────────────────
+    mo   = 147.2 * (101.0 - FFMC0) / (59.5 + FFMC0)
+    ed   = (0.942 * H**0.679 + 11.0 * _m.exp((H-100)/10)
+            + 0.18*(21.1-T)*(1-_m.exp(-0.115*H)))
+    ew   = (0.618 * H**0.753 + 10.0 * _m.exp((H-100)/10)
+            + 0.18*(21.1-T)*(1-_m.exp(-0.115*H)))
+    k0d  = (0.424*(1-(H/100)**1.7) + 0.0694*_m.sqrt(W)*(1-(H/100)**8))
+    kd   = k0d * 0.581 * _m.exp(0.0365*T)
+    m    = ed + (mo - ed) / (10.0**kd)
+    ffmc_val = 59.5*(250-m)/(147.2+m)
+
+    # ── DMC ara adımlar ───────────────────────────────────────────
+    Le   = f.LE_30N[ay-1]          # Temmuz ≥30°N = 12.4
+    K    = 1.894*(T+1.1)*(100-H)*Le*0.0001
+    dmc_val = DMC0 + K
+
+    # ── DC ara adımlar ────────────────────────────────────────────
+    Lf   = f.LF_20N[ay-1]          # Temmuz ≥20°N = 6.4
+    V    = 0.36*(T+2.8) + Lf
+    dc_val = DC0 + 0.5*V
+
+    # ── ISI ara adımlar ───────────────────────────────────────────
+    m_isi = 147.2*(101-ffmc_val)/(59.5+ffmc_val)
+    fw   = _m.exp(0.05039*W)
+    ff   = 91.9*_m.exp(-0.1386*m_isi)*(1+m_isi**5.31/49300000)
+    isi_val = 0.208*fw*ff
+
+    # ── BUI ara adımlar ───────────────────────────────────────────
+    if dmc_val <= 0.4*dc_val:
+        bui_yol = "dmc <= 0.4*dc"
+        bui_val = 0.8*dmc_val*dc_val/(dmc_val+0.4*dc_val)
+    else:
+        bui_yol = "dmc > 0.4*dc"
+        P = 1 - 0.8*dc_val/(dmc_val+0.4*dc_val)
+        bui_val = dmc_val - P*(0.92+(0.0114*dmc_val)**1.7)
+
+    # ── FWI ara adımlar ───────────────────────────────────────────
+    fd   = 0.626*bui_val**0.809 + 2.0
+    B    = 0.1*isi_val*fd
+    fwi_val = _m.exp(2.72*(0.434*_m.log(B))**0.647) if B > 1 else B
+
+    adimlar = {
+        "ffmc": {
+            "mo":   round(mo, 4),
+            "ed":   round(ed, 4),
+            "ew":   round(ew, 4),
+            "k0d":  round(k0d, 4),
+            "kd":   round(kd, 4),
+            "m":    round(m, 4),
+            "sonuc": round(ffmc_val, 2)
+        },
+        "dmc": {
+            "Le":   Le,
+            "K":    round(K, 4),
+            "sonuc": round(dmc_val, 2)
+        },
+        "dc": {
+            "Lf":   Lf,
+            "V":    round(V, 4),
+            "DC_0+0.5V": f"15 + 0.5×{round(V,4)} = {round(dc_val,4)}",
+            "sonuc": round(dc_val, 2)
+        },
+        "isi": {
+            "m":    round(m_isi, 4),
+            "fw":   round(fw, 4),
+            "ff":   round(ff, 4),
+            "sonuc": round(isi_val, 2)
+        },
+        "bui": {
+            "kural": bui_yol,
+            "sonuc": round(bui_val, 2)
+        },
+        "fwi": {
+            "fd":   round(fd, 4),
+            "B":    round(B, 4),
+            "sonuc": round(fwi_val, 2)
+        }
+    }
+
     beklenen = {"ffmc": 87.69, "dmc": 8.47, "dc": 21.76,
                 "isi": 10.85, "bui": 8.59, "fwi": 10.14}
 
-    sonuc = f.hesapla(
-        temp=girdi["temp"], rh=girdi["rh"], wind=girdi["wind"],
-        precip=girdi["precip"], month=girdi["month"],
-        ffmc0=girdi["ffmc0"], dmc0=girdi["dmc0"], dc0=girdi["dc0"],
-        lat=None
-    )
-
     karsilastirma = {}
     for k in beklenen:
-        fark = abs(sonuc[k] - beklenen[k])
+        hesaplanan = adimlar[k]["sonuc"]
+        fark = abs(hesaplanan - beklenen[k])
         karsilastirma[k] = {
-            "beklenen": beklenen[k],
-            "hesaplanan": sonuc[k],
-            "fark": round(fark, 3),
-            "gecti": fark < 0.1
+            "beklenen":   beklenen[k],
+            "hesaplanan": hesaplanan,
+            "fark":       round(fark, 3),
+            "gecti":      fark < 0.1
         }
 
-    return jsonify({"ok": True, "girdi": girdi, "karsilastirma": karsilastirma})
+    return jsonify({
+        "ok": True,
+        "girdi": {"T": T, "H": H, "W": W, "r": r, "ay": ay,
+                  "FFMC0": FFMC0, "DMC0": DMC0, "DC0": DC0},
+        "adimlar": adimlar,
+        "karsilastirma": karsilastirma
+    })
 
 
 @app.route("/test", methods=["GET"])
