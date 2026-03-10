@@ -16,49 +16,152 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 16px;
     }
 
-    header { text-align: center; margin-bottom: 28px; }
-    header h1 { font-size: 1.8rem; font-weight: 700; color: #f0a500; letter-spacing: 1px; }
-    header p  { margin-top: 8px; font-size: 0.9rem; color: #8a9bb0; }
-
-    /* SEKMELER */
-    .sekmeler {
-      display: flex;
-      gap: 0;
+    /* ÜST NAVİGASYON */
+    nav {
       width: 100%;
-      max-width: 560px;
-      margin-bottom: 0;
-      border-radius: 12px 12px 0 0;
-      overflow: hidden;
-      border: 1px solid #223047;
-      border-bottom: none;
+      background: #0c1520;
+      border-bottom: 1px solid #223047;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    .sekme {
-      flex: 1;
-      padding: 12px;
-      text-align: center;
-      cursor: pointer;
+    .nav-logo {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #f0a500;
+      letter-spacing: 0.5px;
+    }
+    .nav-logo span { color: #7eb8e0; font-weight: 400; font-size: 0.82rem; margin-left: 8px; }
+    .nav-linkler { display: flex; gap: 4px; }
+    .nav-link {
+      padding: 8px 18px;
+      border-radius: 8px;
       font-size: 0.85rem;
       font-weight: 600;
-      background: #0f1923;
-      color: #556070;
+      cursor: pointer;
       border: none;
+      background: transparent;
+      color: #556070;
       transition: background 0.2s, color 0.2s;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
+    }
+    .nav-link:hover:not(.aktif) { color: #7eb8e0; background: #162030; }
+    .nav-link.aktif { background: #162030; color: #f0a500; }
+
+    /* SAYFALAR */
+    .sayfa { display: none; width: 100%; max-width: 760px; padding: 40px 16px; }
+    .sayfa.aktif { display: block; }
+
+    /* ── SAYFA 1: HAKKINDA ── */
+    .hero {
+      text-align: center;
+      padding: 48px 24px 40px;
+      border-bottom: 1px solid #1a2a3a;
+      margin-bottom: 40px;
+    }
+    .hero h1 { font-size: 2rem; font-weight: 800; color: #f0a500; margin-bottom: 12px; }
+    .hero p { font-size: 0.95rem; color: #8a9bb0; line-height: 1.7; max-width: 520px; margin: 0 auto; }
+
+    .bilgi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 560px) { .bilgi-grid { grid-template-columns: 1fr; } }
+
+    .bilgi-kart {
+      background: #162030;
+      border: 1px solid #223047;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .bilgi-kart h3 {
+      font-size: 0.75rem;
+      color: #f0a500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1a2a3a;
+    }
+    .bilgi-kart p { font-size: 0.83rem; color: #8a9bb0; line-height: 1.65; }
+
+    .komponent-liste { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .komponent-liste li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.82rem; color: #c0d0e0; }
+    .komponent-badge {
+      font-size: 0.68rem; font-weight: 700;
+      background: #0f1923; border: 1px solid #2c4060;
+      border-radius: 4px; padding: 2px 6px;
+      color: #f0a500; white-space: nowrap; flex-shrink: 0; margin-top: 1px;
+    }
+
+    .risk-liste { display: flex; flex-direction: column; gap: 8px; }
+    .risk-satir { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; }
+    .risk-bar {
+      height: 8px; border-radius: 4px; flex-shrink: 0;
+    }
+    .risk-adi { color: #c0d0e0; flex: 1; }
+    .risk-aralik { color: #556070; font-size: 0.72rem; }
+
+    .akis-kart {
+      background: #162030;
+      border: 1px solid #223047;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .akis-kart h3 {
+      font-size: 0.75rem;
+      color: #f0a500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 18px;
+    }
+    .akis { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .akis-kutu {
+      background: #0f1923; border: 1px solid #2c4060;
+      border-radius: 8px; padding: 8px 14px;
+      font-size: 0.78rem; color: #e0e0e0; text-align: center;
+    }
+    .akis-kutu strong { display: block; font-size: 0.9rem; color: #f0a500; margin-bottom: 2px; }
+    .akis-ok { color: #556070; font-size: 1.1rem; }
+
+    .basla-btn {
+      display: block; width: 100%; padding: 16px;
+      background: #f0a500; color: #0f1923;
+      border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      transition: background 0.2s; letter-spacing: 0.5px;
+      margin-top: 8px;
+    }
+    .basla-btn:hover { background: #ffc030; }
+
+    /* ── SAYFA 2: HESAPLAYICI ── */
+    .sekmeler {
+      display: flex; gap: 0; width: 100%; max-width: 560px;
+      margin: 0 auto; border-radius: 12px 12px 0 0;
+      overflow: hidden; border: 1px solid #223047; border-bottom: none;
+    }
+    .sekme {
+      flex: 1; padding: 12px; text-align: center; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600; background: #0f1923; color: #556070;
+      border: none; transition: background 0.2s, color 0.2s; letter-spacing: 0.5px;
     }
     .sekme.aktif { background: #162030; color: #f0a500; }
     .sekme:hover:not(.aktif) { color: #7eb8e0; }
 
     .kart {
-      background: #162030;
-      border: 1px solid #223047;
-      border-radius: 0 0 14px 14px;
-      padding: 28px 32px;
-      width: 100%;
-      max-width: 560px;
-      margin-bottom: 24px;
+      background: #162030; border: 1px solid #223047;
+      border-radius: 0 0 14px 14px; padding: 28px 32px;
+      width: 100%; max-width: 560px; margin: 0 auto 24px;
     }
     .kart h2 { font-size: 1rem; color: #7eb8e0; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
 
@@ -69,13 +172,8 @@
     .form-grup { display: flex; flex-direction: column; gap: 6px; }
     .form-grup label { font-size: 0.78rem; color: #7eb8e0; text-transform: uppercase; letter-spacing: 0.5px; }
     .form-grup input, .form-grup select {
-      background: #0f1923;
-      border: 1px solid #2c4060;
-      border-radius: 8px;
-      color: #e0e0e0;
-      padding: 10px 12px;
-      font-size: 0.95rem;
-      outline: none;
+      background: #0f1923; border: 1px solid #2c4060; border-radius: 8px;
+      color: #e0e0e0; padding: 10px 12px; font-size: 0.95rem; outline: none;
       transition: border 0.2s;
     }
     .form-grup input:focus, .form-grup select:focus { border-color: #f0a500; }
@@ -83,32 +181,25 @@
     details { margin-top: 16px; }
     details summary { cursor: pointer; font-size: 0.82rem; color: #8a9bb0; user-select: none; padding: 4px 0; }
     details summary:hover { color: #7eb8e0; }
-    .onceki-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; width: 100%; box-sizing: border-box; }
+    .onceki-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; width: 100%; }
 
     .btn {
       width: 100%; margin-top: 24px; padding: 14px;
       background: #f0a500; color: #0f1923;
-      border: none; border-radius: 10px;
-      font-size: 1rem; font-weight: 700; cursor: pointer;
-      transition: background 0.2s, transform 0.1s; letter-spacing: 0.5px;
+      border: none; border-radius: 10px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.5px;
     }
     .btn:hover { background: #ffc030; }
     .btn:active { transform: scale(0.98); }
     .btn:disabled { background: #5a4a00; color: #8a7a40; cursor: not-allowed; }
 
-    /* NASA bilgi notu */
     .info-notu {
-      background: #0f2030;
-      border: 1px solid #1a3a50;
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 0.8rem;
-      color: #7eb8e0;
-      margin-bottom: 16px;
+      background: #0f2030; border: 1px solid #1a3a50; border-radius: 8px;
+      padding: 10px 14px; font-size: 0.8rem; color: #7eb8e0; margin-bottom: 16px;
     }
 
     /* SONUÇ */
-    #sonuc-alani { display: none; width: 100%; max-width: 560px; }
+    #sonuc-alani { display: none; width: 100%; max-width: 560px; margin: 0 auto; }
 
     .sinif-banner {
       border-radius: 12px; padding: 20px 24px; text-align: center;
@@ -133,8 +224,8 @@
     .indeks-kutu .deger  { font-size: 1.4rem; font-weight: 700; color: #e0e0e0; }
     .indeks-kutu .birim  { font-size: 0.7rem; color: #556070; margin-top: 2px; }
 
-    /* NASA zaman serisi tablo */
-    #nasa-sonuc-alani { display: none; width: 100%; max-width: 760px; margin-top: 8px; }
+    /* NASA SONUÇ */
+    #nasa-sonuc-alani { display: none; width: 100%; max-width: 760px; margin: 0 auto 8px; }
     .tablo-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid #223047; }
     table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
     thead { background: #0f1923; }
@@ -152,81 +243,9 @@
     .hata-mesaji {
       background: #3d0f0f; border: 1px solid #7a2020; border-radius: 10px;
       padding: 14px 18px; color: #ff8080; font-size: 0.9rem; display: none;
-      width: 100%; max-width: 560px;
+      width: 100%; max-width: 560px; margin: 0 auto;
     }
 
-    footer { margin-top: 40px; font-size: 0.75rem; color: #3a5070; text-align: center; }
-
-    /* İKİ SÜTUN DÜZENI */
-    .ana-icerik {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 24px;
-      width: 100%;
-      max-width: 920px;
-      align-items: start;
-    }
-
-    /* SOL PANEL */
-    .hakkinda-panel {
-      background: #162030;
-      border: 1px solid #223047;
-      border-radius: 14px;
-      padding: 24px 20px;
-      position: sticky;
-      top: 20px;
-    }
-    .hakkinda-panel h3 {
-      font-size: 0.78rem;
-      color: #7eb8e0;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 14px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #223047;
-    }
-    .hakkinda-panel p {
-      font-size: 0.82rem;
-      color: #8a9bb0;
-      line-height: 1.6;
-      margin-bottom: 16px;
-    }
-    .hakkinda-bolum { margin-bottom: 20px; }
-    .hakkinda-bolum h4 { font-size: 0.72rem; color: #f0a500; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
-    .komponent-liste { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-    .komponent-liste li {
-      display: flex; align-items: flex-start; gap: 8px;
-      font-size: 0.78rem; color: #c0d0e0; line-height: 1.4;
-    }
-    .komponent-badge {
-      font-size: 0.7rem; font-weight: 700;
-      background: #0f1923; border: 1px solid #2c4060;
-      border-radius: 4px; padding: 1px 5px;
-      color: #f0a500; white-space: nowrap; flex-shrink: 0;
-    }
-    .risk-liste { display: flex; flex-direction: column; gap: 5px; }
-    .risk-satir {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 0.78rem;
-    }
-    .risk-nokta { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .risk-adi { color: #c0d0e0; flex: 1; }
-    .risk-aralik { color: #556070; font-size: 0.7rem; }
-
-    /* SAĞ SÜTUN — mevcut elementlerin max-width'ini kaldır */
-    .sag-sutun { display: flex; flex-direction: column; align-items: stretch; }
-    .sag-sutun .sekmeler { max-width: none; }
-    .sag-sutun .kart { max-width: none; }
-    .sag-sutun #sonuc-alani { max-width: none; }
-    .sag-sutun #nasa-sonuc-alani { max-width: none; }
-    .sag-sutun .hata-mesaji { max-width: none; }
-
-    @media (max-width: 700px) {
-      .ana-icerik { grid-template-columns: 1fr; }
-      .hakkinda-panel { position: static; }
-    }
-
-    /* İstatistik özeti */
     .istatistik-grid {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
       margin-top: 16px; margin-bottom: 16px;
@@ -239,191 +258,250 @@
     .istat-kutu .deger  { font-size: 1.25rem; font-weight: 700; color: #f0a500; }
     .istat-kutu .alt    { font-size: 0.68rem; color: #556070; margin-top: 3px; }
 
-    /* Grafik kutusu */
     .grafik-kutu {
       background: #162030; border: 1px solid #223047;
       border-radius: 10px; padding: 20px; margin-top: 16px;
     }
-    .grafik-baslik {
-      font-size: 0.78rem; color: #7eb8e0; text-transform: uppercase;
-      letter-spacing: 1px; margin-bottom: 14px;
-    }
+    .grafik-baslik { font-size: 0.78rem; color: #7eb8e0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+
+    footer { margin-top: 40px; padding: 20px 16px; font-size: 0.75rem; color: #3a5070; text-align: center; }
   </style>
 </head>
 <body>
 
-<header>
-  <h1>&#x1F525; FWI Yangın Hava İndeksi</h1>
-  <p>Meteorolojik Veri Tabanlı Orman Yangını Erken Uyarı Sistemi</p>
-</header>
+<!-- NAVİGASYON -->
+<nav>
+  <div class="nav-logo">&#x1F525; FWI <span>Orman Yangını Erken Uyarı</span></div>
+  <div class="nav-linkler">
+    <button class="nav-link aktif" onclick="sayfaAc('hakkinda', this)">Proje Hakkında</button>
+    <button class="nav-link" onclick="sayfaAc('hesap', this)">Hesaplayıcı</button>
+  </div>
+</nav>
 
-<div class="ana-icerik">
+<!-- ══════════════════════════════════════════ -->
+<!-- SAYFA 1: PROJE HAKKINDA                   -->
+<!-- ══════════════════════════════════════════ -->
+<div class="sayfa aktif" id="sayfa-hakkinda">
 
-<!-- SOL: PROJE HAKKINDA -->
-<aside class="hakkinda-panel">
-  <h3>Proje Hakkında</h3>
-  <p>Bu sistem, <strong>Kanada Orman Yangını Hava İndeksi (FWI)</strong> yöntemini kullanarak meteorolojik verilerden yangın tehlike seviyesini hesaplar.</p>
-  <p>Meteoroloji Mühendisliği Tasarım Projesi kapsamında geliştirilmiştir.</p>
-
-  <div class="hakkinda-bolum">
-    <h4>FWI Bileşenleri</h4>
-    <ul class="komponent-liste">
-      <li><span class="komponent-badge">FFMC</span> İnce yakıt nemi kodu</li>
-      <li><span class="komponent-badge">DMC</span> Döküntü nem kodu</li>
-      <li><span class="komponent-badge">DC</span> Kuraklık kodu</li>
-      <li><span class="komponent-badge">ISI</span> Başlangıç yayılma indeksi</li>
-      <li><span class="komponent-badge">BUI</span> Birikim kullanım indeksi</li>
-      <li><span class="komponent-badge">FWI</span> Yangın hava indeksi</li>
-    </ul>
+  <div class="hero">
+    <h1>&#x1F525; FWI Yangın Hava İndeksi</h1>
+    <p>Meteorolojik verilerden gerçek zamanlı orman yangını tehlike seviyesi hesaplayan sistem. Van Wagner (1987) Kanada Orman Yangını Hava İndeksi yöntemini esas alır.</p>
   </div>
 
-  <div class="hakkinda-bolum">
-    <h4>Tehlike Sınıfları</h4>
-    <div class="risk-liste">
-      <div class="risk-satir"><div class="risk-nokta" style="background:#7ed87e"></div><span class="risk-adi">Düşük</span><span class="risk-aralik">FWI &lt; 5</span></div>
-      <div class="risk-satir"><div class="risk-nokta" style="background:#f5e042"></div><span class="risk-adi">Orta</span><span class="risk-aralik">5 – 10</span></div>
-      <div class="risk-satir"><div class="risk-nokta" style="background:#ffa040"></div><span class="risk-adi">Yüksek</span><span class="risk-aralik">10 – 20</span></div>
-      <div class="risk-satir"><div class="risk-nokta" style="background:#ff5555"></div><span class="risk-adi">Çok Yüksek</span><span class="risk-aralik">20 – 30</span></div>
-      <div class="risk-satir"><div class="risk-nokta" style="background:#cc77ff"></div><span class="risk-adi">Aşırı</span><span class="risk-aralik">FWI ≥ 30</span></div>
+  <div class="bilgi-grid">
+    <div class="bilgi-kart">
+      <h3>Proje Hakkında</h3>
+      <p>Bu sistem <strong>Meteoroloji Mühendisliği Tasarım Projesi</strong> kapsamında geliştirilmiştir. Ekip tarafından tasarlanan orman yangını erken uyarı sisteminin FWI hesaplama bileşenini oluşturmaktadır.</p>
+      <p style="margin-top:10px">Hesaplamalar tamamen <strong>Van Wagner (1987)</strong> referans formüllerine dayanmaktadır. NASA POWER uydu verisiyle otomatik veri çekimi desteklenmektedir.</p>
+    </div>
+
+    <div class="bilgi-kart">
+      <h3>FWI Bileşenleri</h3>
+      <ul class="komponent-liste">
+        <li><span class="komponent-badge">FFMC</span>İnce yakıt nemi kodu — yüzey tutuşmasını etkiler</li>
+        <li><span class="komponent-badge">DMC</span>Döküntü nem kodu — orta derinlik yakıtı</li>
+        <li><span class="komponent-badge">DC</span>Kuraklık kodu — derin toprak nemi</li>
+        <li><span class="komponent-badge">ISI</span>Başlangıç yayılma indeksi</li>
+        <li><span class="komponent-badge">BUI</span>Birikim kullanım indeksi</li>
+        <li><span class="komponent-badge">FWI</span>Yangın hava indeksi — nihai çıktı</li>
+      </ul>
+    </div>
+
+    <div class="bilgi-kart">
+      <h3>Tehlike Sınıfları</h3>
+      <div class="risk-liste">
+        <div class="risk-satir">
+          <div class="risk-bar" style="width:28px;background:#7ed87e"></div>
+          <span class="risk-adi">Düşük</span><span class="risk-aralik">FWI &lt; 5</span>
+        </div>
+        <div class="risk-satir">
+          <div class="risk-bar" style="width:44px;background:#f5e042"></div>
+          <span class="risk-adi">Orta</span><span class="risk-aralik">5 – 10</span>
+        </div>
+        <div class="risk-satir">
+          <div class="risk-bar" style="width:60px;background:#ffa040"></div>
+          <span class="risk-adi">Yüksek</span><span class="risk-aralik">10 – 20</span>
+        </div>
+        <div class="risk-satir">
+          <div class="risk-bar" style="width:76px;background:#ff5555"></div>
+          <span class="risk-adi">Çok Yüksek</span><span class="risk-aralik">20 – 30</span>
+        </div>
+        <div class="risk-satir">
+          <div class="risk-bar" style="width:92px;background:#cc77ff"></div>
+          <span class="risk-adi">Aşırı</span><span class="risk-aralik">FWI ≥ 30</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bilgi-kart">
+      <h3>Veri Kaynağı</h3>
+      <p>NASA POWER (MERRA-2) uydu tabanlı yeniden analiz verisi kullanılmaktadır.</p>
+      <p style="margin-top:10px">Herhangi bir koordinat için otomatik veri çekimi yapılabilir:</p>
+      <ul style="margin-top:8px;padding-left:16px;font-size:0.82rem;color:#8a9bb0;line-height:2">
+        <li>Maksimum sıcaklık (T2M_MAX)</li>
+        <li>Günlük ortalama nem (RH2M)</li>
+        <li>Maksimum rüzgar (WS10M_MAX)</li>
+        <li>Toplam yağış (PRECTOTCORR)</li>
+      </ul>
     </div>
   </div>
 
-  <div class="hakkinda-bolum">
-    <h4>Veri Kaynağı</h4>
-    <p style="margin-bottom:0">NASA POWER (MERRA-2) uydu tabanlı yeniden analiz verisi kullanılmaktadır. Sıcaklık maksimum, rüzgar maksimum, nem günlük ortalama değerler alınır.</p>
-  </div>
-</aside>
-
-<!-- SAĞ: MEVCUT FORM -->
-<div class="sag-sutun">
-
-<!-- SEKMELER -->
-<div class="sekmeler">
-  <button class="sekme aktif" onclick="sekmeAc('manuel', this)">Manuel Giriş</button>
-  <button class="sekme" onclick="sekmeAc('nasa', this)">NASA POWER Verisi</button>
-</div>
-
-<div class="kart">
-
-  <!-- PANEL 1: Manuel -->
-  <div class="panel aktif" id="panel-manuel">
-    <h2>Meteorolojik Veriler (Öğlen Ölçümü)</h2>
-    <div class="form-grid">
-      <div class="form-grup">
-        <label>Sıcaklık (°C)</label>
-        <input type="number" id="temp" step="0.1" value="17" />
-      </div>
-      <div class="form-grup">
-        <label>Bağıl Nem (%)</label>
-        <input type="number" id="rh" step="1" min="0" max="100" value="42" />
-      </div>
-      <div class="form-grup">
-        <label>Rüzgar (km/h)</label>
-        <input type="number" id="wind" step="0.1" min="0" value="25" />
-      </div>
-      <div class="form-grup">
-        <label>Yağış (mm)</label>
-        <input type="number" id="precip" step="0.1" min="0" value="0" />
-      </div>
-      <div class="form-grup">
-        <label>Ay</label>
-        <select id="month">
-          <option value="1">Ocak</option><option value="2">Şubat</option>
-          <option value="3">Mart</option><option value="4">Nisan</option>
-          <option value="5">Mayıs</option><option value="6">Haziran</option>
-          <option value="7" selected>Temmuz</option><option value="8">Ağustos</option>
-          <option value="9">Eylül</option><option value="10">Ekim</option>
-          <option value="11">Kasım</option><option value="12">Aralık</option>
-        </select>
-      </div>
+  <div class="akis-kart">
+    <h3>Hesaplama Akışı</h3>
+    <div class="akis">
+      <div class="akis-kutu"><strong>Girdi</strong>T · RH · W · P</div>
+      <span class="akis-ok">→</span>
+      <div class="akis-kutu"><strong>FFMC</strong>İnce yakıt</div>
+      <span class="akis-ok">→</span>
+      <div class="akis-kutu"><strong>DMC</strong>Döküntü</div>
+      <span class="akis-ok">→</span>
+      <div class="akis-kutu"><strong>DC</strong>Kuraklık</div>
+      <span class="akis-ok">→</span>
+      <div class="akis-kutu"><strong>ISI</strong>Yayılma</div>
+      <span class="akis-ok">+</span>
+      <div class="akis-kutu"><strong>BUI</strong>Birikim</div>
+      <span class="akis-ok">→</span>
+      <div class="akis-kutu"><strong>FWI</strong>Sonuç</div>
     </div>
-    <details>
-      <summary>&#9881; Önceki Gün Değerleri (Gelişmiş)</summary>
-      <div class="onceki-grid">
-        <div class="form-grup"><label>FFMC₀</label><input type="number" id="ffmc0" step="0.1" value="85" /></div>
-        <div class="form-grup"><label>DMC₀</label><input type="number" id="dmc0" step="0.1" value="6" /></div>
-        <div class="form-grup"><label>DC₀</label><input type="number" id="dc0" step="0.1" value="15" /></div>
-      </div>
-    </details>
-    <button class="btn" onclick="hesapla()">Hesapla</button>
   </div>
 
-  <!-- PANEL 2: NASA -->
-  <div class="panel" id="panel-nasa">
-    <h2>NASA POWER Otomatik Veri</h2>
-    <div class="info-notu">
-      NASA POWER API'sinden günlük <strong>maksimum sıcaklık</strong>, <strong>ortalama nem</strong> ve <strong>maksimum rüzgar</strong> çekilir. Başlangıç değerleri Ocak 1'den ısıtılarak hesaplanır.
+  <button class="basla-btn" onclick="sayfaAc('hesap', document.querySelectorAll('.nav-link')[1])">
+    Hesaplayıcıya Geç →
+  </button>
+
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SAYFA 2: HESAPLAYICI                      -->
+<!-- ══════════════════════════════════════════ -->
+<div class="sayfa" id="sayfa-hesap">
+
+  <!-- SEKMELER -->
+  <div class="sekmeler">
+    <button class="sekme aktif" onclick="sekmeAc('manuel', this)">Manuel Giriş</button>
+    <button class="sekme" onclick="sekmeAc('nasa', this)">NASA POWER Verisi</button>
+  </div>
+
+  <div class="kart">
+
+    <!-- PANEL 1: Manuel -->
+    <div class="panel aktif" id="panel-manuel">
+      <h2>Meteorolojik Veriler (Öğlen Ölçümü)</h2>
+      <div class="form-grid">
+        <div class="form-grup">
+          <label>Sıcaklık (°C)</label>
+          <input type="number" id="temp" step="0.1" value="17" />
+        </div>
+        <div class="form-grup">
+          <label>Bağıl Nem (%)</label>
+          <input type="number" id="rh" step="1" min="0" max="100" value="42" />
+        </div>
+        <div class="form-grup">
+          <label>Rüzgar (km/h)</label>
+          <input type="number" id="wind" step="0.1" min="0" value="25" />
+        </div>
+        <div class="form-grup">
+          <label>Yağış (mm)</label>
+          <input type="number" id="precip" step="0.1" min="0" value="0" />
+        </div>
+        <div class="form-grup">
+          <label>Ay</label>
+          <select id="month">
+            <option value="1">Ocak</option><option value="2">Şubat</option>
+            <option value="3">Mart</option><option value="4">Nisan</option>
+            <option value="5">Mayıs</option><option value="6">Haziran</option>
+            <option value="7" selected>Temmuz</option><option value="8">Ağustos</option>
+            <option value="9">Eylül</option><option value="10">Ekim</option>
+            <option value="11">Kasım</option><option value="12">Aralık</option>
+          </select>
+        </div>
+      </div>
+      <details>
+        <summary>&#9881; Önceki Gün Değerleri (Gelişmiş)</summary>
+        <div class="onceki-grid">
+          <div class="form-grup"><label>FFMC₀</label><input type="number" id="ffmc0" step="0.1" value="85" /></div>
+          <div class="form-grup"><label>DMC₀</label><input type="number" id="dmc0" step="0.1" value="6" /></div>
+          <div class="form-grup"><label>DC₀</label><input type="number" id="dc0" step="0.1" value="15" /></div>
+        </div>
+      </details>
+      <button class="btn" onclick="hesapla()">Hesapla</button>
     </div>
-    <div class="form-grid">
-      <div class="form-grup">
-        <label>Enlem</label>
-        <input type="number" id="lat" step="0.01" value="39.92" />
+
+    <!-- PANEL 2: NASA -->
+    <div class="panel" id="panel-nasa">
+      <h2>NASA POWER Otomatik Veri</h2>
+      <div class="info-notu">
+        NASA POWER API'sinden günlük <strong>maksimum sıcaklık</strong>, <strong>ortalama nem</strong> ve <strong>maksimum rüzgar</strong> çekilir. Başlangıç değerleri Ocak 1'den ısıtılarak hesaplanır.
       </div>
-      <div class="form-grup">
-        <label>Boylam</label>
-        <input type="number" id="lon" step="0.01" value="32.85" />
+      <div class="form-grid">
+        <div class="form-grup">
+          <label>Enlem</label>
+          <input type="number" id="lat" step="0.01" value="39.92" />
+        </div>
+        <div class="form-grup">
+          <label>Boylam</label>
+          <input type="number" id="lon" step="0.01" value="32.85" />
+        </div>
+        <div class="form-grup">
+          <label>Başlangıç (YYYYMMDD)</label>
+          <input type="text" id="baslangic" value="20230601" maxlength="8" />
+        </div>
+        <div class="form-grup">
+          <label>Bitiş (YYYYMMDD)</label>
+          <input type="text" id="bitis" value="20230630" maxlength="8" />
+        </div>
       </div>
-      <div class="form-grup">
-        <label>Başlangıç (YYYYMMDD)</label>
-        <input type="text" id="baslangic" value="20230601" maxlength="8" />
-      </div>
-      <div class="form-grup">
-        <label>Bitiş (YYYYMMDD)</label>
-        <input type="text" id="bitis" value="20230630" maxlength="8" />
-      </div>
+      <button class="btn" id="nasa-btn" onclick="nasaHesapla()">Veri Çek ve Hesapla</button>
     </div>
-    <button class="btn" id="nasa-btn" onclick="nasaHesapla()">Veri Çek ve Hesapla</button>
+
   </div>
 
-</div>
+  <!-- HATA -->
+  <div class="hata-mesaji" id="hata-mesaji"></div>
 
-<!-- HATA -->
-<div class="hata-mesaji" id="hata-mesaji"></div>
+  <!-- MANUEL SONUÇ -->
+  <div id="sonuc-alani">
+    <div class="sinif-banner" id="sinif-banner">
+      <div class="sinif-adi" id="sinif-adi"></div>
+      <div class="fwi-deger" id="fwi-deger"></div>
+      <div class="sinif-aciklama" id="sinif-aciklama"></div>
+    </div>
+    <div class="indeksler">
+      <div class="indeks-kutu"><div class="etiket">FFMC</div><div class="deger" id="val-ffmc">—</div><div class="birim">İnce Yakıt Nemi</div></div>
+      <div class="indeks-kutu"><div class="etiket">DMC</div><div class="deger" id="val-dmc">—</div><div class="birim">Döküntü Nemi</div></div>
+      <div class="indeks-kutu"><div class="etiket">DC</div><div class="deger" id="val-dc">—</div><div class="birim">Kuraklık Kodu</div></div>
+      <div class="indeks-kutu"><div class="etiket">ISI</div><div class="deger" id="val-isi">—</div><div class="birim">Yayılma İndeksi</div></div>
+      <div class="indeks-kutu"><div class="etiket">BUI</div><div class="deger" id="val-bui">—</div><div class="birim">Birikim İndeksi</div></div>
+      <div class="indeks-kutu"><div class="etiket">DSR</div><div class="deger" id="val-dsr">—</div><div class="birim">Günlük Şiddet</div></div>
+    </div>
+  </div>
 
-<!-- MANUEL SONUÇ -->
-<div id="sonuc-alani">
-  <div class="sinif-banner" id="sinif-banner">
-    <div class="sinif-adi" id="sinif-adi"></div>
-    <div class="fwi-deger" id="fwi-deger"></div>
-    <div class="sinif-aciklama" id="sinif-aciklama"></div>
+  <!-- NASA SONUÇ TABLOSU -->
+  <div id="nasa-sonuc-alani">
+    <div class="istatistik-grid">
+      <div class="istat-kutu"><div class="etiket">En Yüksek FWI</div><div class="deger" id="stat-max">—</div><div class="alt" id="stat-max-tarih">—</div></div>
+      <div class="istat-kutu"><div class="etiket">Ortalama FWI</div><div class="deger" id="stat-ort">—</div><div class="alt">dönem ortalaması</div></div>
+      <div class="istat-kutu"><div class="etiket">Aşırı Gün</div><div class="deger" id="stat-asiri">—</div><div class="alt">FWI ≥ 30</div></div>
+      <div class="istat-kutu"><div class="etiket">Çok Yüksek +</div><div class="deger" id="stat-cok">—</div><div class="alt">FWI ≥ 20</div></div>
+    </div>
+    <div class="grafik-kutu">
+      <div class="grafik-baslik">FWI Zaman Serisi</div>
+      <canvas id="fwi-grafik" height="160"></canvas>
+    </div>
+    <div class="tablo-wrapper" style="margin-top:16px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Tarih</th><th>T(°C)</th><th>RH(%)</th><th>Rüzgar</th><th>Yağış</th>
+            <th>FFMC</th><th>DMC</th><th>DC</th><th>ISI</th><th>BUI</th><th>FWI</th><th>Sınıf</th>
+          </tr>
+        </thead>
+        <tbody id="nasa-tablo-govde"></tbody>
+      </table>
+    </div>
   </div>
-  <div class="indeksler">
-    <div class="indeks-kutu"><div class="etiket">FFMC</div><div class="deger" id="val-ffmc">—</div><div class="birim">İnce Yakıt Nemi</div></div>
-    <div class="indeks-kutu"><div class="etiket">DMC</div><div class="deger" id="val-dmc">—</div><div class="birim">Döküntü Nemi</div></div>
-    <div class="indeks-kutu"><div class="etiket">DC</div><div class="deger" id="val-dc">—</div><div class="birim">Kuraklık Kodu</div></div>
-    <div class="indeks-kutu"><div class="etiket">ISI</div><div class="deger" id="val-isi">—</div><div class="birim">Yayılma İndeksi</div></div>
-    <div class="indeks-kutu"><div class="etiket">BUI</div><div class="deger" id="val-bui">—</div><div class="birim">Birikim İndeksi</div></div>
-    <div class="indeks-kutu"><div class="etiket">DSR</div><div class="deger" id="val-dsr">—</div><div class="birim">Günlük Şiddet</div></div>
-  </div>
-</div>
 
-<!-- NASA SONUÇ TABLOSU -->
-<div id="nasa-sonuc-alani">
-  <div class="istatistik-grid">
-    <div class="istat-kutu"><div class="etiket">En Yüksek FWI</div><div class="deger" id="stat-max">—</div><div class="alt" id="stat-max-tarih">—</div></div>
-    <div class="istat-kutu"><div class="etiket">Ortalama FWI</div><div class="deger" id="stat-ort">—</div><div class="alt">dönem ortalaması</div></div>
-    <div class="istat-kutu"><div class="etiket">Aşırı Gün</div><div class="deger" id="stat-asiri">—</div><div class="alt">FWI ≥ 30</div></div>
-    <div class="istat-kutu"><div class="etiket">Çok Yüksek +</div><div class="deger" id="stat-cok">—</div><div class="alt">FWI ≥ 20</div></div>
-  </div>
-  <div class="grafik-kutu">
-    <div class="grafik-baslik">FWI Zaman Serisi</div>
-    <canvas id="fwi-grafik" height="160"></canvas>
-  </div>
-  <div class="tablo-wrapper" style="margin-top:16px;">
-    <table>
-      <thead>
-        <tr>
-          <th>Tarih</th><th>T(°C)</th><th>RH(%)</th><th>Rüzgar</th><th>Yağış</th>
-          <th>FFMC</th><th>DMC</th><th>DC</th><th>ISI</th><th>BUI</th><th>FWI</th><th>Sınıf</th>
-        </tr>
-      </thead>
-      <tbody id="nasa-tablo-govde"></tbody>
-    </table>
-  </div>
-</div>
-
-</div><!-- sag-sutun -->
-</div><!-- ana-icerik -->
+</div><!-- sayfa-hesap -->
 
 <footer>
   Van Wagner (1987) · Canadian Forest Fire Weather Index System<br>
@@ -440,6 +518,14 @@
     "Cok Yuksek": { tr: "ÇOK YÜKSEK", renk: "CokYuksek", aciklama: "Çok yüksek yangın riski" },
     "Asiri":      { tr: "AŞIRI",       renk: "Asiri",     aciklama: "Aşırı tehlike — kritik koşullar" },
   };
+
+  function sayfaAc(id, el) {
+    document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("aktif"));
+    document.querySelectorAll(".sayfa").forEach(s => s.classList.remove("aktif"));
+    el.classList.add("aktif");
+    document.getElementById("sayfa-" + id).classList.add("aktif");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   function sekmeAc(id, el) {
     document.querySelectorAll(".sekme").forEach(s => s.classList.remove("aktif"));
@@ -574,10 +660,10 @@
             fill: true,
             borderWidth: 2,
           },
-          { label: "Orta eşiği",      data: Array(n).fill(5),  borderColor: "#3a7a3a", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
-          { label: "Yüksek eşiği",    data: Array(n).fill(10), borderColor: "#7a7200", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
-          { label: "Çok Y. eşiği",    data: Array(n).fill(20), borderColor: "#7a4400", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
-          { label: "Aşırı eşiği",     data: Array(n).fill(30), borderColor: "#7a2020", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+          { label: "Orta eşiği",   data: Array(n).fill(5),  borderColor: "#3a7a3a", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+          { label: "Yüksek eşiği", data: Array(n).fill(10), borderColor: "#7a7200", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+          { label: "Çok Y. eşiği", data: Array(n).fill(20), borderColor: "#7a4400", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+          { label: "Aşırı eşiği",  data: Array(n).fill(30), borderColor: "#7a2020", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
         ]
       },
       options: {
@@ -598,12 +684,7 @@
         },
         scales: {
           x: {
-            ticks: {
-              color: "#7eb8e0",
-              maxTicksLimit: 12,
-              maxRotation: 30,
-              font: { size: 10 }
-            },
+            ticks: { color: "#7eb8e0", maxTicksLimit: 12, maxRotation: 30, font: { size: 10 } },
             grid: { color: "#1a2a3a" }
           },
           y: {
