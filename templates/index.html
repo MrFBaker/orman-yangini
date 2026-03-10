@@ -134,29 +134,48 @@
     /* HESAPLAMA AKIŞI */
     .akis-kart {
       background: #162030; border: 1px solid #223047;
-      border-radius: 12px; padding: 24px; margin-bottom: 16px;
+      border-radius: 12px; padding: 24px 28px; margin-bottom: 16px;
     }
     .akis-kart h3 {
       font-size: 0.75rem; color: #f0a500; text-transform: uppercase;
-      letter-spacing: 1px; margin-bottom: 20px;
+      letter-spacing: 1px; margin-bottom: 24px;
       padding-bottom: 10px; border-bottom: 1px solid #1a2a3a;
     }
-    .akis-satir {
-      display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;
+    /* 5-sütun grid: Girdi | Ok | Nem Kodları | Ok | İndeksler+FWI */
+    .akis-diagram {
+      display: grid;
+      grid-template-columns: auto 24px 1fr 24px auto;
+      gap: 0; align-items: center;
     }
-    .akis-satir:last-child { margin-bottom: 0; }
+    .akis-ok-sutun {
+      display: flex; align-items: center; justify-content: center;
+      color: #2c4060; font-size: 1.2rem;
+    }
+    .akis-nem-kodlari {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    }
+    .akis-indeksler {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: center;
+    }
     .akis-kutu {
       background: #0f1923; border: 1px solid #2c4060;
-      border-radius: 8px; padding: 8px 14px;
-      font-size: 0.78rem; color: #c0d0e0; text-align: center; min-width: 64px;
+      border-radius: 10px; padding: 10px 8px;
+      font-size: 0.75rem; color: #8a9bb0; text-align: center;
     }
-    .akis-kutu strong { display: block; font-size: 0.9rem; color: #f0a500; margin-bottom: 1px; }
-    .akis-kutu.girdi  { border-color: #7eb8e0; }
-    .akis-kutu.girdi strong { color: #7eb8e0; }
-    .akis-kutu.cikti  { border-color: #f0a500; background: #1a1200; }
-    .akis-ok { color: #2c4060; font-size: 1rem; flex-shrink: 0; }
-    .akis-grup { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-    .akis-etiket { font-size: 0.68rem; color: #556070; white-space: nowrap; flex-shrink: 0; }
+    .akis-kutu strong { display: block; font-size: 0.95rem; font-weight: 800; color: #f0a500; margin-bottom: 3px; }
+    .akis-kutu.girdi  { border-color: #7eb8e0; padding: 12px 16px; }
+    .akis-kutu.girdi strong { color: #7eb8e0; font-size: 1rem; }
+    .akis-kutu.cikti  { border-color: #f0a500; border-width: 2px; background: #130f00; }
+    .akis-kutu.cikti strong { color: #f0a500; font-size: 1.05rem; }
+    .akis-ok-ic {
+      text-align: center; color: #2c4060; font-size: 1rem; padding: 4px 0;
+    }
+    @media (max-width: 560px) {
+      .akis-diagram { grid-template-columns: 1fr; }
+      .akis-ok-sutun { transform: rotate(90deg); margin: 4px auto; }
+      .akis-nem-kodlari { grid-template-columns: repeat(3,1fr); }
+      .akis-indeksler { grid-template-columns: 1fr 1fr 1fr; }
+    }
 
     .basla-btn {
       display: block; width: 100%; padding: 16px;
@@ -596,27 +615,34 @@
 
   <div class="akis-kart">
     <h3>Hesaplama Akışı</h3>
-    <!-- Satır 1: Girdilerden nem kodları -->
-    <div class="akis-satir">
-      <div class="akis-kutu girdi"><strong>Girdi</strong>T · RH · W · P</div>
-      <span class="akis-ok">→</span>
-      <div class="akis-grup">
+    <div class="akis-diagram">
+
+      <!-- Sütun 1: Girdi -->
+      <div class="akis-kutu girdi">
+        <strong>Girdi</strong>
+        T · RH · W · P
+      </div>
+
+      <!-- Ok 1 -->
+      <div class="akis-ok-sutun">→</div>
+
+      <!-- Sütun 3: Nem Kodları -->
+      <div class="akis-nem-kodlari">
         <div class="akis-kutu"><strong>FFMC</strong>İnce yakıt</div>
         <div class="akis-kutu"><strong>DMC</strong>Döküntü</div>
         <div class="akis-kutu"><strong>DC</strong>Kuraklık</div>
       </div>
-    </div>
-    <!-- Satır 2: Nem kodlarından indeksler → FWI -->
-    <div class="akis-satir" style="margin-top:8px;padding-top:8px;border-top:1px solid #1a2a3a">
-      <span class="akis-etiket">FFMC + W</span>
-      <span class="akis-ok">→</span>
-      <div class="akis-kutu"><strong>ISI</strong>Yayılma</div>
-      <span class="akis-ok" style="margin:0 6px">·</span>
-      <span class="akis-etiket">DMC + DC</span>
-      <span class="akis-ok">→</span>
-      <div class="akis-kutu"><strong>BUI</strong>Birikim</div>
-      <span class="akis-ok">→</span>
-      <div class="akis-kutu cikti"><strong>FWI</strong>Sonuç</div>
+
+      <!-- Ok 2 -->
+      <div class="akis-ok-sutun">→</div>
+
+      <!-- Sütun 5: ISI, BUI, FWI -->
+      <div class="akis-indeksler">
+        <div class="akis-kutu"><strong>ISI</strong>Yayılma</div>
+        <div class="akis-kutu"><strong>BUI</strong>Birikim</div>
+        <div class="akis-kutu cikti"><strong>FWI</strong>Sonuç</div>
+      </div>
+
     </div>
   </div>
 
