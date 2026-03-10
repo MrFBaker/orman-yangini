@@ -177,6 +177,7 @@
       transition: border 0.2s;
     }
     .form-grup input:focus, .form-grup select:focus { border-color: #f0a500; }
+    .form-grup input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
 
     details { margin-top: 16px; }
     details summary { cursor: pointer; font-size: 0.82rem; color: #8a9bb0; user-select: none; padding: 4px 0; }
@@ -283,7 +284,7 @@
       .akis-ok { transform: rotate(90deg); margin-left: 20px; }
 
       .form-grid { grid-template-columns: 1fr; }
-      .onceki-grid { grid-template-columns: 1fr 1fr; }
+      .onceki-grid { grid-template-columns: 1fr; }
 
       .kart { padding: 20px 16px; }
 
@@ -475,12 +476,12 @@
           <input type="number" id="lon" step="0.01" value="32.85" />
         </div>
         <div class="form-grup">
-          <label>Başlangıç (YYYYMMDD)</label>
-          <input type="text" id="baslangic" value="20230601" maxlength="8" />
+          <label>Başlangıç</label>
+          <input type="date" id="baslangic" value="2023-06-01" />
         </div>
         <div class="form-grup">
-          <label>Bitiş (YYYYMMDD)</label>
-          <input type="text" id="bitis" value="20230630" maxlength="8" />
+          <label>Bitiş</label>
+          <input type="date" id="bitis" value="2023-06-30" />
         </div>
       </div>
       <button class="btn" id="nasa-btn" onclick="nasaHesapla()">Veri Çek ve Hesapla</button>
@@ -600,8 +601,8 @@
     const payload = {
       lat:       parseFloat(document.getElementById("lat").value),
       lon:       parseFloat(document.getElementById("lon").value),
-      baslangic: document.getElementById("baslangic").value.trim(),
-      bitis:     document.getElementById("bitis").value.trim(),
+      baslangic: document.getElementById("baslangic").value.replace(/-/g, ""),
+      bitis:     document.getElementById("bitis").value.replace(/-/g, ""),
     };
 
     try {
