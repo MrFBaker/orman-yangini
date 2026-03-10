@@ -267,6 +267,46 @@
 
     footer { margin-top: 40px; padding: 20px 16px; font-size: 0.75rem; color: #3a5070; text-align: center; }
 
+    /* DOĞRULAMA KARTLARI */
+    .test-kart {
+      background: #162030; border: 1px solid #223047;
+      border-radius: 12px; padding: 22px 24px; margin-bottom: 16px;
+    }
+    .test-kart-baslik {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; flex-wrap: wrap; gap: 8px;
+    }
+    .test-kart-baslik h3 { font-size: 1rem; font-weight: 700; color: #e0e0e0; }
+    .test-kart-baslik .tarih { font-size: 0.78rem; color: #556070; }
+    .test-meta {
+      display: flex; gap: 20px; flex-wrap: wrap;
+      margin-bottom: 16px; font-size: 0.82rem; color: #8a9bb0;
+    }
+    .test-meta span strong { color: #c0d0e0; }
+    .test-indeksler {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
+      margin-bottom: 14px;
+    }
+    .test-idx {
+      background: #0f1923; border: 1px solid #1a2a3a;
+      border-radius: 8px; padding: 10px 8px; text-align: center;
+    }
+    .test-idx .etiket { font-size: 0.65rem; color: #7eb8e0; text-transform: uppercase; margin-bottom: 4px; }
+    .test-idx .deger  { font-size: 1.1rem; font-weight: 700; color: #e0e0e0; }
+    .test-sonuc {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 16px; border-radius: 8px; flex-wrap: wrap;
+    }
+    .test-sonuc .fwi-buyuk { font-size: 1.8rem; font-weight: 900; }
+    .test-sonuc .sinif-adi { font-size: 1rem; font-weight: 700; }
+    .test-sonuc .beklenti  { font-size: 0.78rem; opacity: 0.8; margin-left: auto; }
+    .test-hata { color: #ff8080; font-size: 0.85rem; }
+
+    @media (max-width: 600px) {
+      .test-indeksler { grid-template-columns: repeat(3, 1fr); }
+      .test-meta { gap: 10px; }
+    }
+
     @media (max-width: 600px) {
       nav { padding: 0 12px; }
       .nav-logo span { display: none; }
@@ -308,6 +348,7 @@
   <div class="nav-linkler">
     <button class="nav-link aktif" onclick="sayfaAc('hakkinda', this)">Proje Hakkında</button>
     <button class="nav-link" onclick="sayfaAc('hesap', this)">Hesaplayıcı</button>
+    <button class="nav-link" onclick="sayfaAc('dogrulama', this)">Doğrulama</button>
   </div>
 </nav>
 
@@ -536,6 +577,39 @@
 
 </div><!-- sayfa-hesap -->
 
+<!-- ══════════════════════════════════════════ -->
+<!-- SAYFA 3: DOĞRULAMA                        -->
+<!-- ══════════════════════════════════════════ -->
+<div class="sayfa" id="sayfa-dogrulama">
+
+  <div class="hero">
+    <h1>Model Doğrulama</h1>
+    <p>Türkiye'de gerçekleşen büyük orman yangını olaylarında FWI hesabı yapılır. Sonuçlar tehlike sınıfı açısından beklentilerle karşılaştırılır.</p>
+  </div>
+
+  <div class="bilgi-grid" style="margin-bottom:24px">
+    <div class="bilgi-kart">
+      <h3>Test Olayları</h3>
+      <ul class="komponent-liste" style="gap:10px">
+        <li><span class="komponent-badge">1</span>Manavgat Yangını — 28 Temmuz 2021, Antalya</li>
+        <li><span class="komponent-badge">2</span>Marmaris Yangını — 30 Temmuz 2021, Muğla</li>
+        <li><span class="komponent-badge">3</span>İzmir Yangını — 19 Ağustos 2019, İzmir</li>
+      </ul>
+    </div>
+    <div class="bilgi-kart">
+      <h3>Yöntem</h3>
+      <p>Her olay için Ocak 1'den yangın gününe kadar FWI durumu biriktirilir. Yangın günü öğlen 12:00 Open-Meteo verisi kullanılır. Beklenti: tüm olayların <strong>Çok Yüksek</strong> veya <strong>Aşırı</strong> sınıfına girmesi.</p>
+    </div>
+  </div>
+
+  <button class="basla-btn" id="test-btn" onclick="testCalistir()">Testleri Çalıştır</button>
+
+  <div id="test-sonuc-alani" style="display:none; margin-top:24px">
+    <div id="test-kartlar"></div>
+  </div>
+
+</div>
+
 <footer>
   Van Wagner (1987) · Canadian Forest Fire Weather Index System<br>
   Meteoroloji Mühendisliği Tasarım Projesi · Open-Meteo Saatlik Veri
@@ -745,6 +819,90 @@
     document.getElementById("val-dsr").textContent  = s.dsr;
     document.getElementById("sonuc-alani").style.display = "block";
     document.getElementById("sonuc-alani").scrollIntoView({ behavior: "smooth" });
+  }
+
+  async function testCalistir() {
+    const btn = document.getElementById("test-btn");
+    btn.disabled = true;
+    btn.textContent = "Hesaplanıyor... (bu işlem ~1 dakika sürebilir)";
+    document.getElementById("test-sonuc-alani").style.display = "none";
+
+    try {
+      const res  = await fetch("/test");
+      const json = await res.json();
+      if (!json.ok) { btn.textContent = "Hata oluştu"; btn.disabled = false; return; }
+      gosterTestSonuclari(json.sonuclar);
+    } catch (e) {
+      btn.textContent = "Bağlantı hatası";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Testleri Yeniden Çalıştır";
+    }
+  }
+
+  function gosterTestSonuclari(sonuclar) {
+    const kapsayici = document.getElementById("test-kartlar");
+    kapsayici.innerHTML = "";
+
+    const renkMap = {
+      "Dusuk":      { bg: "#1a3d1a", renk: "#7ed87e", tr: "DÜŞÜK" },
+      "Orta":       { bg: "#3d3900", renk: "#f5e042", tr: "ORTA" },
+      "Yuksek":     { bg: "#3d2200", renk: "#ffa040", tr: "YÜKSEK" },
+      "Cok Yuksek": { bg: "#3d0f0f", renk: "#ff5555", tr: "ÇOK YÜKSEK" },
+      "Asiri":      { bg: "#2a0a3d", renk: "#cc77ff", tr: "AŞIRI" },
+    };
+
+    for (const s of sonuclar) {
+      const tarihGoster = s.tarih
+        ? s.tarih.slice(0,4) + "-" + s.tarih.slice(4,6) + "-" + s.tarih.slice(6,8)
+        : "—";
+
+      if (s.hata) {
+        kapsayici.innerHTML += `
+          <div class="test-kart">
+            <div class="test-kart-baslik">
+              <h3>${s.isim}</h3><span class="tarih">${tarihGoster} · ${s.yer || ""}</span>
+            </div>
+            <div class="test-hata">Hata: ${s.hata}</div>
+          </div>`;
+        continue;
+      }
+
+      const info = renkMap[s.sinif] || { bg: "#162030", renk: "#e0e0e0", tr: s.sinif };
+      const beklenti = (s.sinif === "Asiri" || s.sinif === "Cok Yuksek")
+        ? "✓ Beklenti karşılandı"
+        : "✗ Beklentinin altında";
+
+      kapsayici.innerHTML += `
+        <div class="test-kart">
+          <div class="test-kart-baslik">
+            <h3>${s.isim}</h3>
+            <span class="tarih">${tarihGoster} · ${s.yer}</span>
+          </div>
+          <div class="test-meta">
+            <span>🌡 <strong>${s.temp}°C</strong></span>
+            <span>💧 <strong>${s.rh}%</strong></span>
+            <span>💨 <strong>${s.wind_kmh} km/h</strong></span>
+            <span>🌧 <strong>${s.precip} mm</strong></span>
+          </div>
+          <div class="test-indeksler">
+            <div class="test-idx"><div class="etiket">FFMC</div><div class="deger">${s.ffmc}</div></div>
+            <div class="test-idx"><div class="etiket">DMC</div><div class="deger">${s.dmc}</div></div>
+            <div class="test-idx"><div class="etiket">DC</div><div class="deger">${s.dc}</div></div>
+            <div class="test-idx"><div class="etiket">ISI</div><div class="deger">${s.isi}</div></div>
+            <div class="test-idx"><div class="etiket">BUI</div><div class="deger">${s.bui}</div></div>
+            <div class="test-idx"><div class="etiket">DSR</div><div class="deger">${s.dsr}</div></div>
+          </div>
+          <div class="test-sonuc" style="background:${info.bg};border:1px solid ${info.renk}40">
+            <div class="fwi-buyuk" style="color:${info.renk}">FWI ${s.fwi}</div>
+            <div class="sinif-adi" style="color:${info.renk}">${info.tr}</div>
+            <div class="beklenti">${beklenti}</div>
+          </div>
+        </div>`;
+    }
+
+    document.getElementById("test-sonuc-alani").style.display = "block";
+    document.getElementById("test-sonuc-alani").scrollIntoView({ behavior: "smooth" });
   }
 
   function gosterHata(mesaj) {

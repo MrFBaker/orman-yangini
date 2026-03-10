@@ -100,5 +100,46 @@ def nasa_veri():
     except Exception as e:
         return jsonify({"ok": False, "hata": str(e)}), 400
 
+@app.route("/test", methods=["GET"])
+def test_yangin():
+    """
+    Gercek yangin olaylari icin FWI hesaplar.
+    Her olay icin Ocak 1'den isinma yapilir, yangin gununde hesap yapilir.
+    """
+    olaylar = [
+        {"isim": "Manavgat Yangini", "yer": "Antalya",  "tarih": "20210728", "lat": 36.78, "lon": 31.44},
+        {"isim": "Marmaris Yangini", "yer": "Mugla",    "tarih": "20210730", "lat": 36.85, "lon": 28.27},
+        {"isim": "Izmir Yangini",    "yer": "Izmir",    "tarih": "20190819", "lat": 38.42, "lon": 27.14},
+    ]
+    sonuclar = []
+    for o in olaylar:
+        try:
+            ffmc0, dmc0, dc0 = warmup_fwi(o["lat"], o["lon"], o["tarih"])
+            gunler = om.veri_cek(o["lat"], o["lon"], o["tarih"], o["tarih"])
+            if not gunler:
+                raise ValueError("Veri alinamadi")
+            gun = gunler[0]
+            ay  = int(gun["tarih"][4:6])
+            r   = f.hesapla(
+                temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
+                precip=gun["precip"], month=ay,
+                ffmc0=ffmc0, dmc0=dmc0, dc0=dc0
+            )
+            sonuclar.append({
+                "isim":     o["isim"],
+                "yer":      o["yer"],
+                "tarih":    o["tarih"],
+                "temp":     gun["temp"],
+                "rh":       gun["rh"],
+                "wind_kmh": gun["wind_kmh"],
+                "precip":   gun["precip"],
+                **r
+            })
+        except Exception as e:
+            sonuclar.append({"isim": o["isim"], "yer": o["yer"], "tarih": o["tarih"], "hata": str(e)})
+
+    return jsonify({"ok": True, "sonuclar": sonuclar})
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
