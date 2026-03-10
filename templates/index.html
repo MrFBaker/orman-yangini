@@ -319,60 +319,105 @@
     .csv-alt   { font-size: 0.78rem; color: #556070; margin-top: 4px; }
     code { background: #0f1923; border: 1px solid #2c4060; border-radius: 4px; padding: 1px 6px; font-size: 0.78rem; color: #f0a500; }
 
-    /* HESAPLAMA YÖNTEMİ */
-    .yontem-bolum { margin-bottom: 32px; }
+    /* HESAPLAMA YÖNTEMİ — geniş düzen */
+    #sayfa-yontem { max-width: 1060px; }
+
+    .yontem-nav {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 32px;
+      padding: 14px 18px; background: #162030;
+      border: 1px solid #223047; border-radius: 12px;
+    }
+    .yontem-nav a {
+      font-size: 0.78rem; font-weight: 700; color: #556070;
+      background: #0f1923; border: 1px solid #2c4060;
+      border-radius: 6px; padding: 5px 12px; text-decoration: none;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .yontem-nav a:hover { color: #f0a500; border-color: #f0a500; }
+
+    .yontem-bolum { margin-bottom: 36px; scroll-margin-top: 72px; }
     .yontem-bolum h2 {
-      font-size: 0.75rem; color: #f0a500; text-transform: uppercase;
-      letter-spacing: 1px; margin-bottom: 16px; padding-bottom: 10px;
-      border-bottom: 1px solid #1a2a3a;
+      font-size: 0.85rem; color: #f0a500; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 16px; padding-bottom: 10px;
+      border-bottom: 2px solid #1a2a3a;
     }
     .formul-kart {
       background: #162030; border: 1px solid #223047;
-      border-radius: 12px; padding: 20px 22px; margin-bottom: 12px;
+      border-radius: 12px; padding: 24px 28px; margin-bottom: 12px;
     }
     .formul-kart-baslik {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+      padding-bottom: 16px; border-bottom: 1px solid #1a2a3a;
     }
     .formul-badge {
-      font-size: 0.85rem; font-weight: 800; background: #0f1923;
-      border: 1px solid #f0a500; border-radius: 6px;
-      padding: 4px 10px; color: #f0a500; flex-shrink: 0;
+      font-size: 0.9rem; font-weight: 800; background: #0f1923;
+      border: 2px solid #f0a500; border-radius: 8px;
+      padding: 5px 12px; color: #f0a500; flex-shrink: 0;
     }
-    .formul-kart-baslik h3 { font-size: 0.95rem; color: #e0e0e0; font-weight: 600; }
-    .formul-kart-baslik .aciklama { font-size: 0.78rem; color: #556070; margin-left: auto; }
-    .formul-satirlar { display: flex; flex-direction: column; gap: 8px; }
-    .formul-satir {
-      display: grid; grid-template-columns: 180px 1fr;
-      gap: 12px; align-items: start; font-size: 0.82rem;
-    }
-    .formul-etiket { color: #7eb8e0; font-weight: 600; padding-top: 2px; }
-    .formul-deger  { color: #c0d0e0; line-height: 1.6; }
-    .formul-deger .f { font-family: monospace; background: #0f1923; border: 1px solid #1a2a3a; border-radius: 4px; padding: 2px 7px; color: #ffc060; font-size: 0.8rem; display: inline-block; margin: 1px 0; }
-    .formul-not {
-      margin-top: 10px; padding: 8px 12px;
-      background: #0f2030; border-left: 3px solid #7eb8e0;
-      border-radius: 0 6px 6px 0; font-size: 0.78rem; color: #8a9bb0;
-    }
-    .girdi-etiketler { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .formul-kart-baslik h3 { font-size: 1rem; color: #e0e0e0; font-weight: 600; line-height: 1.4; }
+
+    .girdi-etiketler { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
     .girdi-badge {
-      font-size: 0.7rem; background: #0f1923; border: 1px solid #2c4060;
-      border-radius: 4px; padding: 2px 7px; color: #c0d0e0;
+      font-size: 0.78rem; background: #0f1923; border: 1px solid #2c4060;
+      border-radius: 6px; padding: 4px 10px; color: #c0d0e0; line-height: 1.4;
     }
+
+    .formul-satirlar { display: flex; flex-direction: column; }
+    .formul-satir {
+      display: grid; grid-template-columns: 240px 1fr;
+      gap: 20px; align-items: start;
+      padding: 14px 0; border-bottom: 1px solid #0f1923;
+    }
+    .formul-satirlar .formul-satir:last-child { border-bottom: none; }
+
+    .formul-etiket {
+      font-size: 0.85rem; color: #7eb8e0; font-weight: 700;
+      line-height: 1.5; padding-top: 3px;
+    }
+    .formul-etiket small {
+      display: block; font-size: 0.75rem; font-weight: 400;
+      color: #556070; margin-top: 2px;
+    }
+    .formul-deger { color: #c0d0e0; line-height: 1.8; }
+    .formul-deger .f {
+      font-family: 'Courier New', monospace;
+      background: #0a1520; border: 1px solid #1e3a52;
+      border-radius: 5px; padding: 4px 10px; color: #ffc060;
+      font-size: 0.85rem; display: inline-block; margin: 2px 0;
+    }
+    /* Açıklama satırları — artık small değil, class ile */
+    .formul-deger .acik {
+      display: block; margin-top: 6px;
+      font-size: 0.82rem; color: #7a9ab8; line-height: 1.5;
+    }
+    /* Geriye uyumluluk: eski small tagları için de geçerli */
+    .formul-deger small {
+      display: block; margin-top: 6px;
+      font-size: 0.82rem !important; color: #7a9ab8 !important; line-height: 1.5;
+    }
+    .formul-not {
+      margin-top: 14px; padding: 10px 16px;
+      background: #0a1e30; border-left: 3px solid #7eb8e0;
+      border-radius: 0 8px 8px 0; font-size: 0.82rem; color: #8a9bb0; line-height: 1.6;
+    }
+
     .esik-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
     }
     .esik-kutu {
       background: #0f1923; border: 1px solid #2c4060;
-      border-radius: 8px; padding: 12px; text-align: center;
+      border-radius: 10px; padding: 16px; text-align: center;
     }
-    .esik-kutu .ad  { font-size: 0.7rem; color: #7eb8e0; text-transform: uppercase; margin-bottom: 6px; }
-    .esik-kutu .dg  { font-size: 1.1rem; font-weight: 700; color: #f0a500; }
-    .esik-kutu .alt { font-size: 0.7rem; color: #556070; margin-top: 2px; }
+    .esik-kutu .ad  { font-size: 0.72rem; color: #7eb8e0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .esik-kutu .dg  { font-size: 1.2rem; font-weight: 700; color: #f0a500; }
+    .esik-kutu .alt { font-size: 0.72rem; color: #556070; margin-top: 4px; }
 
-    @media (max-width: 600px) {
-      .formul-satir { grid-template-columns: 1fr; gap: 2px; }
-      .formul-etiket { color: #7eb8e0; font-size: 0.75rem; }
+    @media (max-width: 700px) {
+      .formul-satir { grid-template-columns: 1fr; gap: 6px; }
+      .formul-etiket { font-size: 0.8rem; padding-bottom: 2px; }
       .esik-grid { grid-template-columns: 1fr; }
+      .yontem-nav { gap: 4px; }
     }
 
     /* DOĞRULAMA KARTLARI */
@@ -757,11 +802,21 @@
 
   <div class="hero">
     <h1>Hesaplama Yöntemi</h1>
-    <p>Van Wagner (1987) — Canadian Forest Fire Weather Index System. Her bileşen için kullanılan girdiler, eşikler ve formüller.</p>
+    <p>Van Wagner (1987) — Canadian Forest Fire Weather Index System. Her bileşen için kullanılan girdiler ve adım adım formüller.</p>
   </div>
 
-  <!-- HESAPLAMA SIRASI -->
-  <div class="yontem-bolum">
+  <nav class="yontem-nav">
+    <a href="#bolum-akis">Hesaplama Akışı</a>
+    <a href="#bolum-ffmc">1 · FFMC</a>
+    <a href="#bolum-dmc">2 · DMC</a>
+    <a href="#bolum-dc">3 · DC</a>
+    <a href="#bolum-isi">4 · ISI</a>
+    <a href="#bolum-bui">5 · BUI</a>
+    <a href="#bolum-fwi">6 · FWI</a>
+    <a href="#bolum-esik">Eşikler</a>
+  </nav>
+
+  <div class="yontem-bolum" id="bolum-akis">
     <h2>Hesaplama Sırası ve Veri Akışı</h2>
     <div class="formul-kart">
       <div class="formul-satirlar">
@@ -801,8 +856,7 @@
     </div>
   </div>
 
-  <!-- FFMC -->
-  <div class="yontem-bolum">
+  <div class="yontem-bolum" id="bolum-ffmc">
     <h2>1. FFMC — İnce Yakıt Nemi Kodu</h2>
     <div class="formul-kart">
       <div class="formul-kart-baslik">
@@ -863,8 +917,7 @@
     </div>
   </div>
 
-  <!-- DMC -->
-  <div class="yontem-bolum">
+  <div class="yontem-bolum" id="bolum-dmc">
     <h2>2. DMC — Döküntü Nem Kodu</h2>
     <div class="formul-kart">
       <div class="formul-kart-baslik">
@@ -904,8 +957,7 @@
     </div>
   </div>
 
-  <!-- DC -->
-  <div class="yontem-bolum">
+  <div class="yontem-bolum" id="bolum-dc">
     <h2>3. DC — Kuraklık Kodu</h2>
     <div class="formul-kart">
       <div class="formul-kart-baslik">
@@ -944,8 +996,7 @@
     </div>
   </div>
 
-  <!-- ISI -->
-  <div class="yontem-bolum">
+  <div class="yontem-bolum" id="bolum-isi">
     <h2>4. ISI — Başlangıç Yayılma İndeksi</h2>
     <div class="formul-kart">
       <div class="formul-kart-baslik">
@@ -980,8 +1031,7 @@
     </div>
   </div>
 
-  <!-- BUI -->
-  <div class="yontem-bolum">
+  <div class="yontem-bolum" id="bolum-bui">
     <h2>5. BUI — Birikim Kullanım İndeksi</h2>
     <div class="formul-kart">
       <div class="formul-kart-baslik">
@@ -1012,8 +1062,7 @@
     </div>
   </div>
 
-  <!-- FWI -->
-  <div class="yontem-bolum">
+  <div class="yontem-bolum" id="bolum-fwi">
     <h2>6. FWI — Yangın Hava İndeksi</h2>
     <div class="formul-kart">
       <div class="formul-kart-baslik">
@@ -1059,8 +1108,7 @@
     </div>
   </div>
 
-  <!-- EŞİKLER -->
-  <div class="yontem-bolum">
+  <div class="yontem-bolum" id="bolum-esik">
     <h2>Yağış Eşikleri ve Tehlike Sınıfları</h2>
     <div class="formul-kart" style="margin-bottom:12px">
       <div class="formul-kart-baslik"><span class="formul-badge">Yağış</span><h3>Yağış düzeltmesi minimum eşikleri</h3></div>
