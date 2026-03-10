@@ -368,13 +368,13 @@
 
     <div class="bilgi-kart">
       <h3>Veri Kaynağı</h3>
-      <p>NASA POWER (MERRA-2) uydu tabanlı yeniden analiz verisi kullanılmaktadır.</p>
+      <p>Open-Meteo saatlik yeniden analiz verisi kullanılmaktadır. FWI standardına uygun olarak <strong>öğlen 12:00 LST</strong> anlık değerler alınır.</p>
       <p style="margin-top:10px">Herhangi bir koordinat için otomatik veri çekimi yapılabilir:</p>
       <ul style="margin-top:8px;padding-left:16px;font-size:0.82rem;color:#8a9bb0;line-height:2">
-        <li>Maksimum sıcaklık (T2M_MAX)</li>
-        <li>Günlük ortalama nem (RH2M)</li>
-        <li>Maksimum rüzgar (WS10M_MAX)</li>
-        <li>Toplam yağış (PRECTOTCORR)</li>
+        <li>Sıcaklık — 12:00 anlık (°C)</li>
+        <li>Bağıl nem — 12:00 anlık (%)</li>
+        <li>Rüzgar — 12:00 anlık (km/h)</li>
+        <li>Yağış — günlük toplam (mm)</li>
       </ul>
     </div>
   </div>
@@ -412,7 +412,7 @@
   <!-- SEKMELER -->
   <div class="sekmeler">
     <button class="sekme aktif" onclick="sekmeAc('manuel', this)">Manuel Giriş</button>
-    <button class="sekme" onclick="sekmeAc('nasa', this)">NASA POWER Verisi</button>
+    <button class="sekme" onclick="sekmeAc('nasa', this)">Otomatik Veri Çekimi</button>
   </div>
 
   <div class="kart">
@@ -464,7 +464,7 @@
     <div class="panel" id="panel-nasa">
       <h2>NASA POWER Otomatik Veri</h2>
       <div class="info-notu">
-        NASA POWER API'sinden günlük <strong>maksimum sıcaklık</strong>, <strong>ortalama nem</strong> ve <strong>maksimum rüzgar</strong> çekilir. Başlangıç değerleri Ocak 1'den ısıtılarak hesaplanır.
+        Open-Meteo saatlik veriden <strong>öğlen 12:00</strong> anlık sıcaklık, nem ve rüzgar değerleri alınır. Yağış günlük toplam olarak hesaplanır. Başlangıç değerleri Ocak 1'den ısıtılarak hesaplanır.
       </div>
       <div class="form-grid">
         <div class="form-grup">
@@ -538,7 +538,7 @@
 
 <footer>
   Van Wagner (1987) · Canadian Forest Fire Weather Index System<br>
-  Meteoroloji Mühendisliği Tasarım Projesi · NASA POWER (MERRA-2)
+  Meteoroloji Mühendisliği Tasarım Projesi · Open-Meteo Saatlik Veri
 </footer>
 
 <script>

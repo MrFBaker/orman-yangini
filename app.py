@@ -5,7 +5,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(__file__))
 import fwi_hesap as f
-import nasa_power as nasa
+import openmeteo as om
 
 app = Flask(__name__)
 
@@ -20,7 +20,7 @@ def warmup_fwi(lat, lon, baslangic):
         return f.FFMC_BASLANGIC, f.DMC_BASLANGIC, f.DC_BASLANGIC
 
     prev_str = (datetime.strptime(baslangic, "%Y%m%d") - timedelta(days=1)).strftime("%Y%m%d")
-    gunler = nasa.veri_cek(lat, lon, jan1, prev_str)
+    gunler = om.veri_cek(lat, lon, jan1, prev_str)
 
     ffmc0, dmc0, dc0 = f.FFMC_BASLANGIC, f.DMC_BASLANGIC, f.DC_BASLANGIC
     for gun in gunler:
@@ -69,7 +69,7 @@ def nasa_veri():
         baslangic = str(data["baslangic"])
         bitis     = str(data["bitis"])
 
-        gunler = nasa.veri_cek(lat, lon, baslangic, bitis)
+        gunler = om.veri_cek(lat, lon, baslangic, bitis)
 
         ffmc0, dmc0, dc0 = warmup_fwi(lat, lon, baslangic)
 
