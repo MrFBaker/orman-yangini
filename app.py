@@ -437,7 +437,7 @@ def rapor_pdf():
         indeks_rows = [
             [Paragraph("Indeks", sBold), Paragraph("Deger", sBold), Paragraph("Aciklama", sBold)],
             [Paragraph("FFMC", sBody), Paragraph(str(sonuc.get("ffmc","-")), sBody), Paragraph("Ince Ust Tabaka Yanici Madde Nem Kodu", sBody)],
-            [Paragraph("DMC", sBody), Paragraph(str(sonuc.get("dmc","-")), sBody), Paragraph("Humus Nem Kodu", sBody)],
+            [Paragraph("DMC", sBody), Paragraph(str(sonuc.get("dmc","-")), sBody), Paragraph("Dokuntu Nem Kodu", sBody)],
             [Paragraph("DC", sBody), Paragraph(str(sonuc.get("dc","-")), sBody), Paragraph("Derin Organik Tabaka Nem Kodu", sBody)],
             [Paragraph("ISI", sBody), Paragraph(str(sonuc.get("isi","-")), sBody), Paragraph("Baslangic Yayilma Indeksi", sBody)],
             [Paragraph("BUI", sBody), Paragraph(str(sonuc.get("bui","-")), sBody), Paragraph("Birikmis Yanici Madde Indeksi", sBody)],

@@ -672,7 +672,7 @@
       <h3 data-i18n="card_components_title">FWI Bileşenleri</h3>
       <ul class="komponent-liste">
         <li><span class="komponent-badge">FFMC</span><span data-i18n="comp_ffmc">İnce üst tabaka yanıcı madde nem kodu — yüzey tutuşması</span></li>
-        <li><span class="komponent-badge">DMC</span><span data-i18n="comp_dmc">Humus nem kodu — orta derinlik organik tabaka</span></li>
+        <li><span class="komponent-badge">DMC</span><span data-i18n="comp_dmc">Döküntü nem kodu — orta derinlik yakıtı</span></li>
         <li><span class="komponent-badge">DC</span><span data-i18n="comp_dc">Derin organik tabaka nem kodu — uzun süreli kuraklık</span></li>
         <li><span class="komponent-badge">ISI</span><span data-i18n="comp_isi">Başlangıç yayılma indeksi</span></li>
         <li><span class="komponent-badge">BUI</span><span data-i18n="comp_bui">Birikmiş yanıcı madde indeksi</span></li>
@@ -751,7 +751,7 @@
       <!-- Sütun 3: Nem Kodları -->
       <div class="akis-nem-kodlari">
         <div class="akis-kutu"><strong>FFMC</strong><span data-i18n="flow_ffmc">Üst tabaka</span></div>
-        <div class="akis-kutu"><strong>DMC</strong><span data-i18n="flow_dmc">Humus</span></div>
+        <div class="akis-kutu"><strong>DMC</strong><span data-i18n="flow_dmc">Döküntü</span></div>
         <div class="akis-kutu"><strong>DC</strong><span data-i18n="flow_dc">Derin tabaka</span></div>
       </div>
 
@@ -912,7 +912,7 @@
     </div>
     <div class="indeksler">
       <div class="indeks-kutu"><div class="etiket">FFMC</div><div class="deger" id="val-ffmc">—</div><div class="birim" data-i18n="idx_ffmc">İnce Üst Tabaka</div></div>
-      <div class="indeks-kutu"><div class="etiket">DMC</div><div class="deger" id="val-dmc">—</div><div class="birim" data-i18n="idx_dmc">Humus Nemi</div></div>
+      <div class="indeks-kutu"><div class="etiket">DMC</div><div class="deger" id="val-dmc">—</div><div class="birim" data-i18n="idx_dmc">Döküntü Nemi</div></div>
       <div class="indeks-kutu"><div class="etiket">DC</div><div class="deger" id="val-dc">—</div><div class="birim" data-i18n="idx_dc">Derin Organik Tabaka</div></div>
       <div class="indeks-kutu"><div class="etiket">ISI</div><div class="deger" id="val-isi">—</div><div class="birim" data-i18n="idx_isi">Başlangıç Yayılma</div></div>
       <div class="indeks-kutu"><div class="etiket">BUI</div><div class="deger" id="val-bui">—</div><div class="birim" data-i18n="idx_bui">Birikmiş Yanıcı Madde</div></div>
@@ -1085,11 +1085,11 @@
   </div>
 
   <div class="yontem-bolum" id="bolum-dmc">
-    <h2>2. DMC — Humus Nem Kodu</h2>
+    <h2>2. DMC — Döküntü Nem Kodu</h2>
     <div class="formul-kart">
       <div class="formul-kart-baslik">
         <span class="formul-badge">DMC</span>
-        <h3>Hafif sıkıştırılmış organik (humus) tabakanın nem durumu · Aralık: 0–300+</h3>
+        <h3>Hafif sıkıştırılmış organik (döküntü) tabakanın nem durumu · Aralık: 0–300+</h3>
       </div>
       <div class="girdi-etiketler" style="margin-bottom:14px">
         <span class="girdi-badge">T — sıcaklık (°C)</span>
@@ -1707,7 +1707,7 @@
       card_about_p2: "Hesaplamalar tamamen <strong>Van Wagner (1987)</strong> referans formüllerine dayanmaktadır. Open-Meteo saatlik yeniden analiz verisiyle otomatik veri çekimi desteklenmektedir.",
       card_components_title: "FWI Bileşenleri",
       comp_ffmc: "İnce üst tabaka yanıcı madde nem kodu — yüzey tutuşması",
-      comp_dmc: "Humus nem kodu — orta derinlik organik tabaka",
+      comp_dmc: "Döküntü nem kodu — orta derinlik yakıtı",
       comp_dc: "Derin organik tabaka nem kodu — uzun süreli kuraklık",
       comp_isi: "Başlangıç yayılma indeksi",
       comp_bui: "Birikmiş yanıcı madde indeksi",
@@ -1721,7 +1721,7 @@
       data_temp_desc: "12:00 LST anlık · °C", data_rh_desc: "12:00 LST anlık · %",
       data_wind_desc: "12:00 LST anlık · km/h", data_precip_desc: "Günlük toplam · mm",
       flow_title: "Hesaplama Akışı",
-      flow_input: "Girdi", flow_ffmc: "Üst tabaka", flow_dmc: "Humus", flow_dc: "Derin tabaka",
+      flow_input: "Girdi", flow_ffmc: "Üst tabaka", flow_dmc: "Döküntü", flow_dc: "Derin tabaka",
       flow_isi: "Yayılma", flow_bui: "Birikim", flow_fwi: "Sonuç",
       btn_goto_calc: "Hesaplayıcıya Geç →",
 
@@ -1750,7 +1750,7 @@
       label_start: "Başlangıç", label_end: "Bitiş",
       btn_fetch_calc: "Veri Çek ve Hesapla",
       btn_download_pdf: "Rapor İndir (PDF)",
-      idx_ffmc: "İnce Üst Tabaka", idx_dmc: "Humus Nemi", idx_dc: "Derin Organik Tabaka",
+      idx_ffmc: "İnce Üst Tabaka", idx_dmc: "Döküntü Nemi", idx_dc: "Derin Organik Tabaka",
       idx_isi: "Başlangıç Yayılma", idx_bui: "Birikmiş Yanıcı Madde", idx_dsr: "Günlük Şiddet Oranı",
       stat_max: "En Yüksek FWI", stat_avg: "Ortalama FWI", stat_avg_desc: "dönem ortalaması",
       stat_extreme: "Aşırı Gün", stat_very_high: "Çok Yüksek +",

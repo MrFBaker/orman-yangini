@@ -43,7 +43,7 @@ FWI sistemi tek bir sayi degil, birbirine bagli 6 alt bilesenden olusur:
 **Nem Kodlari (onceki gunlerin etkisini tasir):**
 - FFMC — Ince Ust Tabaka Yanici Madde Nem Kodu (IYMNK): Olu ortunun ust tabakasindaki kucuk dallar,
   yapraklar gibi ince yanici maddelerin ne kadar kuru oldugunu gosterir. Birka saat icinde kurur veya nemlenir.
-- DMC — Humus Nem Kodu: Orta derinlikteki hafif sikistirilmis organik (humus) tabakanin
+- DMC — Dokuntu Nem Kodu: Orta derinlikteki hafif sikistirilmis organik (dokuntu) tabakanin
   nem durumunu gosterir. Kurumasi veya nemlenmesi birka gun surer.
 - DC — Derin Organik Tabaka Nem Kodu (DONK): Derin sikistirilmis organik tabakanin
   nem durumunu olcer. Mevsimsel kurakligin etkisini gosterir. Haftalarca surecek bir gosterge.

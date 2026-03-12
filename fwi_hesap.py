@@ -115,7 +115,7 @@ def ffmc(temp, rh, wind, precip, ffmc0):
 
 def dmc(temp, rh, precip, dmc0, month, le_tablo=None):
     """
-    Duff Moisture Code (Humus Nem Kodu)
+    Duff Moisture Code (Döküntü Nem Kodu)
 
     Parametreler:
         temp   : sıcaklık (°C), öğlen ölçümü
