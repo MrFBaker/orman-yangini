@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 from datetime import datetime, timedelta
 import sys
 import os
+import io
 sys.path.insert(0, os.path.dirname(__file__))
 import fwi_hesap as f
 import openmeteo as om
@@ -300,6 +301,261 @@ def test_yangin():
             sonuclar.append({"isim": o["isim"], "yer": o["yer"], "tarih": o["tarih"], "hata": str(e)})
 
     return jsonify({"ok": True, "sonuclar": sonuclar})
+
+
+@app.route("/rapor-pdf", methods=["POST"])
+def rapor_pdf():
+    """
+    Hesaplama sonuclarini PDF olarak indirir.
+    Girdi: { tip: "manuel"|"coklu", girdi: {...}, sonuc: {...}, satirlar: [...] }
+    """
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.lib.units import cm
+    from reportlab.lib import colors
+    from reportlab.platypus import (
+        SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+    )
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+
+    # Font
+    font_candidates = [
+        (r"C:\Windows\Fonts\arial.ttf",   "Arial",   r"C:\Windows\Fonts\arialbd.ttf",  "Arial-Bold"),
+        ("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "DejaVu",
+         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "DejaVu-Bold"),
+    ]
+    FR, FB = "Helvetica", "Helvetica-Bold"
+    for reg_path, reg_name, bold_path, bold_name in font_candidates:
+        if os.path.exists(reg_path):
+            try:
+                pdfmetrics.registerFont(TTFont(reg_name, reg_path))
+                if os.path.exists(bold_path):
+                    pdfmetrics.registerFont(TTFont(bold_name, bold_path))
+                else:
+                    bold_name = reg_name
+                FR, FB = reg_name, bold_name
+                break
+            except Exception:
+                pass
+
+    # Renkler
+    BLACK  = colors.HexColor("#1a1a1a")
+    DARK   = colors.HexColor("#2c2c2c")
+    MEDIUM = colors.HexColor("#555555")
+    MUTED  = colors.HexColor("#888888")
+    ACCENT = colors.HexColor("#b85000")
+    BLUE   = colors.HexColor("#1a5a8a")
+    GREEN  = colors.HexColor("#1a6b2a")
+    RED    = colors.HexColor("#a01010")
+    BGCARD = colors.HexColor("#f4f6f8")
+    BGHEAD = colors.HexColor("#e8edf2")
+    BORDER = colors.HexColor("#ccd4dd")
+
+    def S(name, **kw):
+        base = dict(fontName=FR, fontSize=10, leading=15,
+                    textColor=BLACK, spaceAfter=0, spaceBefore=0)
+        base.update(kw)
+        return ParagraphStyle(name, **base)
+
+    sTitle  = S("rTitle",  fontName=FB, fontSize=16, textColor=ACCENT, leading=22, spaceAfter=4)
+    sSub    = S("rSub",    fontSize=9, textColor=MEDIUM, leading=13)
+    sH1     = S("rH1",     fontName=FB, fontSize=11, textColor=ACCENT, leading=16, spaceBefore=14, spaceAfter=6)
+    sBody   = S("rBody",   fontSize=9.5, textColor=DARK, leading=15, spaceAfter=4)
+    sBold   = S("rBold",   fontName=FB, fontSize=9.5, textColor=BLACK, leading=15)
+    sFooter = S("rFooter", fontSize=7.5, textColor=MUTED, leading=12, alignment=1)
+
+    def HR():
+        return HRFlowable(width="100%", thickness=0.5, color=BORDER, spaceAfter=8, spaceBefore=2)
+
+    data = request.get_json()
+    tip = data.get("tip", "manuel")
+
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4,
+        leftMargin=2.2*cm, rightMargin=2.2*cm,
+        topMargin=2*cm, bottomMargin=1.8*cm,
+        title="FWI Hesaplama Raporu")
+
+    story = []
+    now = datetime.now().strftime("%d.%m.%Y %H:%M")
+
+    story.append(Paragraph("FWI Hesaplama Raporu", sTitle))
+    story.append(Paragraph(f"Olusturma tarihi: {now}", sSub))
+    story.append(Spacer(1, 6))
+    story.append(HR())
+
+    sinif_tr = {"Dusuk": "Dusuk", "Orta": "Orta", "Yuksek": "Yuksek",
+                "Cok Yuksek": "Cok Yuksek", "Asiri": "Asiri"}
+    sinif_renk = {"Dusuk": GREEN, "Orta": colors.HexColor("#8a7a00"),
+                  "Yuksek": colors.HexColor("#b86800"), "Cok Yuksek": RED,
+                  "Asiri": colors.HexColor("#880088")}
+
+    if tip == "manuel":
+        girdi = data.get("girdi", {})
+        sonuc = data.get("sonuc", {})
+
+        # Girdi bilgileri
+        story.append(Paragraph("Girdi Degerleri", sH1))
+        girdi_rows = [
+            [Paragraph("Parametre", sBold), Paragraph("Deger", sBold)],
+            [Paragraph("Sicaklik", sBody), Paragraph(f"{girdi.get('temp', '-')} C", sBody)],
+            [Paragraph("Bagil Nem", sBody), Paragraph(f"%{girdi.get('rh', '-')}", sBody)],
+            [Paragraph("Ruzgar Hizi", sBody), Paragraph(f"{girdi.get('wind', '-')} km/h", sBody)],
+            [Paragraph("Yagis", sBody), Paragraph(f"{girdi.get('precip', '-')} mm", sBody)],
+            [Paragraph("Ay", sBody), Paragraph(f"{girdi.get('month', '-')}", sBody)],
+        ]
+        if girdi.get("lat"):
+            girdi_rows.append([Paragraph("Enlem", sBody), Paragraph(f"{girdi['lat']}", sBody)])
+
+        t = Table(girdi_rows, colWidths=[6*cm, 10*cm], hAlign="LEFT")
+        t.setStyle(TableStyle([
+            ("BACKGROUND", (0,0), (-1,0), BGHEAD),
+            ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, BGCARD]),
+            ("BOX", (0,0), (-1,-1), 0.5, BORDER),
+            ("LINEBELOW", (0,0), (-1,-2), 0.3, BORDER),
+            ("TOPPADDING", (0,0), (-1,-1), 6),
+            ("BOTTOMPADDING", (0,0), (-1,-1), 6),
+            ("LEFTPADDING", (0,0), (-1,-1), 10),
+            ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+        ]))
+        story.append(t)
+        story.append(Spacer(1, 10))
+
+        # Sonuc — tehlike sinifi
+        sinif = sonuc.get("sinif", "Orta")
+        fwi_val = sonuc.get("fwi", 0)
+        renk = sinif_renk.get(sinif, DARK)
+
+        story.append(Paragraph("Sonuc", sH1))
+        story.append(Paragraph(
+            f"Tehlike Sinifi: <b>{sinif_tr.get(sinif, sinif)}</b>  |  FWI = <b>{fwi_val}</b>",
+            S("rSonuc", fontName=FR, fontSize=12, textColor=renk, leading=18)))
+        story.append(Spacer(1, 8))
+
+        # Indeks tablosu
+        indeks_rows = [
+            [Paragraph("Indeks", sBold), Paragraph("Deger", sBold), Paragraph("Aciklama", sBold)],
+            [Paragraph("FFMC", sBody), Paragraph(str(sonuc.get("ffmc","-")), sBody), Paragraph("Ince Ust Tabaka Yanici Madde Nem Kodu", sBody)],
+            [Paragraph("DMC", sBody), Paragraph(str(sonuc.get("dmc","-")), sBody), Paragraph("Humus Nem Kodu", sBody)],
+            [Paragraph("DC", sBody), Paragraph(str(sonuc.get("dc","-")), sBody), Paragraph("Derin Organik Tabaka Nem Kodu", sBody)],
+            [Paragraph("ISI", sBody), Paragraph(str(sonuc.get("isi","-")), sBody), Paragraph("Baslangic Yayilma Indeksi", sBody)],
+            [Paragraph("BUI", sBody), Paragraph(str(sonuc.get("bui","-")), sBody), Paragraph("Birikmis Yanici Madde Indeksi", sBody)],
+            [Paragraph("FWI", sBody), Paragraph(str(sonuc.get("fwi","-")), sBold), Paragraph("Yangin Hava Indeksi", sBody)],
+            [Paragraph("DSR", sBody), Paragraph(str(sonuc.get("dsr","-")), sBody), Paragraph("Gunluk Siddet Orani", sBody)],
+        ]
+        t2 = Table(indeks_rows, colWidths=[3*cm, 3*cm, 10*cm], hAlign="LEFT")
+        t2.setStyle(TableStyle([
+            ("BACKGROUND", (0,0), (-1,0), BGHEAD),
+            ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, BGCARD]),
+            ("BOX", (0,0), (-1,-1), 0.5, BORDER),
+            ("LINEBELOW", (0,0), (-1,-2), 0.3, BORDER),
+            ("TOPPADDING", (0,0), (-1,-1), 6),
+            ("BOTTOMPADDING", (0,0), (-1,-1), 6),
+            ("LEFTPADDING", (0,0), (-1,-1), 10),
+            ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+        ]))
+        story.append(t2)
+
+    elif tip == "coklu":
+        # Coklu gun sonuclari (API / CSV)
+        satirlar = data.get("satirlar", [])
+        meta = data.get("meta", {})
+
+        if meta:
+            story.append(Paragraph("Sorgu Bilgileri", sH1))
+            meta_text = []
+            if meta.get("lat"): meta_text.append(f"Konum: {meta['lat']}, {meta['lon']}")
+            if meta.get("baslangic"): meta_text.append(f"Donem: {meta['baslangic']} - {meta['bitis']}")
+            meta_text.append(f"Toplam gun: {len(satirlar)}")
+            story.append(Paragraph("  |  ".join(meta_text), sBody))
+            story.append(Spacer(1, 8))
+
+        # Istatistikler
+        if satirlar:
+            fwi_list = [r["fwi"] for r in satirlar]
+            max_fwi = max(fwi_list)
+            max_gun = next((r for r in satirlar if r["fwi"] == max_fwi), None)
+            ort_fwi = sum(fwi_list) / len(fwi_list)
+            asiri = sum(1 for v in fwi_list if v >= 30)
+            cok_yuksek = sum(1 for v in fwi_list if v >= 20)
+
+            story.append(Paragraph("Istatistikler", sH1))
+            stat_rows = [
+                [Paragraph("Metrik", sBold), Paragraph("Deger", sBold)],
+                [Paragraph("En Yuksek FWI", sBody),
+                 Paragraph(f"{max_fwi} ({max_gun['tarih'][:4]}-{max_gun['tarih'][4:6]}-{max_gun['tarih'][6:8]})" if max_gun else str(max_fwi), sBody)],
+                [Paragraph("Ortalama FWI", sBody), Paragraph(f"{ort_fwi:.1f}", sBody)],
+                [Paragraph("Asiri Gun (FWI >= 30)", sBody), Paragraph(str(asiri), sBody)],
+                [Paragraph("Cok Yuksek+ Gun (FWI >= 20)", sBody), Paragraph(str(cok_yuksek), sBody)],
+            ]
+            ts = Table(stat_rows, colWidths=[8*cm, 8*cm], hAlign="LEFT")
+            ts.setStyle(TableStyle([
+                ("BACKGROUND", (0,0), (-1,0), BGHEAD),
+                ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, BGCARD]),
+                ("BOX", (0,0), (-1,-1), 0.5, BORDER),
+                ("LINEBELOW", (0,0), (-1,-2), 0.3, BORDER),
+                ("TOPPADDING", (0,0), (-1,-1), 6),
+                ("BOTTOMPADDING", (0,0), (-1,-1), 6),
+                ("LEFTPADDING", (0,0), (-1,-1), 10),
+                ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+            ]))
+            story.append(ts)
+            story.append(Spacer(1, 12))
+
+        # Gunluk tablo
+        story.append(Paragraph("Gunluk Sonuclar", sH1))
+        header = [Paragraph(h, S("rTH", fontName=FB, fontSize=7.5, textColor=BLUE, leading=11))
+                  for h in ["Tarih","T(C)","RH(%)","Ruzgar","Yagis","FFMC","DMC","DC","ISI","BUI","FWI","Sinif"]]
+        rows = [header]
+        sSatir = S("rTD", fontSize=7, textColor=DARK, leading=10)
+        sSatirB = S("rTDB", fontName=FB, fontSize=7, textColor=DARK, leading=10)
+
+        for r in satirlar:
+            tarih = f"{r['tarih'][:4]}-{r['tarih'][4:6]}-{r['tarih'][6:8]}" if len(str(r.get('tarih',''))) == 8 else str(r.get('tarih',''))
+            sinif = r.get("sinif", "")
+            renk = sinif_renk.get(sinif, DARK)
+            sSinif = S(f"rSn_{id(r)}", fontName=FB, fontSize=7, textColor=renk, leading=10)
+            rows.append([
+                Paragraph(tarih, sSatir),
+                Paragraph(f"{r.get('temp',0):.1f}", sSatir),
+                Paragraph(f"{r.get('rh',0):.0f}", sSatir),
+                Paragraph(f"{r.get('wind_kmh',0):.1f}", sSatir),
+                Paragraph(f"{r.get('precip',0):.1f}", sSatir),
+                Paragraph(str(r.get("ffmc","")), sSatir),
+                Paragraph(str(r.get("dmc","")), sSatir),
+                Paragraph(str(r.get("dc","")), sSatir),
+                Paragraph(str(r.get("isi","")), sSatir),
+                Paragraph(str(r.get("bui","")), sSatir),
+                Paragraph(str(r.get("fwi","")), sSatirB),
+                Paragraph(sinif_tr.get(sinif, sinif), sSinif),
+            ])
+
+        cw = [2*cm, 1.2*cm, 1.2*cm, 1.2*cm, 1.2*cm, 1.3*cm, 1.3*cm, 1.3*cm, 1.2*cm, 1.2*cm, 1.2*cm, 1.8*cm]
+        tbl = Table(rows, colWidths=cw, hAlign="LEFT", repeatRows=1)
+        tbl.setStyle(TableStyle([
+            ("BACKGROUND", (0,0), (-1,0), BGHEAD),
+            ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, BGCARD]),
+            ("BOX", (0,0), (-1,-1), 0.5, BORDER),
+            ("LINEBELOW", (0,0), (-1,-1), 0.2, BORDER),
+            ("TOPPADDING", (0,0), (-1,-1), 4),
+            ("BOTTOMPADDING", (0,0), (-1,-1), 4),
+            ("LEFTPADDING", (0,0), (-1,-1), 4),
+            ("RIGHTPADDING", (0,0), (-1,-1), 4),
+            ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+        ]))
+        story.append(tbl)
+
+    # Footer
+    story.append(Spacer(1, 20))
+    story.append(HR())
+    story.append(Paragraph("FWI Yangin Erken Uyari Sistemi  |  Van Wagner (1987)", sFooter))
+    story.append(Paragraph(f"Rapor olusturma: {now}", sFooter))
+
+    doc.build(story)
+    buf.seek(0)
+    return send_file(buf, mimetype="application/pdf",
+                     as_attachment=True, download_name="fwi_rapor.pdf")
 
 
 if __name__ == "__main__":

@@ -56,7 +56,7 @@ DC_BASLANGIC   = 15.0
 
 def ffmc(temp, rh, wind, precip, ffmc0):
     """
-    Fine Fuel Moisture Code (İnce Yakıt Nem Kodu)
+    Fine Fuel Moisture Code (İnce Üst Tabaka Yanıcı Madde Nem Kodu — İYMNK)
 
     Parametreler:
         temp   : sıcaklık (°C), öğlen ölçümü
@@ -115,7 +115,7 @@ def ffmc(temp, rh, wind, precip, ffmc0):
 
 def dmc(temp, rh, precip, dmc0, month, le_tablo=None):
     """
-    Duff Moisture Code (Döküntü Nem Kodu)
+    Duff Moisture Code (Humus Nem Kodu)
 
     Parametreler:
         temp   : sıcaklık (°C), öğlen ölçümü
@@ -160,7 +160,7 @@ def dmc(temp, rh, precip, dmc0, month, le_tablo=None):
 
 def dc(temp, precip, dc0, month, lf_tablo=None):
     """
-    Drought Code (Kuraklık Kodu)
+    Drought Code (Derin Organik Tabaka Nem Kodu — DONK)
 
     Parametreler:
         temp   : sıcaklık (°C), öğlen ölçümü
@@ -216,7 +216,7 @@ def isi(ffmc_val, wind):
 
 def bui(dmc_val, dc_val):
     """
-    Build Up Index (Birikim İndeksi)
+    Build Up Index (Birikmiş Yanıcı Madde İndeksi)
 
     Parametreler:
         dmc_val : güncel DMC değeri

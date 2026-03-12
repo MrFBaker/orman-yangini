@@ -55,8 +55,64 @@
     .nav-link:hover:not(.aktif) { color: #7eb8e0; background: #162030; }
     .nav-link.aktif { background: #162030; color: #f0a500; }
 
+    /* DİL SEÇİCİ */
+    .lang-toggle {
+      position: relative;
+      margin-left: 12px;
+    }
+    .lang-btn {
+      background: transparent;
+      border: 1px solid #223047;
+      border-radius: 8px;
+      color: #7eb8e0;
+      cursor: pointer;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .lang-btn:hover { background: #162030; border-color: #2c4060; }
+    .lang-btn svg { width: 16px; height: 16px; fill: currentColor; }
+    .lang-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+      background: #0c1520;
+      border: 1px solid #223047;
+      border-radius: 8px;
+      overflow: hidden;
+      z-index: 200;
+      min-width: 120px;
+    }
+    .lang-dropdown.acik { display: block; }
+    .lang-option {
+      display: block;
+      width: 100%;
+      padding: 10px 16px;
+      background: transparent;
+      border: none;
+      color: #8a9bb0;
+      font-size: 0.82rem;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s;
+    }
+    .lang-option:hover { background: #162030; color: #e0e0e0; }
+    .lang-option.aktif { color: #f0a500; font-weight: 600; }
+
+    /* DİL BLOKLARI */
+    .lang-tr, .lang-en { display: none !important; }
+    html[lang="tr"] .lang-tr, html:not([lang="en"]) .lang-tr { display: block !important; }
+    html[lang="en"] .lang-en { display: block !important; }
+    html[lang="tr"] nav.lang-tr, html:not([lang="en"]) nav.lang-tr { display: flex !important; }
+    html[lang="en"] nav.lang-en { display: flex !important; }
+
     /* SAYFALAR */
-    .sayfa { display: none; width: 100%; max-width: 760px; padding: 40px 16px; }
+    .sayfa { display: none; width: 100%; max-width: 1100px; padding: 40px 16px; }
     .sayfa.aktif { display: block; }
 
     /* ── SAYFA 1: HAKKINDA ── */
@@ -173,8 +229,8 @@
     @media (max-width: 560px) {
       .akis-diagram { grid-template-columns: 1fr; }
       .akis-ok-sutun { transform: rotate(90deg); margin: 4px auto; }
-      .akis-nem-kodlari { grid-template-columns: repeat(3,1fr); }
-      .akis-indeksler { grid-template-columns: 1fr 1fr 1fr; }
+      .akis-nem-kodlari { grid-template-columns: 1fr 1fr; }
+      .akis-indeksler { grid-template-columns: 1fr 1fr; }
     }
 
     .basla-btn {
@@ -236,6 +292,8 @@
     .btn:hover { background: #ffc030; }
     .btn:active { transform: scale(0.98); }
     .btn:disabled { background: #5a4a00; color: #8a7a40; cursor: not-allowed; }
+    .rapor-btn { margin-top: 16px; background: #1a5a8a; color: #fff; font-size: 0.9rem; padding: 12px; }
+    .rapor-btn:hover { background: #2070aa; }
 
     .info-notu {
       background: #0f2030; border: 1px solid #1a3a50; border-radius: 8px;
@@ -269,12 +327,12 @@
     .indeks-kutu .birim  { font-size: 0.7rem; color: #556070; margin-top: 2px; }
 
     /* NASA SONUÇ */
-    #nasa-sonuc-alani { display: none; width: 100%; max-width: 760px; margin: 0 auto 8px; }
+    #nasa-sonuc-alani { display: none; width: 100%; max-width: 1100px; margin: 0 auto 8px; }
     .tablo-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid #223047; }
     table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
     thead { background: #0f1923; }
-    th { padding: 10px 12px; color: #7eb8e0; text-align: center; font-weight: 600; letter-spacing: 0.3px; border-bottom: 1px solid #223047; }
-    td { padding: 9px 12px; text-align: center; border-bottom: 1px solid #1a2a3a; color: #c0d0e0; }
+    th { padding: 10px 8px; color: #7eb8e0; text-align: center; font-weight: 600; letter-spacing: 0.3px; border-bottom: 1px solid #223047; white-space: nowrap; font-size: 0.78rem; }
+    td { padding: 9px 8px; text-align: center; border-bottom: 1px solid #1a2a3a; color: #c0d0e0; white-space: nowrap; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #1a2a3a; }
     .sinif-hucre { font-weight: 700; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; }
@@ -290,21 +348,27 @@
       width: 100%; max-width: 560px; margin: 0 auto;
     }
 
-    .istatistik-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    .sonuc-ust-grid {
+      display: grid; grid-template-columns: 200px 1fr; gap: 16px;
       margin-top: 16px; margin-bottom: 16px;
+    }
+    @media (max-width: 768px) {
+      .sonuc-ust-grid { grid-template-columns: 1fr; }
+    }
+    .istatistik-grid {
+      display: grid; grid-template-columns: 1fr; gap: 10px;
     }
     .istat-kutu {
       background: #162030; border: 1px solid #223047;
-      border-radius: 10px; padding: 14px 10px; text-align: center;
+      border-radius: 10px; padding: 12px 10px; text-align: center;
     }
-    .istat-kutu .etiket { font-size: 0.68rem; color: #7eb8e0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-    .istat-kutu .deger  { font-size: 1.25rem; font-weight: 700; color: #f0a500; }
-    .istat-kutu .alt    { font-size: 0.68rem; color: #556070; margin-top: 3px; }
+    .istat-kutu .etiket { font-size: 0.65rem; color: #7eb8e0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .istat-kutu .deger  { font-size: 1.15rem; font-weight: 700; color: #f0a500; }
+    .istat-kutu .alt    { font-size: 0.65rem; color: #556070; margin-top: 2px; }
 
     .grafik-kutu {
       background: #162030; border: 1px solid #223047;
-      border-radius: 10px; padding: 20px; margin-top: 16px;
+      border-radius: 10px; padding: 20px;
     }
     .grafik-baslik { font-size: 0.78rem; color: #7eb8e0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
 
@@ -439,8 +503,10 @@
     @media (max-width: 700px) {
       .formul-satir { grid-template-columns: 1fr; gap: 6px; }
       .formul-etiket { font-size: 0.8rem; padding-bottom: 2px; }
+      .formul-kart { padding: 18px 16px; }
       .esik-grid { grid-template-columns: 1fr; }
       .yontem-nav { gap: 4px; }
+      .yontem-nav a { padding: 8px 14px; }
     }
 
     /* DOĞRULAMA KARTLARI */
@@ -479,14 +545,12 @@
     .test-hata { color: #ff8080; font-size: 0.85rem; }
 
     @media (max-width: 600px) {
-      .test-indeksler { grid-template-columns: repeat(3, 1fr); }
-      .test-meta { gap: 10px; }
-    }
-
-    @media (max-width: 600px) {
       nav { padding: 0 12px; }
       .nav-logo span { display: none; }
-      .nav-link { padding: 7px 10px; font-size: 0.78rem; }
+      .nav-link { padding: 11px 10px; font-size: 0.78rem; }
+      .lang-toggle { margin-left: 4px; }
+      .lang-btn span { display: none; }
+      .lang-btn { padding: 6px 8px; }
 
       .sayfa { padding: 20px 12px; }
 
@@ -495,6 +559,9 @@
       .hero p { font-size: 0.85rem; }
 
       .bilgi-grid { grid-template-columns: 1fr; }
+
+      .akis-kart { padding: 18px 16px; }
+      .alt-sekme { padding: 11px 14px; }
 
       .akis { flex-direction: column; align-items: flex-start; gap: 4px; }
       .akis-ok { transform: rotate(90deg); margin-left: 20px; }
@@ -511,6 +578,9 @@
       .sinif-banner .fwi-deger { font-size: 2.2rem; }
       .sinif-banner .sinif-adi { font-size: 1.2rem; }
 
+      .test-indeksler { grid-template-columns: repeat(3, 1fr); }
+      .test-meta { gap: 10px; }
+
       table { font-size: 0.72rem; }
       th, td { padding: 6px 6px; }
     }
@@ -520,12 +590,22 @@
 
 <!-- NAVİGASYON -->
 <nav>
-  <div class="nav-logo">&#x1F525; FWI <span>Yangın Erken Uyarı Sistemi</span></div>
+  <div class="nav-logo">&#x1F525; FWI <span data-i18n="nav_subtitle">Yangın Erken Uyarı Sistemi</span></div>
   <div class="nav-linkler">
-    <button class="nav-link aktif" onclick="sayfaAc('hakkinda', this)">Proje Hakkında</button>
-    <button class="nav-link" onclick="sayfaAc('hesap', this)">Hesaplayıcı</button>
-    <button class="nav-link" onclick="sayfaAc('yontem', this)">Hesaplama Yöntemi</button>
-    <button class="nav-link" onclick="sayfaAc('dogrulama', this)">Doğrulama</button>
+    <button class="nav-link aktif" onclick="sayfaAc('hakkinda', this)" data-i18n="nav_about">Proje Hakkında</button>
+    <button class="nav-link" onclick="sayfaAc('hesap', this)" data-i18n="nav_calc">Hesaplayıcı</button>
+    <button class="nav-link" onclick="sayfaAc('yontem', this)" data-i18n="nav_method">Hesaplama Yöntemi</button>
+    <button class="nav-link" onclick="sayfaAc('dogrulama', this)" data-i18n="nav_valid">Doğrulama</button>
+    <div class="lang-toggle">
+      <button class="lang-btn" onclick="langMenuToggle()">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        <span id="lang-label">TR</span>
+      </button>
+      <div class="lang-dropdown" id="lang-dropdown">
+        <button class="lang-option aktif" id="lang-opt-tr" onclick="setLang('tr')">Türkçe</button>
+        <button class="lang-option" id="lang-opt-en" onclick="setLang('en')">English</button>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -535,91 +615,91 @@
 <div class="sayfa aktif" id="sayfa-hakkinda">
 
   <div class="hero">
-    <h1>&#x1F525; Orman Yangını Erken Uyarı Sistemi</h1>
-    <p>Meteorolojik verilerden gerçek zamanlı orman yangını tehlike seviyesi hesaplayan sistem. Van Wagner (1987) Kanada Orman Yangını Hava İndeksi yöntemini esas alır.</p>
+    <h1 data-i18n="hero_title">&#x1F525; Orman Yangını Erken Uyarı Sistemi</h1>
+    <p data-i18n="hero_desc">Meteorolojik verilerden gerçek zamanlı orman yangını tehlike seviyesi hesaplayan sistem. Van Wagner (1987) Kanada Orman Yangını Hava İndeksi yöntemini esas alır.</p>
   </div>
 
   <div class="bilgi-grid">
     <div class="bilgi-kart">
-      <h3>Proje Hakkında</h3>
-      <p>Bu sistem <strong>Meteoroloji Mühendisliği Tasarım Projesi</strong> kapsamında geliştirilmiştir. Ekip tarafından tasarlanan orman yangını erken uyarı sisteminin FWI hesaplama bileşenini oluşturmaktadır.</p>
-      <p style="margin-top:10px">Hesaplamalar tamamen <strong>Van Wagner (1987)</strong> referans formüllerine dayanmaktadır. Open-Meteo saatlik yeniden analiz verisiyle otomatik veri çekimi desteklenmektedir.</p>
+      <h3 data-i18n="card_about_title">Proje Hakkında</h3>
+      <p data-i18n="card_about_p1" data-i18n-html="1">Bu sistem, Sayın <strong>Prof. Dr. Levent ŞAYLAN</strong> danışmanlığında <strong>İklim Bilimi ve Meteoroloji Mühendisliği Tasarım Projesi</strong> kapsamında geliştirilmiştir. Orman yangını erken uyarı sisteminin FWI hesaplama bileşenini oluşturmaktadır.</p>
+      <p style="margin-top:10px" data-i18n="card_about_p2" data-i18n-html="1">Hesaplamalar tamamen <strong>Van Wagner (1987)</strong> referans formüllerine dayanmaktadır. Open-Meteo saatlik yeniden analiz verisiyle otomatik veri çekimi desteklenmektedir.</p>
     </div>
 
     <div class="bilgi-kart">
-      <h3>FWI Bileşenleri</h3>
+      <h3 data-i18n="card_components_title">FWI Bileşenleri</h3>
       <ul class="komponent-liste">
-        <li><span class="komponent-badge">FFMC</span>İnce yakıt nemi kodu — yüzey tutuşmasını etkiler</li>
-        <li><span class="komponent-badge">DMC</span>Döküntü nem kodu — orta derinlik yakıtı</li>
-        <li><span class="komponent-badge">DC</span>Kuraklık kodu — derin toprak nemi</li>
-        <li><span class="komponent-badge">ISI</span>Başlangıç yayılma indeksi</li>
-        <li><span class="komponent-badge">BUI</span>Birikim kullanım indeksi</li>
-        <li><span class="komponent-badge">FWI</span>Yangın hava indeksi — nihai çıktı</li>
+        <li><span class="komponent-badge">FFMC</span><span data-i18n="comp_ffmc">İnce üst tabaka yanıcı madde nem kodu — yüzey tutuşması</span></li>
+        <li><span class="komponent-badge">DMC</span><span data-i18n="comp_dmc">Humus nem kodu — orta derinlik organik tabaka</span></li>
+        <li><span class="komponent-badge">DC</span><span data-i18n="comp_dc">Derin organik tabaka nem kodu — uzun süreli kuraklık</span></li>
+        <li><span class="komponent-badge">ISI</span><span data-i18n="comp_isi">Başlangıç yayılma indeksi</span></li>
+        <li><span class="komponent-badge">BUI</span><span data-i18n="comp_bui">Birikmiş yanıcı madde indeksi</span></li>
+        <li><span class="komponent-badge">FWI</span><span data-i18n="comp_fwi">Yangın hava indeksi — nihai çıktı</span></li>
       </ul>
     </div>
 
     <div class="bilgi-kart">
-      <h3>Tehlike Sınıfları</h3>
+      <h3 data-i18n="card_risk_title">Tehlike Sınıfları</h3>
       <div class="risk-liste">
         <div class="risk-satir">
           <div class="risk-nokta" style="background:#7ed87e"></div>
-          <span class="risk-adi" style="color:#7ed87e">Düşük</span>
+          <span class="risk-adi" style="color:#7ed87e" data-i18n="risk_low">Düşük</span>
           <span class="risk-aralik">FWI &lt; 5</span>
         </div>
         <div class="risk-satir">
           <div class="risk-nokta" style="background:#f5e042"></div>
-          <span class="risk-adi" style="color:#f5e042">Orta</span>
+          <span class="risk-adi" style="color:#f5e042" data-i18n="risk_moderate">Orta</span>
           <span class="risk-aralik">5 – 10</span>
         </div>
         <div class="risk-satir">
           <div class="risk-nokta" style="background:#ffa040"></div>
-          <span class="risk-adi" style="color:#ffa040">Yüksek</span>
+          <span class="risk-adi" style="color:#ffa040" data-i18n="risk_high">Yüksek</span>
           <span class="risk-aralik">10 – 20</span>
         </div>
         <div class="risk-satir">
           <div class="risk-nokta" style="background:#ff5555"></div>
-          <span class="risk-adi" style="color:#ff5555">Çok Yüksek</span>
+          <span class="risk-adi" style="color:#ff5555" data-i18n="risk_very_high">Çok Yüksek</span>
           <span class="risk-aralik">20 – 30</span>
         </div>
         <div class="risk-satir">
           <div class="risk-nokta" style="background:#cc77ff"></div>
-          <span class="risk-adi" style="color:#cc77ff">Aşırı</span>
+          <span class="risk-adi" style="color:#cc77ff" data-i18n="risk_extreme">Aşırı</span>
           <span class="risk-aralik">FWI ≥ 30</span>
         </div>
       </div>
     </div>
 
     <div class="bilgi-kart">
-      <h3>Veri Kaynağı</h3>
-      <p style="font-size:0.82rem;color:#8a9bb0;margin-bottom:10px">Open-Meteo saatlik yeniden analiz verisi — <strong style="color:#c0d0e0">öğlen 12:00 LST</strong> anlık değerler</p>
+      <h3 data-i18n="card_datasrc_title">Veri Kaynağı</h3>
+      <p style="font-size:0.82rem;color:#8a9bb0;margin-bottom:10px" data-i18n="card_datasrc_desc" data-i18n-html="1">Open-Meteo saatlik yeniden analiz verisi — <strong style="color:#c0d0e0">öğlen 12:00 LST</strong> anlık değerler</p>
       <div class="veri-grid">
         <div class="veri-chip">
-          <div class="v-etiket">Sıcaklık</div>
-          <div class="v-acik">12:00 LST anlık · °C</div>
+          <div class="v-etiket" data-i18n="data_temp">Sıcaklık</div>
+          <div class="v-acik" data-i18n="data_temp_desc">12:00 LST anlık · °C</div>
         </div>
         <div class="veri-chip">
-          <div class="v-etiket">Bağıl Nem</div>
-          <div class="v-acik">12:00 LST anlık · %</div>
+          <div class="v-etiket" data-i18n="data_rh">Bağıl Nem</div>
+          <div class="v-acik" data-i18n="data_rh_desc">12:00 LST anlık · %</div>
         </div>
         <div class="veri-chip">
-          <div class="v-etiket">Rüzgar</div>
-          <div class="v-acik">12:00 LST anlık · km/h</div>
+          <div class="v-etiket" data-i18n="data_wind">Rüzgar</div>
+          <div class="v-acik" data-i18n="data_wind_desc">12:00 LST anlık · km/h</div>
         </div>
         <div class="veri-chip">
-          <div class="v-etiket">Yağış</div>
-          <div class="v-acik">Günlük toplam · mm</div>
+          <div class="v-etiket" data-i18n="data_precip">Yağış</div>
+          <div class="v-acik" data-i18n="data_precip_desc">Günlük toplam · mm</div>
         </div>
       </div>
     </div>
   </div>
 
   <div class="akis-kart">
-    <h3>Hesaplama Akışı</h3>
+    <h3 data-i18n="flow_title">Hesaplama Akışı</h3>
     <div class="akis-diagram">
 
       <!-- Sütun 1: Girdi -->
       <div class="akis-kutu girdi">
-        <strong>Girdi</strong>
+        <strong data-i18n="flow_input">Girdi</strong>
         T · RH · W · P
       </div>
 
@@ -628,9 +708,9 @@
 
       <!-- Sütun 3: Nem Kodları -->
       <div class="akis-nem-kodlari">
-        <div class="akis-kutu"><strong>FFMC</strong>İnce yakıt</div>
-        <div class="akis-kutu"><strong>DMC</strong>Döküntü</div>
-        <div class="akis-kutu"><strong>DC</strong>Kuraklık</div>
+        <div class="akis-kutu"><strong>FFMC</strong><span data-i18n="flow_ffmc">Üst tabaka</span></div>
+        <div class="akis-kutu"><strong>DMC</strong><span data-i18n="flow_dmc">Humus</span></div>
+        <div class="akis-kutu"><strong>DC</strong><span data-i18n="flow_dc">Derin tabaka</span></div>
       </div>
 
       <!-- Ok 2 -->
@@ -638,16 +718,16 @@
 
       <!-- Sütun 5: ISI, BUI, FWI -->
       <div class="akis-indeksler">
-        <div class="akis-kutu"><strong>ISI</strong>Yayılma</div>
-        <div class="akis-kutu"><strong>BUI</strong>Birikim</div>
-        <div class="akis-kutu cikti"><strong>FWI</strong>Sonuç</div>
+        <div class="akis-kutu"><strong>ISI</strong><span data-i18n="flow_isi">Yayılma</span></div>
+        <div class="akis-kutu"><strong>BUI</strong><span data-i18n="flow_bui">Birikim</span></div>
+        <div class="akis-kutu cikti"><strong>FWI</strong><span data-i18n="flow_fwi">Sonuç</span></div>
       </div>
 
     </div>
   </div>
 
   <button class="basla-btn" onclick="sayfaAc('hesap', document.querySelectorAll('.nav-link')[1])">
-    Hesaplayıcıya Geç →
+    <span data-i18n="btn_goto_calc">Hesaplayıcıya Geç →</span>
   </button>
 
 </div>
@@ -659,8 +739,8 @@
 
   <!-- SEKMELER -->
   <div class="sekmeler">
-    <button class="sekme aktif" onclick="sekmeAc('manuel', this)">Manuel Giriş</button>
-    <button class="sekme" onclick="sekmeAc('nasa', this)">Otomatik Veri Çekimi</button>
+    <button class="sekme aktif" onclick="sekmeAc('manuel', this)" data-i18n="tab_manual">Manuel Giriş</button>
+    <button class="sekme" onclick="sekmeAc('nasa', this)" data-i18n="tab_auto">Otomatik Veri Çekimi</button>
   </div>
 
   <div class="kart">
@@ -670,110 +750,110 @@
 
       <!-- Alt sekmeler -->
       <div class="alt-sekmeler">
-        <button class="alt-sekme aktif" onclick="altSekmeAc('tek', this)">Tek Gün</button>
-        <button class="alt-sekme" onclick="altSekmeAc('csv', this)">CSV Dosyası</button>
+        <button class="alt-sekme aktif" onclick="altSekmeAc('tek', this)" data-i18n="subtab_single">Tek Gün</button>
+        <button class="alt-sekme" onclick="altSekmeAc('csv', this)" data-i18n="subtab_csv">CSV Dosyası</button>
       </div>
 
       <!-- Alt panel: Tek Gün -->
       <div class="alt-panel aktif" id="alt-tek">
         <div class="form-grid" style="margin-top:16px">
           <div class="form-grup">
-            <label>Sıcaklık (°C)</label>
+            <label data-i18n="label_temp">Sıcaklık (°C)</label>
             <input type="number" id="temp" step="0.1" value="17" />
           </div>
           <div class="form-grup">
-            <label>Bağıl Nem (%)</label>
+            <label data-i18n="label_rh">Bağıl Nem (%)</label>
             <input type="number" id="rh" step="1" min="0" max="100" value="42" />
           </div>
           <div class="form-grup">
-            <label>Rüzgar (km/h)</label>
+            <label data-i18n="label_wind">Rüzgar (km/h)</label>
             <input type="number" id="wind" step="0.1" min="0" value="25" />
           </div>
           <div class="form-grup">
-            <label>Yağış (mm)</label>
+            <label data-i18n="label_precip">Yağış (mm)</label>
             <input type="number" id="precip" step="0.1" min="0" value="0" />
           </div>
           <div class="form-grup">
-            <label>Ay</label>
+            <label data-i18n="label_month">Ay</label>
             <select id="month">
-              <option value="1">Ocak</option><option value="2">Şubat</option>
-              <option value="3">Mart</option><option value="4">Nisan</option>
-              <option value="5">Mayıs</option><option value="6">Haziran</option>
-              <option value="7" selected>Temmuz</option><option value="8">Ağustos</option>
-              <option value="9">Eylül</option><option value="10">Ekim</option>
-              <option value="11">Kasım</option><option value="12">Aralık</option>
+              <option value="1" data-i18n="month_1">Ocak</option><option value="2" data-i18n="month_2">Şubat</option>
+              <option value="3" data-i18n="month_3">Mart</option><option value="4" data-i18n="month_4">Nisan</option>
+              <option value="5" data-i18n="month_5">Mayıs</option><option value="6" data-i18n="month_6">Haziran</option>
+              <option value="7" selected data-i18n="month_7">Temmuz</option><option value="8" data-i18n="month_8">Ağustos</option>
+              <option value="9" data-i18n="month_9">Eylül</option><option value="10" data-i18n="month_10">Ekim</option>
+              <option value="11" data-i18n="month_11">Kasım</option><option value="12" data-i18n="month_12">Aralık</option>
             </select>
           </div>
         </div>
         <details>
-          <summary>&#9881; Önceki Gün Değerleri (Gelişmiş)</summary>
+          <summary data-i18n="prev_day_summary">&#9881; Önceki Gün Değerleri (Gelişmiş)</summary>
           <div class="onceki-grid">
             <div class="form-grup"><label>FFMC₀</label><input type="number" id="ffmc0" step="0.1" value="85" /></div>
             <div class="form-grup"><label>DMC₀</label><input type="number" id="dmc0" step="0.1" value="6" /></div>
             <div class="form-grup"><label>DC₀</label><input type="number" id="dc0" step="0.1" value="15" /></div>
           </div>
           <div class="form-grup" style="margin-top:12px">
-            <label>Enlem (isteğe bağlı — Le/Lf düzeltmesi için)</label>
-            <input type="number" id="manuel-lat" step="0.01" placeholder="örn. 37.5 (Türkiye için boş bırakabilirsiniz)" />
+            <label data-i18n="label_lat_optional">Enlem (isteğe bağlı — Le/Lf düzeltmesi için)</label>
+            <input type="number" id="manuel-lat" step="0.01" data-i18n-placeholder="placeholder_lat" placeholder="örn. 37.5 (Türkiye için boş bırakabilirsiniz)" />
           </div>
         </details>
-        <button class="btn" onclick="hesapla()">Hesapla</button>
+        <button class="btn" onclick="hesapla()" data-i18n="btn_calculate">Hesapla</button>
       </div>
 
       <!-- Alt panel: CSV -->
       <div class="alt-panel" id="alt-csv">
         <div class="info-notu" style="margin-top:16px">
-          CSV formatı: <code>tarih,temp,rh,wind,precip</code> — tarih YYYYMMDD, rüzgar km/h.
-          <a href="/static/ornek.csv" download style="color:#f0a500;margin-left:8px">Örnek indir</a>
+          <span data-i18n="csv_format_info">CSV formatı: <code>tarih,temp,rh,wind,precip</code> — tarih YYYYMMDD, rüzgar km/h.</span>
+          <a href="/static/ornek.csv" download style="color:#f0a500;margin-left:8px" data-i18n="csv_download_sample">Örnek indir</a>
         </div>
         <div class="csv-yukle-alani" id="csv-yukle-alani" onclick="document.getElementById('csv-input').click()">
           <div class="csv-ikon">📂</div>
-          <div class="csv-metin">CSV dosyası seçmek için tıkla</div>
-          <div class="csv-alt" id="csv-dosya-adi">veya sürükle bırak</div>
+          <div class="csv-metin" data-i18n="csv_click">CSV dosyası seçmek için tıkla</div>
+          <div class="csv-alt" id="csv-dosya-adi" data-i18n="csv_drag">veya sürükle bırak</div>
         </div>
         <input type="file" id="csv-input" accept=".csv,.txt" style="display:none" onchange="csvDosyaSecildi(this)" />
         <details style="margin-top:12px">
-          <summary>&#9881; Başlangıç Değerleri</summary>
+          <summary data-i18n="csv_initial_values">&#9881; Başlangıç Değerleri</summary>
           <div class="onceki-grid" style="margin-top:12px">
             <div class="form-grup"><label>FFMC₀</label><input type="number" id="csv-ffmc0" step="0.1" value="85" /></div>
             <div class="form-grup"><label>DMC₀</label><input type="number" id="csv-dmc0" step="0.1" value="6" /></div>
             <div class="form-grup"><label>DC₀</label><input type="number" id="csv-dc0" step="0.1" value="15" /></div>
           </div>
           <div class="form-grup" style="margin-top:12px">
-            <label>Enlem (isteğe bağlı — Le/Lf düzeltmesi için)</label>
-            <input type="number" id="csv-lat" step="0.01" placeholder="örn. 37.5" />
+            <label data-i18n="label_lat_optional">Enlem (isteğe bağlı — Le/Lf düzeltmesi için)</label>
+            <input type="number" id="csv-lat" step="0.01" data-i18n-placeholder="placeholder_lat_short" placeholder="örn. 37.5" />
           </div>
         </details>
-        <button class="btn" id="csv-btn" onclick="csvHesapla()" disabled>CSV Yükle ve Hesapla</button>
+        <button class="btn" id="csv-btn" onclick="csvHesapla()" disabled data-i18n="btn_csv_calc">CSV Yükle ve Hesapla</button>
       </div>
 
     </div>
 
     <!-- PANEL 2: Open-Meteo -->
     <div class="panel" id="panel-nasa">
-      <h2>Open-Meteo Otomatik Veri</h2>
-      <div class="info-notu">
+      <h2 data-i18n="auto_title">Open-Meteo Otomatik Veri</h2>
+      <div class="info-notu" data-i18n="auto_info" data-i18n-html="1">
         Open-Meteo saatlik veriden <strong>öğlen 12:00</strong> anlık sıcaklık, nem ve rüzgar değerleri alınır. Yağış günlük toplam olarak hesaplanır. Başlangıç değerleri Ocak 1'den ısıtılarak hesaplanır.
       </div>
       <div class="form-grid">
         <div class="form-grup">
-          <label>Enlem</label>
-          <input type="number" id="lat" step="0.01" value="39.92" />
+          <label data-i18n="label_lat">Enlem</label>
+          <input type="number" id="lat" step="0.01" value="36.62" />
         </div>
         <div class="form-grup">
-          <label>Boylam</label>
-          <input type="number" id="lon" step="0.01" value="32.85" />
+          <label data-i18n="label_lon">Boylam</label>
+          <input type="number" id="lon" step="0.01" value="29.12" />
         </div>
         <div class="form-grup">
-          <label>Başlangıç</label>
-          <input type="date" id="baslangic" value="2023-06-01" />
+          <label data-i18n="label_start">Başlangıç</label>
+          <input type="date" id="baslangic" value="2026-01-01" />
         </div>
         <div class="form-grup">
-          <label>Bitiş</label>
-          <input type="date" id="bitis" value="2023-06-30" />
+          <label data-i18n="label_end">Bitiş</label>
+          <input type="date" id="bitis" value="2026-01-31" />
         </div>
       </div>
-      <button class="btn" id="nasa-btn" onclick="nasaHesapla()">Veri Çek ve Hesapla</button>
+      <button class="btn" id="nasa-btn" onclick="nasaHesapla()" data-i18n="btn_fetch_calc">Veri Çek ve Hesapla</button>
     </div>
 
   </div>
@@ -789,38 +869,42 @@
       <div class="sinif-aciklama" id="sinif-aciklama"></div>
     </div>
     <div class="indeksler">
-      <div class="indeks-kutu"><div class="etiket">FFMC</div><div class="deger" id="val-ffmc">—</div><div class="birim">İnce Yakıt Nemi</div></div>
-      <div class="indeks-kutu"><div class="etiket">DMC</div><div class="deger" id="val-dmc">—</div><div class="birim">Döküntü Nemi</div></div>
-      <div class="indeks-kutu"><div class="etiket">DC</div><div class="deger" id="val-dc">—</div><div class="birim">Kuraklık Kodu</div></div>
-      <div class="indeks-kutu"><div class="etiket">ISI</div><div class="deger" id="val-isi">—</div><div class="birim">Yayılma İndeksi</div></div>
-      <div class="indeks-kutu"><div class="etiket">BUI</div><div class="deger" id="val-bui">—</div><div class="birim">Birikim İndeksi</div></div>
-      <div class="indeks-kutu"><div class="etiket">DSR</div><div class="deger" id="val-dsr">—</div><div class="birim">Günlük Şiddet</div></div>
+      <div class="indeks-kutu"><div class="etiket">FFMC</div><div class="deger" id="val-ffmc">—</div><div class="birim" data-i18n="idx_ffmc">İnce Üst Tabaka</div></div>
+      <div class="indeks-kutu"><div class="etiket">DMC</div><div class="deger" id="val-dmc">—</div><div class="birim" data-i18n="idx_dmc">Humus Nemi</div></div>
+      <div class="indeks-kutu"><div class="etiket">DC</div><div class="deger" id="val-dc">—</div><div class="birim" data-i18n="idx_dc">Derin Organik Tabaka</div></div>
+      <div class="indeks-kutu"><div class="etiket">ISI</div><div class="deger" id="val-isi">—</div><div class="birim" data-i18n="idx_isi">Başlangıç Yayılma</div></div>
+      <div class="indeks-kutu"><div class="etiket">BUI</div><div class="deger" id="val-bui">—</div><div class="birim" data-i18n="idx_bui">Birikmiş Yanıcı Madde</div></div>
+      <div class="indeks-kutu"><div class="etiket">DSR</div><div class="deger" id="val-dsr">—</div><div class="birim" data-i18n="idx_dsr">Günlük Şiddet Oranı</div></div>
     </div>
+    <button class="btn rapor-btn" onclick="manuelRaporIndir()" data-i18n="btn_download_pdf">Rapor İndir (PDF)</button>
   </div>
 
   <!-- NASA SONUÇ TABLOSU -->
   <div id="nasa-sonuc-alani">
-    <div class="istatistik-grid">
-      <div class="istat-kutu"><div class="etiket">En Yüksek FWI</div><div class="deger" id="stat-max">—</div><div class="alt" id="stat-max-tarih">—</div></div>
-      <div class="istat-kutu"><div class="etiket">Ortalama FWI</div><div class="deger" id="stat-ort">—</div><div class="alt">dönem ortalaması</div></div>
-      <div class="istat-kutu"><div class="etiket">Aşırı Gün</div><div class="deger" id="stat-asiri">—</div><div class="alt">FWI ≥ 30</div></div>
-      <div class="istat-kutu"><div class="etiket">Çok Yüksek +</div><div class="deger" id="stat-cok">—</div><div class="alt">FWI ≥ 20</div></div>
-    </div>
-    <div class="grafik-kutu">
-      <div class="grafik-baslik">FWI Zaman Serisi</div>
-      <canvas id="fwi-grafik" height="160"></canvas>
+    <div class="sonuc-ust-grid">
+      <div class="istatistik-grid">
+        <div class="istat-kutu"><div class="etiket" data-i18n="stat_max">En Yüksek FWI</div><div class="deger" id="stat-max">—</div><div class="alt" id="stat-max-tarih">—</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="stat_avg">Ortalama FWI</div><div class="deger" id="stat-ort">—</div><div class="alt" data-i18n="stat_avg_desc">dönem ortalaması</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="stat_extreme">Aşırı Gün</div><div class="deger" id="stat-asiri">—</div><div class="alt">FWI ≥ 30</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="stat_very_high">Çok Yüksek +</div><div class="deger" id="stat-cok">—</div><div class="alt">FWI ≥ 20</div></div>
+      </div>
+      <div class="grafik-kutu">
+        <div class="grafik-baslik" data-i18n="chart_title">FWI Zaman Serisi</div>
+        <canvas id="fwi-grafik"></canvas>
+      </div>
     </div>
     <div class="tablo-wrapper" style="margin-top:16px;">
       <table>
         <thead>
           <tr>
-            <th>Tarih</th><th>T(°C)</th><th>RH(%)</th><th>Rüzgar</th><th>Yağış</th>
-            <th>FFMC</th><th>DMC</th><th>DC</th><th>ISI</th><th>BUI</th><th>FWI</th><th>Sınıf</th>
+            <th data-i18n="th_date">Tarih</th><th data-i18n="th_temp">Sıcaklık (°C)</th><th data-i18n="th_rh">Nem (%)</th><th data-i18n="th_wind">Rüzgar (km/h)</th><th data-i18n="th_precip">Yağış (mm)</th>
+            <th>FFMC</th><th>DMC</th><th>DC</th><th>ISI</th><th>BUI</th><th>FWI</th><th data-i18n="th_class">Sınıf</th>
           </tr>
         </thead>
         <tbody id="nasa-tablo-govde"></tbody>
       </table>
     </div>
+    <button class="btn rapor-btn" onclick="cokluRaporIndir()" data-i18n="btn_download_pdf">Rapor İndir (PDF)</button>
   </div>
 
 </div><!-- sayfa-hesap -->
@@ -831,11 +915,11 @@
 <div class="sayfa" id="sayfa-yontem">
 
   <div class="hero">
-    <h1>Hesaplama Yöntemi</h1>
-    <p>Van Wagner (1987) — Canadian Forest Fire Weather Index System. Her bileşen için kullanılan girdiler ve adım adım formüller.</p>
+    <h1 data-i18n="method_title">Hesaplama Yöntemi</h1>
+    <p data-i18n="method_desc">Van Wagner (1987) — Canadian Forest Fire Weather Index System. Her bileşen için kullanılan girdiler ve adım adım formüller.</p>
   </div>
 
-  <nav class="yontem-nav">
+  <nav class="yontem-nav lang-tr">
     <a href="#bolum-akis">Hesaplama Akışı</a>
     <a href="#bolum-ffmc">1 · FFMC</a>
     <a href="#bolum-dmc">2 · DMC</a>
@@ -845,7 +929,18 @@
     <a href="#bolum-fwi">6 · FWI</a>
     <a href="#bolum-esik">Eşikler</a>
   </nav>
+  <nav class="yontem-nav lang-en">
+    <a href="#bolum-akis">Calculation Flow</a>
+    <a href="#bolum-ffmc">1 · FFMC</a>
+    <a href="#bolum-dmc">2 · DMC</a>
+    <a href="#bolum-dc">3 · DC</a>
+    <a href="#bolum-isi">4 · ISI</a>
+    <a href="#bolum-bui">5 · BUI</a>
+    <a href="#bolum-fwi">6 · FWI</a>
+    <a href="#bolum-esik">Thresholds</a>
+  </nav>
 
+  <div class="lang-tr">
   <div class="yontem-bolum" id="bolum-akis">
     <h2>Hesaplama Sırası ve Veri Akışı</h2>
     <div class="formul-kart">
@@ -872,12 +967,12 @@
         <div class="formul-satir">
           <span class="formul-etiket" style="color:#7eb8e0">Hesaplama Sırası</span>
           <span class="formul-deger" style="line-height:2.2">
-            <span class="girdi-badge" style="color:#f0a500">1 FFMC</span> T, H, W, r, FFMC₀ →
-            <span class="girdi-badge" style="color:#f0a500">2 DMC</span> T, H, r, DMC₀, ay →
-            <span class="girdi-badge" style="color:#f0a500">3 DC</span> T, r, DC₀, ay<br>
-            <span class="girdi-badge" style="color:#5ddc8a">4 ISI</span> FFMC + W →
-            <span class="girdi-badge" style="color:#5ddc8a">5 BUI</span> DMC + DC →
-            <span class="girdi-badge" style="color:#ff9944">6 FWI</span> ISI + BUI →
+            <span class="girdi-badge" style="color:#f0a500">1 · FFMC</span> T, H, W, r, FFMC₀ →
+            <span class="girdi-badge" style="color:#f0a500">2 · DMC</span> T, H, r, DMC₀, ay →
+            <span class="girdi-badge" style="color:#f0a500">3 · DC</span> T, r, DC₀, ay<br>
+            <span class="girdi-badge" style="color:#5ddc8a">4 · ISI</span> FFMC + W →
+            <span class="girdi-badge" style="color:#5ddc8a">5 · BUI</span> DMC + DC →
+            <span class="girdi-badge" style="color:#ff9944">6 · FWI</span> ISI + BUI →
             <span class="girdi-badge" style="color:#cc77ff">DSR</span> FWI
           </span>
         </div>
@@ -887,11 +982,11 @@
   </div>
 
   <div class="yontem-bolum" id="bolum-ffmc">
-    <h2>1. FFMC — İnce Yakıt Nemi Kodu</h2>
+    <h2>1. FFMC — İnce Üst Tabaka Yanıcı Madde Nem Kodu</h2>
     <div class="formul-kart">
       <div class="formul-kart-baslik">
         <span class="formul-badge">FFMC</span>
-        <h3>İnce yüzey yakıtlarının nem içeriğini kodlar · Aralık: 0–101</h3>
+        <h3>Ölü örtünün üst tabakasındaki ince yanıcı maddelerin nem içeriği · Aralık: 0–101</h3>
       </div>
       <div class="girdi-etiketler" style="margin-bottom:14px">
         <span class="girdi-badge">T — sıcaklık (°C)</span>
@@ -948,11 +1043,11 @@
   </div>
 
   <div class="yontem-bolum" id="bolum-dmc">
-    <h2>2. DMC — Döküntü Nem Kodu</h2>
+    <h2>2. DMC — Humus Nem Kodu</h2>
     <div class="formul-kart">
       <div class="formul-kart-baslik">
         <span class="formul-badge">DMC</span>
-        <h3>Orta derinlikteki organik tabakasının nem durumu · Aralık: 0–300+</h3>
+        <h3>Hafif sıkıştırılmış organik (humus) tabakanın nem durumu · Aralık: 0–300+</h3>
       </div>
       <div class="girdi-etiketler" style="margin-bottom:14px">
         <span class="girdi-badge">T — sıcaklık (°C)</span>
@@ -988,11 +1083,11 @@
   </div>
 
   <div class="yontem-bolum" id="bolum-dc">
-    <h2>3. DC — Kuraklık Kodu</h2>
+    <h2>3. DC — Derin Organik Tabaka Nem Kodu</h2>
     <div class="formul-kart">
       <div class="formul-kart-baslik">
         <span class="formul-badge">DC</span>
-        <h3>Derin toprak tabakasının uzun vadeli su açığı · Aralık: 0–1000</h3>
+        <h3>Derin sıkıştırılmış organik tabakanın nem durumu · Aralık: 0–1000</h3>
       </div>
       <div class="girdi-etiketler" style="margin-bottom:14px">
         <span class="girdi-badge">T — sıcaklık (°C)</span>
@@ -1062,11 +1157,11 @@
   </div>
 
   <div class="yontem-bolum" id="bolum-bui">
-    <h2>5. BUI — Birikim Kullanım İndeksi</h2>
+    <h2>5. BUI — Birikmiş Yanıcı Madde İndeksi</h2>
     <div class="formul-kart">
       <div class="formul-kart-baslik">
         <span class="formul-badge">BUI</span>
-        <h3>Yangının beslenebileceği toplam yakıt miktarı · Aralık: 0–200+</h3>
+        <h3>Yangının beslenebileceği birikmiş yanıcı madde miktarı · Aralık: 0–200+</h3>
       </div>
       <div class="girdi-etiketler" style="margin-bottom:14px">
         <span class="girdi-badge">DMC — aynı günün DMC değeri (adım 2'den)</span>
@@ -1160,6 +1255,327 @@
       <div class="formul-not">Kaynak: Van Wagner, C.E. (1987). Development and Structure of the Canadian Forest Fire Weather Index System. Canadian Forestry Service, Technical Report 35.</div>
     </div>
   </div>
+  </div><!-- lang-tr -->
+
+  <!-- ═══ ENGLISH METHODOLOGY ═══ -->
+  <div class="lang-en">
+
+  <div class="yontem-bolum" id="bolum-akis-en">
+    <h2>Calculation Order and Data Flow</h2>
+    <div class="formul-kart">
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket" style="color:#7eb8e0">Daily Meteorology</span>
+          <span class="formul-deger">
+            <span class="girdi-badge" style="color:#c0d0e0"><strong>T</strong> Temperature (°C)</span>
+            <span class="girdi-badge" style="color:#c0d0e0"><strong>H</strong> Relative Humidity (%)</span>
+            <span class="girdi-badge" style="color:#c0d0e0"><strong>W</strong> Wind Speed (km/h)</span>
+            <span class="girdi-badge" style="color:#c0d0e0"><strong>r</strong> Precipitation (mm)</span>
+            — noon 12:00 LST observation
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket" style="color:#7eb8e0">Previous Day Values</span>
+          <span class="formul-deger">
+            <span class="girdi-badge"><strong>FFMC₀</strong></span>
+            <span class="girdi-badge"><strong>DMC₀</strong></span>
+            <span class="girdi-badge"><strong>DC₀</strong></span>
+            — carried from previous day in chained calculation; season start: 85 / 6 / 15
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket" style="color:#7eb8e0">Calculation Order</span>
+          <span class="formul-deger" style="line-height:2.2">
+            <span class="girdi-badge" style="color:#f0a500">1 · FFMC</span> T, H, W, r, FFMC₀ →
+            <span class="girdi-badge" style="color:#f0a500">2 · DMC</span> T, H, r, DMC₀, month →
+            <span class="girdi-badge" style="color:#f0a500">3 · DC</span> T, r, DC₀, month<br>
+            <span class="girdi-badge" style="color:#5ddc8a">4 · ISI</span> FFMC + W →
+            <span class="girdi-badge" style="color:#5ddc8a">5 · BUI</span> DMC + DC →
+            <span class="girdi-badge" style="color:#ff9944">6 · FWI</span> ISI + BUI →
+            <span class="girdi-badge" style="color:#cc77ff">DSR</span> FWI
+          </span>
+        </div>
+      </div>
+      <div class="formul-not">Components 1–3 are moisture codes computed independently. Components 4–6 are indices that combine the moisture codes. Each day's output becomes the next day's input.</div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum">
+    <h2>1. FFMC — Fine Fuel Moisture Code</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">FFMC</span>
+        <h3>Encodes moisture content of fine surface fuels · Range: 0–101</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — temperature (°C)</span>
+        <span class="girdi-badge">H — relative humidity (%)</span>
+        <span class="girdi-badge">W — wind speed (km/h)</span>
+        <span class="girdi-badge">r — precipitation (mm)</span>
+        <span class="girdi-badge">FFMC₀ — previous day FFMC value</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 1 — Convert to moisture content</span>
+          <span class="formul-deger">
+            <span class="f">m₀ = 147.2 × (101 − FFMC₀) / (59.5 + FFMC₀)</span>
+            <br><small style="color:#556070">m₀: moisture content (%) corresponding to FFMC₀</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 2 — Rainfall correction<br><small style="font-weight:400">(only if r &gt; 0.5 mm)</small></span>
+          <span class="formul-deger">
+            <span class="f">rf = r − 0.5</span> &nbsp; (effective rainfall)
+            <br><span class="f">Δm = 42.5 × rf × e^(−100/(251−m₀)) × (1 − e^(−6.93/rf))</span>
+            <br><span class="f">m₀ = m₀ + Δm</span> &nbsp; (max 250)
+            <br><small style="color:#556070">rf: rainfall above threshold · Δm: moisture added by rain</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 3 — Equilibrium moisture contents</span>
+          <span class="formul-deger">
+            <span class="f">Ed = 0.942×H^0.679 + 11×e^((H−100)/10) + 0.18×(21.1−T)×(1−e^(−0.115H))</span>
+            <br><span class="f">Ew = 0.618×H^0.753 + 10×e^((H−100)/10) + 0.18×(21.1−T)×(1−e^(−0.115H))</span>
+            <br><small style="color:#556070">Ed: drying equilibrium · Ew: wetting equilibrium</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 4 — Drying or wetting</span>
+          <span class="formul-deger">
+            <strong style="color:#ffa040">If m₀ &gt; Ed (drying):</strong>
+            <span class="f">k = (0.424×(1−(H/100)^1.7) + 0.0694×√W×(1−(H/100)^8)) × 0.581 × e^(0.0365T)</span>
+            <span class="f">m = Ed + (m₀ − Ed) × 10^(−k)</span>
+            <br><strong style="color:#7eb8e0">If m₀ &lt; Ew (wetting):</strong>
+            <span class="f">k = (0.424×(1−((100−H)/100)^1.7) + 0.0694×√W×(1−((100−H)/100)^8)) × 0.581 × e^(0.0365T)</span>
+            <span class="f">m = Ew − (Ew − m₀) × 10^(−k)</span>
+            <br><small style="color:#556070">k: drying/wetting rate coefficient · m: new moisture content</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 5 — Convert to code</span>
+          <span class="formul-deger">
+            <span class="f">FFMC = 59.5 × (250 − m) / (147.2 + m)</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum">
+    <h2>2. DMC — Duff Moisture Code</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">DMC</span>
+        <h3>Moisture status of the medium-depth organic layer · Range: 0–300+</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — temperature (°C)</span>
+        <span class="girdi-badge">H — relative humidity (%)</span>
+        <span class="girdi-badge">r — precipitation (mm)</span>
+        <span class="girdi-badge">DMC₀ — previous day DMC value</span>
+        <span class="girdi-badge">Le — monthly day-length factor (by latitude)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 1 — Rainfall correction<br><small style="font-weight:400">(only if r &gt; 1.5 mm)</small></span>
+          <span class="formul-deger">
+            <span class="f">re = 0.92×r − 1.27</span> &nbsp; (effective rainfall)
+            <br><span class="f">Mo = 20 + 280 / e^(0.023×DMC₀)</span> &nbsp; (previous moisture content)
+            <br><span class="f">Mr = Mo + 1000×re / (48.77 + b×re)</span> &nbsp; (wet moisture content)
+            <br><span class="f">Pr = 244.72 − 43.43×ln(Mr − 20)</span> &nbsp; (post-rain DMC)
+            <br><small style="color:#556070">re: effective rainfall · Mo: previous moisture · b: coefficient dependent on DMC₀ (three ranges)</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 2 — Daily drying</span>
+          <span class="formul-deger">
+            <span class="f">K = 1.894 × (T + 1.1) × (100 − H) × Le × 0.0001</span>
+            <br><small style="color:#556070">T+1.1: heat effect onset · (100−H): dryness · Le: July ≥30°N = 12.4</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 3 — New DMC</span>
+          <span class="formul-deger"><span class="f">DMC = Pr + K</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum">
+    <h2>3. DC — Drought Code</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">DC</span>
+        <h3>Long-term moisture deficit of the deep soil layer · Range: 0–1000</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — temperature (°C)</span>
+        <span class="girdi-badge">r — precipitation (mm)</span>
+        <span class="girdi-badge">DC₀ — previous day DC value</span>
+        <span class="girdi-badge">Lf — monthly day-length factor (by latitude)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 1 — Rainfall correction<br><small style="font-weight:400">(only if r &gt; 2.8 mm)</small></span>
+          <span class="formul-deger">
+            <span class="f">rd = 0.83×r − 1.27</span> &nbsp; (effective rainfall)
+            <br><span class="f">Q₀ = 800 × e^(−DC₀/400)</span> &nbsp; (previous moisture equivalent)
+            <br><span class="f">Qr = Q₀ + 3.937×rd</span> &nbsp; (wet moisture equivalent)
+            <br><span class="f">Dr = 400 × ln(800/Qr)</span> &nbsp; (post-rain DC)
+            <br><small style="color:#556070">rd: rainfall above threshold · Q₀: moisture equivalent of DC</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 2 — Potential evapotranspiration</span>
+          <span class="formul-deger">
+            <span class="f">V = 0.36 × (T + 2.8) + Lf</span>
+            <br><small style="color:#556070">T+2.8: temperature threshold · Lf: July ≥20°N = 6.4, January = −1.6 (winter constraint)</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 3 — New DC</span>
+          <span class="formul-deger"><span class="f">DC = Dr + 0.5 × V</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum">
+    <h2>4. ISI — Initial Spread Index</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">ISI</span>
+        <h3>Rate of fire spread · Combines wind and FFMC · Range: 0–50+</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">FFMC — same day FFMC value (from step 1)</span>
+        <span class="girdi-badge">W — wind speed (km/h)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Wind function (fw)</span>
+          <span class="formul-deger">
+            <span class="f">fw = e^(0.05039 × W)</span>
+            <br><small style="color:#556070">Increases exponentially with W; 25 km/h → fw=3.5</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Moisture function (ff)</span>
+          <span class="formul-deger">
+            <span class="f">m = 147.2 × (101 − FFMC) / (59.5 + FFMC)</span> &nbsp; (convert FFMC to moisture)
+            <br><span class="f">ff = 91.9 × e^(−0.1386×m) × (1 + m^5.31 / 49300000)</span>
+            <br><small style="color:#556070">m: moisture content · ff: higher when moisture is lower</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">ISI</span>
+          <span class="formul-deger"><span class="f">ISI = 0.208 × fw × ff</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum">
+    <h2>5. BUI — Buildup Index</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">BUI</span>
+        <h3>Total fuel available for combustion · Range: 0–200+</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">DMC — same day DMC value (from step 2)</span>
+        <span class="girdi-badge">DC — same day DC value (from step 3)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">If DMC ≤ 0.4 × DC<br><small style="font-weight:400">(DC-dominant regime)</small></span>
+          <span class="formul-deger">
+            <span class="f">BUI = 0.8 × DMC × DC / (DMC + 0.4×DC)</span>
+            <br><small style="color:#556070">A harmonic-mean-like combination of the two codes</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">If DMC &gt; 0.4 × DC<br><small style="font-weight:400">(DMC-dominant regime)</small></span>
+          <span class="formul-deger">
+            <span class="f">P = 1 − 0.8×DC / (DMC + 0.4×DC)</span>
+            <br><span class="f">BUI = DMC − P × (0.92 + (0.0114×DMC)^1.7)</span>
+            <br><small style="color:#556070">P: DC contribution ratio · When DMC is high, BUI ≈ DMC</small>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum">
+    <h2>6. FWI — Fire Weather Index</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">FWI</span>
+        <h3>Final index representing fire intensity · Combines ISI × BUI</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">ISI — same day ISI value (from step 4)</span>
+        <span class="girdi-badge">BUI — same day BUI value (from step 5)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 1 — Fuel effect (fd)</span>
+          <span class="formul-deger">
+            BUI ≤ 80: <span class="f">fd = 0.626 × BUI^0.809 + 2</span>
+            <br>BUI &gt; 80: <span class="f">fd = 1000 / (25 + 108.64 × e^(−0.023×BUI))</span>
+            <br><small style="color:#556070">fd: fuel availability factor amplifying spread</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 2 — Intermediate value (B)</span>
+          <span class="formul-deger">
+            <span class="f">B = 0.1 × ISI × fd</span>
+            <br><small style="color:#556070">Spread rate × fuel availability</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 3 — FWI</span>
+          <span class="formul-deger">
+            B ≤ 1: <span class="f">FWI = B</span>
+            <br>B &gt; 1: <span class="f">FWI = e^(2.72 × (0.434 × ln(B))^0.647)</span>
+            <br><small style="color:#556070">Linear at low values, exponential scaling at high values</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">DSR — Daily Severity Rating</span>
+          <span class="formul-deger">
+            <span class="f">DSR = 0.0272 × FWI^1.77</span>
+            <br><small style="color:#556070">Derived index relating FWI to fire suppression difficulty</small>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum">
+    <h2>Rainfall Thresholds and Danger Classes</h2>
+    <div class="formul-kart" style="margin-bottom:12px">
+      <div class="formul-kart-baslik"><span class="formul-badge">Precip</span><h3>Minimum rainfall thresholds for correction</h3></div>
+      <div class="esik-grid">
+        <div class="esik-kutu"><div class="ad">For FFMC</div><div class="dg">r > 0.5 mm</div><div class="alt">no effect below</div></div>
+        <div class="esik-kutu"><div class="ad">For DMC</div><div class="dg">r > 1.5 mm</div><div class="alt">no effect below</div></div>
+        <div class="esik-kutu"><div class="ad">For DC</div><div class="dg">r > 2.8 mm</div><div class="alt">no effect below</div></div>
+      </div>
+    </div>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik"><span class="formul-badge">Class</span><h3>FWI danger classes</h3></div>
+      <div class="formul-satirlar">
+        <div class="formul-satir"><span class="formul-etiket" style="color:#7ed87e">Low</span><span class="formul-deger">FWI &lt; 5 — Normal conditions</span></div>
+        <div class="formul-satir"><span class="formul-etiket" style="color:#f5e042">Moderate</span><span class="formul-deger">5 ≤ FWI &lt; 10 — Caution advised</span></div>
+        <div class="formul-satir"><span class="formul-etiket" style="color:#ffa040">High</span><span class="formul-deger">10 ≤ FWI &lt; 20 — High risk</span></div>
+        <div class="formul-satir"><span class="formul-etiket" style="color:#ff5555">Very High</span><span class="formul-deger">20 ≤ FWI &lt; 30 — Very high risk, monitoring required</span></div>
+        <div class="formul-satir"><span class="formul-etiket" style="color:#cc77ff">Extreme</span><span class="formul-deger">FWI ≥ 30 — Critical conditions, extreme danger</span></div>
+      </div>
+      <div class="formul-not">Source: Van Wagner, C.E. (1987). Development and Structure of the Canadian Forest Fire Weather Index System. Canadian Forestry Service, Technical Report 35.</div>
+    </div>
+  </div>
+
+  </div><!-- lang-en -->
 
 </div><!-- sayfa-yontem -->
 
@@ -1169,23 +1585,23 @@
 <div class="sayfa" id="sayfa-dogrulama">
 
   <div class="hero">
-    <h1>Model Doğrulama</h1>
-    <p>Türkiye'de gerçekleşen büyük orman yangını olaylarında FWI hesabı yapılır. Sonuçlar tehlike sınıfı açısından beklentilerle karşılaştırılır.</p>
+    <h1 data-i18n="valid_title">Model Doğrulama</h1>
+    <p data-i18n="valid_desc">Türkiye'de gerçekleşen büyük orman yangını olaylarında FWI hesabı yapılır. Sonuçlar tehlike sınıfı açısından beklentilerle karşılaştırılır.</p>
   </div>
 
   <!-- BÖLÜM 1: Van Wagner Referans Testi -->
   <div style="margin-bottom:32px">
     <div class="yontem-bolum" style="margin-bottom:16px">
-      <h2>1. Van Wagner (1987) Referans Testi</h2>
+      <h2 data-i18n="valid_ref_title">1. Van Wagner (1987) Referans Testi</h2>
     </div>
     <div class="bilgi-kart" style="margin-bottom:16px">
-      <h3>Formül Doğruluğu</h3>
-      <p>Van Wagner (1987) yayınında Tablo 1 olarak verilen referans girdi/çıktı değerleriyle karşılaştırma yapılır. Hesaplanan değerler beklenen değerlerden <strong>±0.1</strong> sapma içindeyse test geçer.</p>
+      <h3 data-i18n="valid_formula_title">Formül Doğruluğu</h3>
+      <p data-i18n="valid_formula_desc" data-i18n-html="1">Van Wagner (1987) yayınında Tablo 1 olarak verilen referans girdi/çıktı değerleriyle karşılaştırma yapılır. Hesaplanan değerler beklenen değerlerden <strong>±0.1</strong> sapma içindeyse test geçer.</p>
       <div style="margin-top:10px;font-size:0.82rem;color:#8a9bb0">
         Girdi: T=17°C, H=42%, W=25 km/h, r=0 mm, Ay=7 &nbsp;|&nbsp; FFMC₀=85, DMC₀=6, DC₀=15
       </div>
     </div>
-    <button class="basla-btn" id="ref-btn" onclick="referansCalistir()">Referans Testini Çalıştır</button>
+    <button class="basla-btn" id="ref-btn" onclick="referansCalistir()" data-i18n="btn_run_ref">Referans Testini Çalıştır</button>
     <div id="ref-sonuc-alani" style="display:none; margin-top:20px">
       <div id="ref-tablo"></div>
     </div>
@@ -1193,24 +1609,24 @@
 
   <!-- BÖLÜM 2: Gerçek Yangın Olayları -->
   <div class="yontem-bolum" style="margin-bottom:16px">
-    <h2>2. Gerçek Yangın Olayları</h2>
+    <h2 data-i18n="valid_fire_title">2. Gerçek Yangın Olayları</h2>
   </div>
   <div class="bilgi-grid" style="margin-bottom:24px">
     <div class="bilgi-kart">
-      <h3>Test Olayları</h3>
+      <h3 data-i18n="valid_events_title">Test Olayları</h3>
       <ul class="komponent-liste" style="gap:10px">
-        <li><span class="komponent-badge">1</span>Manavgat Yangını — 28 Temmuz 2021, Antalya</li>
-        <li><span class="komponent-badge">2</span>Marmaris Yangını — 30 Temmuz 2021, Muğla</li>
-        <li><span class="komponent-badge">3</span>İzmir Yangını — 19 Ağustos 2019, İzmir</li>
+        <li><span class="komponent-badge">1</span><span data-i18n="event_1">Manavgat Yangını — 28 Temmuz 2021, Antalya</span></li>
+        <li><span class="komponent-badge">2</span><span data-i18n="event_2">Marmaris Yangını — 30 Temmuz 2021, Muğla</span></li>
+        <li><span class="komponent-badge">3</span><span data-i18n="event_3">İzmir Yangını — 19 Ağustos 2019, İzmir</span></li>
       </ul>
     </div>
     <div class="bilgi-kart">
-      <h3>Yöntem</h3>
-      <p>Her olay için Ocak 1'den yangın gününe kadar FWI durumu biriktirilir. Yangın günü öğlen 12:00 Open-Meteo verisi kullanılır. Beklenti: tüm olayların <strong>Çok Yüksek</strong> veya <strong>Aşırı</strong> sınıfına girmesi.</p>
+      <h3 data-i18n="valid_method_title">Yöntem</h3>
+      <p data-i18n="valid_method_desc" data-i18n-html="1">Her olay için Ocak 1'den yangın gününe kadar FWI durumu biriktirilir. Yangın günü öğlen 12:00 Open-Meteo verisi kullanılır. Beklenti: tüm olayların <strong>Çok Yüksek</strong> veya <strong>Aşırı</strong> sınıfına girmesi.</p>
     </div>
   </div>
 
-  <button class="basla-btn" id="test-btn" onclick="testCalistir()">Yangın Testlerini Çalıştır</button>
+  <button class="basla-btn" id="test-btn" onclick="testCalistir()" data-i18n="btn_run_tests">Yangın Testlerini Çalıştır</button>
 
   <div id="test-sonuc-alani" style="display:none; margin-top:24px">
     <div id="test-kartlar"></div>
@@ -1220,18 +1636,321 @@
 
 <footer>
   Van Wagner (1987) · Canadian Forest Fire Weather Index System<br>
-  Meteoroloji Mühendisliği Tasarım Projesi · Open-Meteo Saatlik Veri
+  <span data-i18n="footer_text">Meteoroloji Mühendisliği Tasarım Projesi · Open-Meteo Saatlik Veri</span>
 </footer>
 
 <script>
   let fwiChart = null;
+  let sonManuelSonuc = null;
+  let sonManuelGirdi = null;
+  let sonCokluSatirlar = null;
+  let sonCokluMeta = null;
+  let currentLang = 'tr';
+
+  /* ═══════════ i18n TRANSLATIONS ═══════════ */
+  const I18N = {
+    tr: {
+      // Nav
+      nav_subtitle: "Yangın Erken Uyarı Sistemi",
+      nav_about: "Proje Hakkında",
+      nav_calc: "Hesaplayıcı",
+      nav_method: "Hesaplama Yöntemi",
+      nav_valid: "Doğrulama",
+
+      // Page 1 - About
+      hero_title: "🔥 Orman Yangını Erken Uyarı Sistemi",
+      hero_desc: "Meteorolojik verilerden gerçek zamanlı orman yangını tehlike seviyesi hesaplayan sistem. Van Wagner (1987) Kanada Orman Yangını Hava İndeksi yöntemini esas alır.",
+      card_about_title: "Proje Hakkında",
+      card_about_p1: "Bu sistem, Sayın <strong>Prof. Dr. Levent ŞAYLAN</strong> danışmanlığında <strong>İklim Bilimi ve Meteoroloji Mühendisliği Tasarım Projesi</strong> kapsamında geliştirilmiştir. Orman yangını erken uyarı sisteminin FWI hesaplama bileşenini oluşturmaktadır.",
+      card_about_p2: "Hesaplamalar tamamen <strong>Van Wagner (1987)</strong> referans formüllerine dayanmaktadır. Open-Meteo saatlik yeniden analiz verisiyle otomatik veri çekimi desteklenmektedir.",
+      card_components_title: "FWI Bileşenleri",
+      comp_ffmc: "İnce üst tabaka yanıcı madde nem kodu — yüzey tutuşması",
+      comp_dmc: "Humus nem kodu — orta derinlik organik tabaka",
+      comp_dc: "Derin organik tabaka nem kodu — uzun süreli kuraklık",
+      comp_isi: "Başlangıç yayılma indeksi",
+      comp_bui: "Birikmiş yanıcı madde indeksi",
+      comp_fwi: "Yangın hava indeksi — nihai çıktı",
+      card_risk_title: "Tehlike Sınıfları",
+      risk_low: "Düşük", risk_moderate: "Orta", risk_high: "Yüksek",
+      risk_very_high: "Çok Yüksek", risk_extreme: "Aşırı",
+      card_datasrc_title: "Veri Kaynağı",
+      card_datasrc_desc: "Open-Meteo saatlik yeniden analiz verisi — <strong style=\"color:#c0d0e0\">öğlen 12:00 LST</strong> anlık değerler",
+      data_temp: "Sıcaklık", data_rh: "Bağıl Nem", data_wind: "Rüzgar", data_precip: "Yağış",
+      data_temp_desc: "12:00 LST anlık · °C", data_rh_desc: "12:00 LST anlık · %",
+      data_wind_desc: "12:00 LST anlık · km/h", data_precip_desc: "Günlük toplam · mm",
+      flow_title: "Hesaplama Akışı",
+      flow_input: "Girdi", flow_ffmc: "Üst tabaka", flow_dmc: "Humus", flow_dc: "Derin tabaka",
+      flow_isi: "Yayılma", flow_bui: "Birikim", flow_fwi: "Sonuç",
+      btn_goto_calc: "Hesaplayıcıya Geç →",
+
+      // Page 2 - Calculator
+      tab_manual: "Manuel Giriş", tab_auto: "Otomatik Veri Çekimi",
+      subtab_single: "Tek Gün", subtab_csv: "CSV Dosyası",
+      label_temp: "Sıcaklık (°C)", label_rh: "Bağıl Nem (%)",
+      label_wind: "Rüzgar (km/h)", label_precip: "Yağış (mm)", label_month: "Ay",
+      month_1: "Ocak", month_2: "Şubat", month_3: "Mart", month_4: "Nisan",
+      month_5: "Mayıs", month_6: "Haziran", month_7: "Temmuz", month_8: "Ağustos",
+      month_9: "Eylül", month_10: "Ekim", month_11: "Kasım", month_12: "Aralık",
+      prev_day_summary: "⚙ Önceki Gün Değerleri (Gelişmiş)",
+      label_lat_optional: "Enlem (isteğe bağlı — Le/Lf düzeltmesi için)",
+      placeholder_lat: "örn. 37.5 (Türkiye için boş bırakabilirsiniz)",
+      placeholder_lat_short: "örn. 37.5",
+      btn_calculate: "Hesapla",
+      csv_format_info: "CSV formatı: <code>tarih,temp,rh,wind,precip</code> — tarih YYYYMMDD, rüzgar km/h.",
+      csv_download_sample: "Örnek indir",
+      csv_click: "CSV dosyası seçmek için tıkla",
+      csv_drag: "veya sürükle bırak",
+      csv_initial_values: "⚙ Başlangıç Değerleri",
+      btn_csv_calc: "CSV Yükle ve Hesapla",
+      auto_title: "Open-Meteo Otomatik Veri",
+      auto_info: "Open-Meteo saatlik veriden <strong>öğlen 12:00</strong> anlık sıcaklık, nem ve rüzgar değerleri alınır. Yağış günlük toplam olarak hesaplanır. Başlangıç değerleri Ocak 1'den ısıtılarak hesaplanır.",
+      label_lat: "Enlem", label_lon: "Boylam",
+      label_start: "Başlangıç", label_end: "Bitiş",
+      btn_fetch_calc: "Veri Çek ve Hesapla",
+      btn_download_pdf: "Rapor İndir (PDF)",
+      idx_ffmc: "İnce Üst Tabaka", idx_dmc: "Humus Nemi", idx_dc: "Derin Organik Tabaka",
+      idx_isi: "Başlangıç Yayılma", idx_bui: "Birikmiş Yanıcı Madde", idx_dsr: "Günlük Şiddet Oranı",
+      stat_max: "En Yüksek FWI", stat_avg: "Ortalama FWI", stat_avg_desc: "dönem ortalaması",
+      stat_extreme: "Aşırı Gün", stat_very_high: "Çok Yüksek +",
+      chart_title: "FWI Zaman Serisi",
+      th_date: "Tarih", th_temp: "Sıcaklık (°C)", th_rh: "Nem (%)", th_wind: "Rüzgar (km/h)", th_precip: "Yağış (mm)", th_class: "Sınıf",
+
+      // Page 3 - Method
+      method_title: "Hesaplama Yöntemi",
+      method_desc: "Van Wagner (1987) — Canadian Forest Fire Weather Index System. Her bileşen için kullanılan girdiler ve adım adım formüller.",
+
+      // Page 4 - Validation
+      valid_title: "Model Doğrulama",
+      valid_desc: "Türkiye'de gerçekleşen büyük orman yangını olaylarında FWI hesabı yapılır. Sonuçlar tehlike sınıfı açısından beklentilerle karşılaştırılır.",
+      valid_ref_title: "1. Van Wagner (1987) Referans Testi",
+      valid_formula_title: "Formül Doğruluğu",
+      valid_formula_desc: "Van Wagner (1987) yayınında Tablo 1 olarak verilen referans girdi/çıktı değerleriyle karşılaştırma yapılır. Hesaplanan değerler beklenen değerlerden <strong>±0.1</strong> sapma içindeyse test geçer.",
+      btn_run_ref: "Referans Testini Çalıştır",
+      valid_fire_title: "2. Gerçek Yangın Olayları",
+      valid_events_title: "Test Olayları",
+      valid_method_title: "Yöntem",
+      valid_method_desc: "Her olay için Ocak 1'den yangın gününe kadar FWI durumu biriktirilir. Yangın günü öğlen 12:00 Open-Meteo verisi kullanılır. Beklenti: tüm olayların <strong>Çok Yüksek</strong> veya <strong>Aşırı</strong> sınıfına girmesi.",
+      btn_run_tests: "Yangın Testlerini Çalıştır",
+      event_1: "Manavgat Yangını — 28 Temmuz 2021, Antalya",
+      event_2: "Marmaris Yangını — 30 Temmuz 2021, Muğla",
+      event_3: "İzmir Yangını — 19 Ağustos 2019, İzmir",
+
+      // Footer
+      footer_text: "Meteoroloji Mühendisliği Tasarım Projesi · Open-Meteo Saatlik Veri",
+
+      // Dynamic JS
+      sinif_dusuk: "DÜŞÜK", sinif_orta: "ORTA", sinif_yuksek: "YÜKSEK",
+      sinif_cok_yuksek: "ÇOK YÜKSEK", sinif_asiri: "AŞIRI",
+      aciklama_dusuk: "Yangın riski düşük", aciklama_orta: "Dikkatli olunmalı",
+      aciklama_yuksek: "Yüksek yangın riski", aciklama_cok_yuksek: "Çok yüksek yangın riski",
+      aciklama_asiri: "Aşırı tehlike — kritik koşullar",
+      tablo_sinif_dusuk: "Düşük", tablo_sinif_orta: "Orta", tablo_sinif_yuksek: "Yüksek",
+      tablo_sinif_cok_yuksek: "Çok Y.", tablo_sinif_asiri: "Aşırı",
+      tooltip_classes: ["Düşük","Orta","Yüksek","Çok Yüksek","Aşırı"],
+      hata_bos: "Tüm alanları doldurun.",
+      hata_baglanti: "Sunucuya bağlanılamadı: ",
+      hata_genel: "Hata: ",
+      hata_pdf: "PDF oluşturulamadı",
+      hata_pdf_indir: "PDF indirme hatası: ",
+      btn_fetching: "Veri çekiliyor...",
+      btn_calculating: "Hesaplanıyor...",
+      btn_test_running: "Hesaplanıyor... (bu işlem ~1 dakika sürebilir)",
+      btn_test_rerun: "Testleri Yeniden Çalıştır",
+      btn_error: "Hata oluştu",
+      btn_conn_error: "Bağlantı hatası",
+      btn_server_error: "Sunucu hatası",
+      ref_all_pass: "✓ Tüm değerler referansla uyumlu",
+      ref_fail: "✗ Sapma tespit edildi",
+      ref_tolerance: "Van Wagner (1987) — tolerans: ±0.1",
+      ref_col_index: "İndeks", ref_col_expected: "Beklenen",
+      ref_col_computed: "Hesaplanan", ref_col_diff: "Fark", ref_col_status: "Durum",
+      ref_steps_title: "Ara Hesaplama Adımları",
+      beklenti_ok: "✓ Beklenti karşılandı",
+      beklenti_fail: "✗ Beklentinin altında",
+      csv_hata: "Hata: geçerli veri bulunamadı",
+    },
+    en: {
+      // Nav
+      nav_subtitle: "Fire Early Warning System",
+      nav_about: "About",
+      nav_calc: "Calculator",
+      nav_method: "Methodology",
+      nav_valid: "Validation",
+
+      // Page 1 - About
+      hero_title: "🔥 Forest Fire Early Warning System",
+      hero_desc: "A system that calculates real-time forest fire danger levels from meteorological data. Based on the Van Wagner (1987) Canadian Forest Fire Weather Index method.",
+      card_about_title: "About the Project",
+      card_about_p1: "This system was developed under the supervision of <strong>Prof. Dr. Levent ŞAYLAN</strong> as a <strong>Climate Science and Meteorological Engineering Design Project</strong>. It forms the FWI calculation component of a forest fire early warning system.",
+      card_about_p2: "All calculations are based on <strong>Van Wagner (1987)</strong> reference formulas. Automatic data retrieval is supported via Open-Meteo hourly reanalysis data.",
+      card_components_title: "FWI Components",
+      comp_ffmc: "Fine Fuel Moisture Code — affects surface ignition",
+      comp_dmc: "Duff Moisture Code — medium-depth fuel layer",
+      comp_dc: "Drought Code — deep soil moisture",
+      comp_isi: "Initial Spread Index",
+      comp_bui: "Buildup Index",
+      comp_fwi: "Fire Weather Index — final output",
+      card_risk_title: "Danger Classes",
+      risk_low: "Low", risk_moderate: "Moderate", risk_high: "High",
+      risk_very_high: "Very High", risk_extreme: "Extreme",
+      card_datasrc_title: "Data Source",
+      card_datasrc_desc: "Open-Meteo hourly reanalysis data — <strong style=\"color:#c0d0e0\">noon 12:00 LST</strong> instantaneous values",
+      data_temp: "Temperature", data_rh: "Relative Humidity", data_wind: "Wind", data_precip: "Precipitation",
+      data_temp_desc: "12:00 LST instant · °C", data_rh_desc: "12:00 LST instant · %",
+      data_wind_desc: "12:00 LST instant · km/h", data_precip_desc: "Daily total · mm",
+      flow_title: "Calculation Flow",
+      flow_input: "Input", flow_ffmc: "Fine fuel", flow_dmc: "Duff", flow_dc: "Drought",
+      flow_isi: "Spread", flow_bui: "Buildup", flow_fwi: "Result",
+      btn_goto_calc: "Go to Calculator →",
+
+      // Page 2 - Calculator
+      tab_manual: "Manual Input", tab_auto: "Automatic Data Fetch",
+      subtab_single: "Single Day", subtab_csv: "CSV File",
+      label_temp: "Temperature (°C)", label_rh: "Relative Humidity (%)",
+      label_wind: "Wind Speed (km/h)", label_precip: "Precipitation (mm)", label_month: "Month",
+      month_1: "January", month_2: "February", month_3: "March", month_4: "April",
+      month_5: "May", month_6: "June", month_7: "July", month_8: "August",
+      month_9: "September", month_10: "October", month_11: "November", month_12: "December",
+      prev_day_summary: "⚙ Previous Day Values (Advanced)",
+      label_lat_optional: "Latitude (optional — for Le/Lf correction)",
+      placeholder_lat: "e.g. 37.5 (leave empty for Turkey default)",
+      placeholder_lat_short: "e.g. 37.5",
+      btn_calculate: "Calculate",
+      csv_format_info: "CSV format: <code>tarih,temp,rh,wind,precip</code> — date YYYYMMDD, wind km/h.",
+      csv_download_sample: "Download sample",
+      csv_click: "Click to select a CSV file",
+      csv_drag: "or drag and drop",
+      csv_initial_values: "⚙ Initial Values",
+      btn_csv_calc: "Upload CSV & Calculate",
+      auto_title: "Open-Meteo Automatic Data",
+      auto_info: "From Open-Meteo hourly data, <strong>noon 12:00</strong> instantaneous temperature, humidity, and wind values are used. Precipitation is calculated as daily total. Initial values are warmed up from January 1st.",
+      label_lat: "Latitude", label_lon: "Longitude",
+      label_start: "Start Date", label_end: "End Date",
+      btn_fetch_calc: "Fetch Data & Calculate",
+      btn_download_pdf: "Download Report (PDF)",
+      idx_ffmc: "Fine Fuel Moisture", idx_dmc: "Duff Moisture", idx_dc: "Drought Code",
+      idx_isi: "Initial Spread", idx_bui: "Buildup Index", idx_dsr: "Daily Severity Rating",
+      stat_max: "Highest FWI", stat_avg: "Average FWI", stat_avg_desc: "period average",
+      stat_extreme: "Extreme Days", stat_very_high: "Very High +",
+      chart_title: "FWI Time Series",
+      th_date: "Date", th_temp: "Temp (°C)", th_rh: "RH (%)", th_wind: "Wind (km/h)", th_precip: "Precip (mm)", th_class: "Class",
+
+      // Page 3 - Method
+      method_title: "Calculation Methodology",
+      method_desc: "Van Wagner (1987) — Canadian Forest Fire Weather Index System. Inputs and step-by-step formulas for each component.",
+
+      // Page 4 - Validation
+      valid_title: "Model Validation",
+      valid_desc: "FWI calculations are performed for major forest fire events in Turkey. Results are compared with expectations in terms of danger class.",
+      valid_ref_title: "1. Van Wagner (1987) Reference Test",
+      valid_formula_title: "Formula Accuracy",
+      valid_formula_desc: "Comparison against reference input/output values given as Table 1 in Van Wagner (1987). The test passes if computed values are within <strong>±0.1</strong> of expected values.",
+      btn_run_ref: "Run Reference Test",
+      valid_fire_title: "2. Real Fire Events",
+      valid_events_title: "Test Events",
+      valid_method_title: "Method",
+      valid_method_desc: "For each event, FWI state is accumulated from January 1st to the fire date. Noon 12:00 Open-Meteo data is used for the fire day. Expectation: all events should fall in <strong>Very High</strong> or <strong>Extreme</strong> class.",
+      btn_run_tests: "Run Fire Tests",
+      event_1: "Manavgat Fire — July 28, 2021, Antalya",
+      event_2: "Marmaris Fire — July 30, 2021, Muğla",
+      event_3: "İzmir Fire — August 19, 2019, İzmir",
+
+      // Footer
+      footer_text: "Meteorological Engineering Design Project · Open-Meteo Hourly Data",
+
+      // Dynamic JS
+      sinif_dusuk: "LOW", sinif_orta: "MODERATE", sinif_yuksek: "HIGH",
+      sinif_cok_yuksek: "VERY HIGH", sinif_asiri: "EXTREME",
+      aciklama_dusuk: "Low fire risk", aciklama_orta: "Caution advised",
+      aciklama_yuksek: "High fire risk", aciklama_cok_yuksek: "Very high fire risk",
+      aciklama_asiri: "Extreme danger — critical conditions",
+      tablo_sinif_dusuk: "Low", tablo_sinif_orta: "Moderate", tablo_sinif_yuksek: "High",
+      tablo_sinif_cok_yuksek: "V.High", tablo_sinif_asiri: "Extreme",
+      tooltip_classes: ["Low","Moderate","High","Very High","Extreme"],
+      hata_bos: "Please fill in all fields.",
+      hata_baglanti: "Could not connect to server: ",
+      hata_genel: "Error: ",
+      hata_pdf: "Could not generate PDF",
+      hata_pdf_indir: "PDF download error: ",
+      btn_fetching: "Fetching data...",
+      btn_calculating: "Calculating...",
+      btn_test_running: "Calculating... (this may take ~1 minute)",
+      btn_test_rerun: "Re-run Tests",
+      btn_error: "Error occurred",
+      btn_conn_error: "Connection error",
+      btn_server_error: "Server error",
+      ref_all_pass: "✓ All values match the reference",
+      ref_fail: "✗ Deviation detected",
+      ref_tolerance: "Van Wagner (1987) — tolerance: ±0.1",
+      ref_col_index: "Index", ref_col_expected: "Expected",
+      ref_col_computed: "Computed", ref_col_diff: "Diff", ref_col_status: "Status",
+      ref_steps_title: "Intermediate Calculation Steps",
+      beklenti_ok: "✓ Expectation met",
+      beklenti_fail: "✗ Below expectation",
+      csv_hata: "Error: no valid data found",
+    }
+  };
+
+  function t(key) { return I18N[currentLang][key] || I18N.tr[key] || key; }
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    document.getElementById("lang-label").textContent = lang.toUpperCase();
+    document.getElementById("lang-opt-tr").classList.toggle("aktif", lang === "tr");
+    document.getElementById("lang-opt-en").classList.toggle("aktif", lang === "en");
+    document.getElementById("lang-dropdown").classList.remove("acik");
+
+    // Update all elements with data-i18n
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      const val = I18N[lang][key];
+      if (!val) return;
+      if (el.hasAttribute("data-i18n-html")) {
+        el.innerHTML = val;
+      } else {
+        el.textContent = val;
+      }
+    });
+
+    // Update placeholders
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+      const key = el.getAttribute("data-i18n-placeholder");
+      const val = I18N[lang][key];
+      if (val) el.placeholder = val;
+    });
+
+    // Update page title
+    document.title = lang === "en"
+      ? "FWI - Forest Fire Early Warning System"
+      : "FWI - Orman Yangını Erken Uyarı Sistemi";
+
+    localStorage.setItem("fwi-lang", lang);
+  }
+
+  function langMenuToggle() {
+    document.getElementById("lang-dropdown").classList.toggle("acik");
+  }
+
+  // Close dropdown on outside click
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".lang-toggle")) {
+      document.getElementById("lang-dropdown").classList.remove("acik");
+    }
+  });
+
+  // Restore saved language
+  const savedLang = localStorage.getItem("fwi-lang");
+  if (savedLang && savedLang !== "tr") {
+    document.addEventListener("DOMContentLoaded", () => setLang(savedLang));
+  }
 
   const SINIF_MAP = {
-    "Dusuk":      { tr: "DÜŞÜK",      renk: "Dusuk",     aciklama: "Yangın riski düşük" },
-    "Orta":       { tr: "ORTA",        renk: "Orta",      aciklama: "Dikkatli olunmalı" },
-    "Yuksek":     { tr: "YÜKSEK",      renk: "Yuksek",    aciklama: "Yüksek yangın riski" },
-    "Cok Yuksek": { tr: "ÇOK YÜKSEK", renk: "CokYuksek", aciklama: "Çok yüksek yangın riski" },
-    "Asiri":      { tr: "AŞIRI",       renk: "Asiri",     aciklama: "Aşırı tehlike — kritik koşullar" },
+    "Dusuk":      { tr: () => t("sinif_dusuk"),      renk: "Dusuk",     aciklama: () => t("aciklama_dusuk") },
+    "Orta":       { tr: () => t("sinif_orta"),        renk: "Orta",      aciklama: () => t("aciklama_orta") },
+    "Yuksek":     { tr: () => t("sinif_yuksek"),      renk: "Yuksek",    aciklama: () => t("aciklama_yuksek") },
+    "Cok Yuksek": { tr: () => t("sinif_cok_yuksek"),  renk: "CokYuksek", aciklama: () => t("aciklama_cok_yuksek") },
+    "Asiri":      { tr: () => t("sinif_asiri"),       renk: "Asiri",     aciklama: () => t("aciklama_asiri") },
   };
 
   function sayfaAc(id, el) {
@@ -1266,19 +1985,19 @@
     };
     const latVal = document.getElementById("manuel-lat").value;
     if (latVal !== "") payload.lat = parseFloat(latVal);
-    if (Object.values(payload).some(v => isNaN(v))) { gosterHata("Tüm alanları doldurun."); return; }
+    if (Object.values(payload).some(v => isNaN(v))) { gosterHata(t("hata_bos")); return; }
     try {
       const res  = await fetch("/hesapla", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const json = await res.json();
       if (!json.ok) { gosterHata(json.hata); return; }
       gosterSonuc(json.sonuc);
-    } catch (e) { gosterHata("Sunucuya bağlanılamadı: " + e.message); }
+    } catch (e) { gosterHata(t("hata_baglanti") + e.message); }
   }
 
   async function nasaHesapla() {
     const btn = document.getElementById("nasa-btn");
     btn.disabled = true;
-    btn.textContent = "Veri çekiliyor...";
+    btn.textContent = t("btn_fetching");
     document.getElementById("hata-mesaji").style.display = "none";
     document.getElementById("nasa-sonuc-alani").style.display = "none";
 
@@ -1293,20 +2012,30 @@
       const res  = await fetch("/nasa", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const json = await res.json();
       if (!json.ok) { gosterHata(json.hata); return; }
+      sonCokluMeta = {
+        lat: payload.lat, lon: payload.lon,
+        baslangic: document.getElementById("baslangic").value,
+        bitis: document.getElementById("bitis").value,
+      };
       gosterNasaTablo(json.sonuclar);
     } catch (e) {
-      gosterHata("Hata: " + e.message);
+      gosterHata(t("hata_genel") + e.message);
     } finally {
       btn.disabled = false;
-      btn.textContent = "Veri Çek ve Hesapla";
+      btn.textContent = t("btn_fetch_calc");
     }
   }
 
   function gosterNasaTablo(satirlar) {
+    sonCokluSatirlar = satirlar;
     const tbody = document.getElementById("nasa-tablo-govde");
     tbody.innerHTML = "";
     const sinifRenk = { "Dusuk": "sc-Dusuk", "Orta": "sc-Orta", "Yuksek": "sc-Yuksek", "Cok Yuksek": "sc-CokYuksek", "Asiri": "sc-Asiri" };
-    const sinifTr   = { "Dusuk": "Düşük", "Orta": "Orta", "Yuksek": "Yüksek", "Cok Yuksek": "Çok Y.", "Asiri": "Aşırı" };
+    const sinifTr   = {
+      "Dusuk": t("tablo_sinif_dusuk"), "Orta": t("tablo_sinif_orta"),
+      "Yuksek": t("tablo_sinif_yuksek"), "Cok Yuksek": t("tablo_sinif_cok_yuksek"),
+      "Asiri": t("tablo_sinif_asiri")
+    };
 
     for (const r of satirlar) {
       const tarih = r.tarih.slice(0,4) + "-" + r.tarih.slice(4,6) + "-" + r.tarih.slice(6,8);
@@ -1393,8 +2122,8 @@
             borderColor: "#223047",
             borderWidth: 1,
             callbacks: {
-              label: ctx => ctx.datasetIndex === 0
-                ? `FWI: ${ctx.parsed.y}  (${["Düşük","Orta","Yüksek","Çok Yüksek","Aşırı"][[5,10,20,30,Infinity].findIndex(t => ctx.parsed.y < t)]})`
+              label: ctx2 => ctx2.datasetIndex === 0
+                ? `FWI: ${ctx2.parsed.y}  (${t("tooltip_classes")[[5,10,20,30,Infinity].findIndex(v => ctx2.parsed.y < v)]})`
                 : null
             }
           }
@@ -1415,12 +2144,21 @@
   }
 
   function gosterSonuc(s) {
-    const info = SINIF_MAP[s.sinif] || { tr: s.sinif, renk: "Orta", aciklama: "" };
+    sonManuelSonuc = s;
+    sonManuelGirdi = {
+      temp:   document.getElementById("temp").value,
+      rh:     document.getElementById("rh").value,
+      wind:   document.getElementById("wind").value,
+      precip: document.getElementById("precip").value,
+      month:  document.getElementById("month").value,
+      lat:    document.getElementById("manuel-lat").value || null,
+    };
+    const info = SINIF_MAP[s.sinif] || { tr: () => s.sinif, renk: "Orta", aciklama: () => "" };
     const banner = document.getElementById("sinif-banner");
     banner.className = "sinif-banner renk-" + info.renk;
-    document.getElementById("sinif-adi").textContent = info.tr;
+    document.getElementById("sinif-adi").textContent = info.tr();
     document.getElementById("fwi-deger").textContent = "FWI " + s.fwi;
-    document.getElementById("sinif-aciklama").textContent = info.aciklama;
+    document.getElementById("sinif-aciklama").textContent = info.aciklama();
     document.getElementById("val-ffmc").textContent = s.ffmc;
     document.getElementById("val-dmc").textContent  = s.dmc;
     document.getElementById("val-dc").textContent   = s.dc;
@@ -1449,7 +2187,7 @@
     okuyucu.onload = e => {
       const satirlar = csvParse(e.target.result);
       if (satirlar.length === 0) {
-        document.getElementById("csv-dosya-adi").textContent = "Hata: geçerli veri bulunamadı";
+        document.getElementById("csv-dosya-adi").textContent = t("csv_hata");
         return;
       }
       csvSatirlar = satirlar;
@@ -1495,7 +2233,7 @@
     document.getElementById("hata-mesaji").style.display = "none";
     document.getElementById("nasa-sonuc-alani").style.display = "none";
     const btn = document.getElementById("csv-btn");
-    btn.disabled = true; btn.textContent = "Hesaplanıyor...";
+    btn.disabled = true; btn.textContent = t("btn_calculating");
 
     const payload = {
       satirlar: csvSatirlar,
@@ -1512,28 +2250,28 @@
       if (!json.ok) { gosterHata(json.hata); return; }
       gosterNasaTablo(json.sonuclar);
     } catch (e) {
-      gosterHata("Hata: " + e.message);
+      gosterHata(t("hata_genel") + e.message);
     } finally {
-      btn.disabled = false; btn.textContent = "CSV Yükle ve Hesapla";
+      btn.disabled = false; btn.textContent = t("btn_csv_calc");
     }
   }
 
   async function referansCalistir() {
     const btn = document.getElementById("ref-btn");
     btn.disabled = true;
-    btn.textContent = "Hesaplanıyor...";
+    btn.textContent = t("btn_calculating");
     document.getElementById("ref-sonuc-alani").style.display = "none";
     try {
       const res  = await fetch("/referans");
       const json = await res.json();
-      if (!json.ok) { btn.textContent = "Hata oluştu"; btn.disabled = false; return; }
+      if (!json.ok) { btn.textContent = t("btn_error"); btn.disabled = false; return; }
       gosterReferansSonucu(json.karsilastirma, json.adimlar);
       document.getElementById("ref-sonuc-alani").style.display = "block";
     } catch (e) {
-      btn.textContent = "Sunucu hatası";
+      btn.textContent = t("btn_server_error");
     } finally {
       btn.disabled = false;
-      btn.textContent = "Referans Testini Çalıştır";
+      btn.textContent = t("btn_run_ref");
     }
   }
 
@@ -1545,18 +2283,18 @@
     let html = `<div style="margin-bottom:16px;padding:12px 16px;border-radius:8px;
         background:${tumGecti?"#0a2a1a":"#2a1010"};border:1px solid ${tumGecti?"#2a7a4a":"#7a2a2a"}">
       <span style="font-size:1.05rem;font-weight:700;color:${tumGecti?"#5ddc8a":"#ff7070"}">
-        ${tumGecti?"✓ Tüm değerler referansla uyumlu":"✗ Sapma tespit edildi"}
+        ${tumGecti?t("ref_all_pass"):t("ref_fail")}
       </span>
-      <span style="font-size:0.78rem;color:#8a9bb0;margin-left:10px">Van Wagner (1987) — tolerans: ±0.1</span>
+      <span style="font-size:0.78rem;color:#8a9bb0;margin-left:10px">${t("ref_tolerance")}</span>
     </div>
     <div style="overflow-x:auto;margin-bottom:24px">
     <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
       <thead><tr style="border-bottom:1px solid #1a2a3a">
-        <th style="text-align:left;padding:8px 12px;color:#7eb8e0">İndeks</th>
-        <th style="text-align:right;padding:8px 12px;color:#7eb8e0">Beklenen</th>
-        <th style="text-align:right;padding:8px 12px;color:#7eb8e0">Hesaplanan</th>
-        <th style="text-align:right;padding:8px 12px;color:#7eb8e0">Fark</th>
-        <th style="text-align:center;padding:8px 12px;color:#7eb8e0">Durum</th>
+        <th style="text-align:left;padding:8px 12px;color:#7eb8e0">${t("ref_col_index")}</th>
+        <th style="text-align:right;padding:8px 12px;color:#7eb8e0">${t("ref_col_expected")}</th>
+        <th style="text-align:right;padding:8px 12px;color:#7eb8e0">${t("ref_col_computed")}</th>
+        <th style="text-align:right;padding:8px 12px;color:#7eb8e0">${t("ref_col_diff")}</th>
+        <th style="text-align:center;padding:8px 12px;color:#7eb8e0">${t("ref_col_status")}</th>
       </tr></thead><tbody>`;
     for (const [key, v] of Object.entries(k)) {
       html += `<tr style="border-bottom:1px solid #111a22">
@@ -1608,7 +2346,7 @@
     };
 
     html += `<div style="font-size:0.75rem;color:#f0a500;text-transform:uppercase;
-        letter-spacing:1px;margin-bottom:12px">Ara Hesaplama Adımları</div>`;
+        letter-spacing:1px;margin-bottom:12px">${t("ref_steps_title")}</div>`;
 
     for (const [idx, satirlar] of Object.entries(adimAcikla)) {
       html += `<div style="background:#0f1923;border:1px solid #1a2a3a;border-radius:8px;
@@ -1634,19 +2372,19 @@
   async function testCalistir() {
     const btn = document.getElementById("test-btn");
     btn.disabled = true;
-    btn.textContent = "Hesaplanıyor... (bu işlem ~1 dakika sürebilir)";
+    btn.textContent = t("btn_test_running");
     document.getElementById("test-sonuc-alani").style.display = "none";
 
     try {
       const res  = await fetch("/test");
       const json = await res.json();
-      if (!json.ok) { btn.textContent = "Hata oluştu"; btn.disabled = false; return; }
+      if (!json.ok) { btn.textContent = t("btn_error"); btn.disabled = false; return; }
       gosterTestSonuclari(json.sonuclar);
     } catch (e) {
-      btn.textContent = "Bağlantı hatası";
+      btn.textContent = t("btn_conn_error");
     } finally {
       btn.disabled = false;
-      btn.textContent = "Testleri Yeniden Çalıştır";
+      btn.textContent = t("btn_test_rerun");
     }
   }
 
@@ -1655,11 +2393,11 @@
     kapsayici.innerHTML = "";
 
     const renkMap = {
-      "Dusuk":      { bg: "#1a3d1a", renk: "#7ed87e", tr: "DÜŞÜK" },
-      "Orta":       { bg: "#3d3900", renk: "#f5e042", tr: "ORTA" },
-      "Yuksek":     { bg: "#3d2200", renk: "#ffa040", tr: "YÜKSEK" },
-      "Cok Yuksek": { bg: "#3d0f0f", renk: "#ff5555", tr: "ÇOK YÜKSEK" },
-      "Asiri":      { bg: "#2a0a3d", renk: "#cc77ff", tr: "AŞIRI" },
+      "Dusuk":      { bg: "#1a3d1a", renk: "#7ed87e", tr: () => t("sinif_dusuk") },
+      "Orta":       { bg: "#3d3900", renk: "#f5e042", tr: () => t("sinif_orta") },
+      "Yuksek":     { bg: "#3d2200", renk: "#ffa040", tr: () => t("sinif_yuksek") },
+      "Cok Yuksek": { bg: "#3d0f0f", renk: "#ff5555", tr: () => t("sinif_cok_yuksek") },
+      "Asiri":      { bg: "#2a0a3d", renk: "#cc77ff", tr: () => t("sinif_asiri") },
     };
 
     for (const s of sonuclar) {
@@ -1673,15 +2411,15 @@
             <div class="test-kart-baslik">
               <h3>${s.isim}</h3><span class="tarih">${tarihGoster} · ${s.yer || ""}</span>
             </div>
-            <div class="test-hata">Hata: ${s.hata}</div>
+            <div class="test-hata">${t("hata_genel")}${s.hata}</div>
           </div>`;
         continue;
       }
 
-      const info = renkMap[s.sinif] || { bg: "#162030", renk: "#e0e0e0", tr: s.sinif };
+      const info = renkMap[s.sinif] || { bg: "#162030", renk: "#e0e0e0", tr: () => s.sinif };
       const beklenti = (s.sinif === "Asiri" || s.sinif === "Cok Yuksek")
-        ? "✓ Beklenti karşılandı"
-        : "✗ Beklentinin altında";
+        ? t("beklenti_ok")
+        : t("beklenti_fail");
 
       kapsayici.innerHTML += `
         <div class="test-kart">
@@ -1705,7 +2443,7 @@
           </div>
           <div class="test-sonuc" style="background:${info.bg};border:1px solid ${info.renk}40">
             <div class="fwi-buyuk" style="color:${info.renk}">FWI ${s.fwi}</div>
-            <div class="sinif-adi" style="color:${info.renk}">${info.tr}</div>
+            <div class="sinif-adi" style="color:${info.renk}">${info.tr()}</div>
             <div class="beklenti">${beklenti}</div>
           </div>
         </div>`;
@@ -1717,8 +2455,42 @@
 
   function gosterHata(mesaj) {
     const el = document.getElementById("hata-mesaji");
-    el.textContent = "Hata: " + mesaj;
+    el.textContent = t("hata_genel") + mesaj;
     el.style.display = "block";
+  }
+
+  async function manuelRaporIndir() {
+    if (!sonManuelSonuc) return;
+    const payload = { tip: "manuel", girdi: sonManuelGirdi, sonuc: sonManuelSonuc };
+    await pdfIndir(payload);
+  }
+
+  async function cokluRaporIndir() {
+    if (!sonCokluSatirlar || !sonCokluSatirlar.length) return;
+    const payload = { tip: "coklu", satirlar: sonCokluSatirlar, meta: sonCokluMeta || {} };
+    await pdfIndir(payload);
+  }
+
+  async function pdfIndir(payload) {
+    try {
+      const res = await fetch("/rapor-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) { gosterHata(t("hata_pdf")); return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "fwi_rapor.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      gosterHata(t("hata_pdf_indir") + e.message);
+    }
   }
 </script>
 </body>
