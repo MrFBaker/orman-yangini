@@ -39,7 +39,7 @@
       letter-spacing: 0.5px;
     }
     .nav-logo span { color: #7eb8e0; font-weight: 400; font-size: 0.82rem; margin-left: 8px; }
-    .nav-linkler { display: flex; gap: 4px; }
+    .nav-linkler { display: flex; gap: 4px; align-items: center; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .nav-link {
       padding: 8px 18px;
       border-radius: 8px;
@@ -151,12 +151,13 @@
     .bilgi-kart p { font-size: 0.83rem; color: #8a9bb0; line-height: 1.65; }
 
     .komponent-liste { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-    .komponent-liste li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.82rem; color: #c0d0e0; }
+    .komponent-liste li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.82rem; color: #c0d0e0; line-height: 1.5; }
     .komponent-badge {
       font-size: 0.68rem; font-weight: 700;
       background: #0f1923; border: 1px solid #2c4060;
-      border-radius: 4px; padding: 2px 6px;
+      border-radius: 4px; padding: 2px 0;
       color: #f0a500; white-space: nowrap; flex-shrink: 0; margin-top: 1px;
+      width: 48px; text-align: center; display: inline-block;
     }
 
     /* TEHLİKE SINIFI SATIRI */
@@ -273,7 +274,7 @@
     .form-grup input, .form-grup select {
       background: #0f1923; border: 1px solid #2c4060; border-radius: 8px;
       color: #e0e0e0; padding: 10px 12px; font-size: 0.95rem; outline: none;
-      transition: border 0.2s;
+      transition: border 0.2s; font-family: inherit;
     }
     .form-grup input:focus, .form-grup select:focus { border-color: #f0a500; }
     .form-grup input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
@@ -324,7 +325,7 @@
     }
     .indeks-kutu .etiket { font-size: 0.7rem; color: #7eb8e0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
     .indeks-kutu .deger  { font-size: 1.4rem; font-weight: 700; color: #e0e0e0; }
-    .indeks-kutu .birim  { font-size: 0.7rem; color: #556070; margin-top: 2px; }
+    .indeks-kutu .birim  { font-size: 0.7rem; color: #556070; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     /* NASA SONUÇ */
     #nasa-sonuc-alani { display: none; width: 100%; max-width: 1100px; margin: 0 auto 8px; }
@@ -545,44 +546,85 @@
     .test-hata { color: #ff8080; font-size: 0.85rem; }
 
     @media (max-width: 600px) {
-      nav { padding: 0 12px; }
+      nav { padding: 0 8px; height: 50px; flex-wrap: nowrap; }
+      .nav-logo { font-size: 0.85rem; white-space: nowrap; }
       .nav-logo span { display: none; }
-      .nav-link { padding: 11px 10px; font-size: 0.78rem; }
+      .nav-linkler { gap: 2px; }
+      .nav-link { padding: 12px 8px; font-size: 0.72rem; min-height: 44px; }
       .lang-toggle { margin-left: 4px; }
       .lang-btn span { display: none; }
-      .lang-btn { padding: 6px 8px; }
+      .lang-btn { padding: 8px; min-width: 44px; min-height: 44px; justify-content: center; }
 
-      .sayfa { padding: 20px 12px; }
+      .sayfa { padding: 16px 10px; }
 
-      .hero { padding: 28px 12px 24px; }
-      .hero h1 { font-size: 1.4rem; }
-      .hero p { font-size: 0.85rem; }
+      .hero { padding: 24px 10px 20px; margin-bottom: 24px; }
+      .hero h1 { font-size: 1.3rem; }
+      .hero p { font-size: 0.82rem; }
 
-      .bilgi-grid { grid-template-columns: 1fr; }
+      .bilgi-grid { grid-template-columns: 1fr; gap: 12px; }
+      .bilgi-kart { padding: 16px 14px; }
 
-      .akis-kart { padding: 18px 16px; }
-      .alt-sekme { padding: 11px 14px; }
+      .akis-kart { padding: 16px 12px; }
+      .alt-sekme { padding: 11px 14px; min-height: 44px; }
 
       .akis { flex-direction: column; align-items: flex-start; gap: 4px; }
       .akis-ok { transform: rotate(90deg); margin-left: 20px; }
 
+      .sekmeler { max-width: 100%; }
+      .sekme { padding: 12px 6px; font-size: 0.75rem; min-height: 44px; }
+
+      .kart { padding: 18px 14px; max-width: 100%; }
+      .kart h2 { font-size: 0.88rem; }
+
       .form-grid { grid-template-columns: 1fr; }
       .onceki-grid { grid-template-columns: 1fr; }
 
-      .kart { padding: 20px 16px; }
+      .indeksler { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .indeks-kutu { padding: 10px 8px; }
+      .indeks-kutu .deger { font-size: 1.2rem; }
+      .indeks-kutu .birim { font-size: 0.62rem; }
 
+      .sonuc-ust-grid { grid-template-columns: 1fr; gap: 12px; }
+      .istatistik-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+      .sinif-banner { padding: 16px; }
+      .sinif-banner .fwi-deger { font-size: 2rem; }
+      .sinif-banner .sinif-adi { font-size: 1.1rem; }
+
+      .test-kart { padding: 16px 14px; }
+      .test-indeksler { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .test-idx { padding: 8px 6px; }
+      .test-idx .deger { font-size: 0.95rem; }
+      .test-meta { gap: 10px; font-size: 0.78rem; }
+      .test-sonuc { padding: 10px 12px; gap: 10px; }
+      .test-sonuc .fwi-buyuk { font-size: 1.4rem; }
+      .test-sonuc .sinif-adi { font-size: 0.88rem; }
+
+      .grafik-kutu { padding: 14px 10px; }
+
+      table { font-size: 0.68rem; }
+      th, td { padding: 5px 4px; }
+
+      .basla-btn { padding: 14px; font-size: 0.92rem; min-height: 48px; }
+      .btn { padding: 14px; min-height: 48px; }
+
+      .yontem-bolum { padding: 0 4px; }
+      .yontem-nav a { padding: 8px 10px; font-size: 0.7rem; min-height: 44px; display: flex; align-items: center; }
+      .formul-kart { padding: 16px 12px; }
+      .formul-satir { grid-template-columns: 1fr; }
+      .esik-grid { grid-template-columns: 1fr; }
+
+      .komponent-liste li { font-size: 0.82rem; padding: 8px 0; }
+      .komponent-badge { font-size: 0.7rem; padding: 3px 8px; }
+    }
+
+    /* Ekstra küçük ekranlar (360px ve altı) */
+    @media (max-width: 380px) {
+      nav { padding: 0 4px; }
+      .nav-link { padding: 10px 5px; font-size: 0.65rem; }
       .indeksler { grid-template-columns: 1fr 1fr; }
-
-      .istatistik-grid { grid-template-columns: 1fr 1fr; }
-
-      .sinif-banner .fwi-deger { font-size: 2.2rem; }
-      .sinif-banner .sinif-adi { font-size: 1.2rem; }
-
-      .test-indeksler { grid-template-columns: repeat(3, 1fr); }
-      .test-meta { gap: 10px; }
-
-      table { font-size: 0.72rem; }
-      th, td { padding: 6px 6px; }
+      .test-indeksler { grid-template-columns: repeat(2, 1fr); }
+      .hero h1 { font-size: 1.1rem; }
     }
   </style>
 </head>
@@ -803,7 +845,7 @@
       <!-- Alt panel: CSV -->
       <div class="alt-panel" id="alt-csv">
         <div class="info-notu" style="margin-top:16px">
-          <span data-i18n="csv_format_info">CSV formatı: <code>tarih,temp,rh,wind,precip</code> — tarih YYYYMMDD, rüzgar km/h.</span>
+          <span data-i18n="csv_format_info" data-i18n-html="1">CSV formatı: <code>tarih,temp,rh,wind,precip</code> — tarih YYYYMMDD, sıcaklık °C, bağıl nem %, rüzgar km/h, yağış mm.</span>
           <a href="/static/ornek.csv" download style="color:#f0a500;margin-left:8px" data-i18n="csv_download_sample">Örnek indir</a>
         </div>
         <div class="csv-yukle-alani" id="csv-yukle-alani" onclick="document.getElementById('csv-input').click()">
@@ -949,7 +991,7 @@
           <span class="formul-etiket" style="color:#7eb8e0">Günlük Meteoroloji</span>
           <span class="formul-deger">
             <span class="girdi-badge" style="color:#c0d0e0"><strong>T</strong> Sıcaklık (°C)</span>
-            <span class="girdi-badge" style="color:#c0d0e0"><strong>H</strong> Bağıl Nem (%)</span>
+            <span class="girdi-badge" style="color:#c0d0e0"><strong>RH</strong> Bağıl Nem (%)</span>
             <span class="girdi-badge" style="color:#c0d0e0"><strong>W</strong> Rüzgar (km/h)</span>
             <span class="girdi-badge" style="color:#c0d0e0"><strong>r</strong> Yağış (mm)</span>
             — öğlen 12:00 LST ölçümü
@@ -967,8 +1009,8 @@
         <div class="formul-satir">
           <span class="formul-etiket" style="color:#7eb8e0">Hesaplama Sırası</span>
           <span class="formul-deger" style="line-height:2.2">
-            <span class="girdi-badge" style="color:#f0a500">1 · FFMC</span> T, H, W, r, FFMC₀ →
-            <span class="girdi-badge" style="color:#f0a500">2 · DMC</span> T, H, r, DMC₀, ay →
+            <span class="girdi-badge" style="color:#f0a500">1 · FFMC</span> T, RH, W, r, FFMC₀ →
+            <span class="girdi-badge" style="color:#f0a500">2 · DMC</span> T, RH, r, DMC₀, ay →
             <span class="girdi-badge" style="color:#f0a500">3 · DC</span> T, r, DC₀, ay<br>
             <span class="girdi-badge" style="color:#5ddc8a">4 · ISI</span> FFMC + W →
             <span class="girdi-badge" style="color:#5ddc8a">5 · BUI</span> DMC + DC →
@@ -990,7 +1032,7 @@
       </div>
       <div class="girdi-etiketler" style="margin-bottom:14px">
         <span class="girdi-badge">T — sıcaklık (°C)</span>
-        <span class="girdi-badge">H — bağıl nem (%)</span>
+        <span class="girdi-badge">RH — bağıl nem (%)</span>
         <span class="girdi-badge">W — rüzgar (km/h)</span>
         <span class="girdi-badge">r — yağış (mm)</span>
         <span class="girdi-badge">FFMC₀ — önceki gün FFMC değeri</span>
@@ -1051,7 +1093,7 @@
       </div>
       <div class="girdi-etiketler" style="margin-bottom:14px">
         <span class="girdi-badge">T — sıcaklık (°C)</span>
-        <span class="girdi-badge">H — bağıl nem (%)</span>
+        <span class="girdi-badge">RH — bağıl nem (%)</span>
         <span class="girdi-badge">r — yağış (mm)</span>
         <span class="girdi-badge">DMC₀ — önceki gün DMC değeri</span>
         <span class="girdi-badge">Le — aylık gün uzunluğu faktörü (enleme göre)</span>
@@ -1286,8 +1328,8 @@
         <div class="formul-satir">
           <span class="formul-etiket" style="color:#7eb8e0">Calculation Order</span>
           <span class="formul-deger" style="line-height:2.2">
-            <span class="girdi-badge" style="color:#f0a500">1 · FFMC</span> T, H, W, r, FFMC₀ →
-            <span class="girdi-badge" style="color:#f0a500">2 · DMC</span> T, H, r, DMC₀, month →
+            <span class="girdi-badge" style="color:#f0a500">1 · FFMC</span> T, RH, W, r, FFMC₀ →
+            <span class="girdi-badge" style="color:#f0a500">2 · DMC</span> T, RH, r, DMC₀, month →
             <span class="girdi-badge" style="color:#f0a500">3 · DC</span> T, r, DC₀, month<br>
             <span class="girdi-badge" style="color:#5ddc8a">4 · ISI</span> FFMC + W →
             <span class="girdi-badge" style="color:#5ddc8a">5 · BUI</span> DMC + DC →
@@ -1309,7 +1351,7 @@
       </div>
       <div class="girdi-etiketler" style="margin-bottom:14px">
         <span class="girdi-badge">T — temperature (°C)</span>
-        <span class="girdi-badge">H — relative humidity (%)</span>
+        <span class="girdi-badge">RH — relative humidity (%)</span>
         <span class="girdi-badge">W — wind speed (km/h)</span>
         <span class="girdi-badge">r — precipitation (mm)</span>
         <span class="girdi-badge">FFMC₀ — previous day FFMC value</span>
@@ -1370,7 +1412,7 @@
       </div>
       <div class="girdi-etiketler" style="margin-bottom:14px">
         <span class="girdi-badge">T — temperature (°C)</span>
-        <span class="girdi-badge">H — relative humidity (%)</span>
+        <span class="girdi-badge">RH — relative humidity (%)</span>
         <span class="girdi-badge">r — precipitation (mm)</span>
         <span class="girdi-badge">DMC₀ — previous day DMC value</span>
         <span class="girdi-badge">Le — monthly day-length factor (by latitude)</span>
@@ -1696,7 +1738,7 @@
       placeholder_lat: "örn. 37.5 (Türkiye için boş bırakabilirsiniz)",
       placeholder_lat_short: "örn. 37.5",
       btn_calculate: "Hesapla",
-      csv_format_info: "CSV formatı: <code>tarih,temp,rh,wind,precip</code> — tarih YYYYMMDD, rüzgar km/h.",
+      csv_format_info: "CSV formatı: <code>tarih,temp,rh,wind,precip</code> — tarih YYYYMMDD, sıcaklık °C, bağıl nem %, rüzgar km/h, yağış mm.",
       csv_download_sample: "Örnek indir",
       csv_click: "CSV dosyası seçmek için tıkla",
       csv_drag: "veya sürükle bırak",
@@ -1816,7 +1858,7 @@
       placeholder_lat: "e.g. 37.5 (leave empty for Turkey default)",
       placeholder_lat_short: "e.g. 37.5",
       btn_calculate: "Calculate",
-      csv_format_info: "CSV format: <code>tarih,temp,rh,wind,precip</code> — date YYYYMMDD, wind km/h.",
+      csv_format_info: "CSV format: <code>tarih,temp,rh,wind,precip</code> — date YYYYMMDD, temp °C, RH %, wind km/h, precip mm.",
       csv_download_sample: "Download sample",
       csv_click: "Click to select a CSV file",
       csv_drag: "or drag and drop",
