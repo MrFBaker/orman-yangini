@@ -59,6 +59,7 @@
     .lang-toggle {
       position: relative;
       margin-left: 12px;
+      flex-shrink: 0;
     }
     .lang-btn {
       background: transparent;
@@ -413,6 +414,7 @@
       position: sticky; top: 56px; z-index: 50;
       /* sayfa padding'ini aşıp tam genişliğe yay */
       margin-left: -16px; margin-right: -16px; margin-bottom: 32px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
     }
     .yontem-nav a {
       font-size: 0.78rem; font-weight: 700; color: #556070;
@@ -608,8 +610,9 @@
       .basla-btn { padding: 14px; font-size: 0.92rem; min-height: 48px; }
       .btn { padding: 14px; min-height: 48px; }
 
-      .yontem-bolum { padding: 0 4px; }
-      .yontem-nav a { padding: 8px 10px; font-size: 0.7rem; min-height: 44px; display: flex; align-items: center; }
+      .yontem-bolum { padding: 0 4px; scroll-margin-top: 100px; }
+      .yontem-nav { flex-wrap: nowrap; top: 50px; padding: 8px 10px; }
+      .yontem-nav a { padding: 8px 10px; font-size: 0.7rem; min-height: 44px; display: flex; align-items: center; flex-shrink: 0; }
       .formul-kart { padding: 16px 12px; }
       .formul-satir { grid-template-columns: 1fr; }
       .esik-grid { grid-template-columns: 1fr; }
@@ -638,15 +641,15 @@
     <button class="nav-link" onclick="sayfaAc('hesap', this)" data-i18n="nav_calc">Hesaplayıcı</button>
     <button class="nav-link" onclick="sayfaAc('yontem', this)" data-i18n="nav_method">Hesaplama Yöntemi</button>
     <button class="nav-link" onclick="sayfaAc('dogrulama', this)" data-i18n="nav_valid">Doğrulama</button>
-    <div class="lang-toggle">
-      <button class="lang-btn" onclick="langMenuToggle()">
-        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-        <span id="lang-label">TR</span>
-      </button>
-      <div class="lang-dropdown" id="lang-dropdown">
-        <button class="lang-option aktif" id="lang-opt-tr" onclick="setLang('tr')">Türkçe</button>
-        <button class="lang-option" id="lang-opt-en" onclick="setLang('en')">English</button>
-      </div>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn" onclick="langMenuToggle()">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+      <span id="lang-label">TR</span>
+    </button>
+    <div class="lang-dropdown" id="lang-dropdown">
+      <button class="lang-option aktif" id="lang-opt-tr" onclick="setLang('tr')">Türkçe</button>
+      <button class="lang-option" id="lang-opt-en" onclick="setLang('en')">English</button>
     </div>
   </div>
 </nav>
