@@ -1846,7 +1846,7 @@
 
   <!-- ═══ ENGLISH METHODOLOGY ═══ -->
   <div class="lang-en">
-
+  <div class="yontem-panel aktif" id="yon-fwi-en">
   <div id="bolum-akis-en" style="scroll-margin-top:80px">
     <div class="akis-diagram">
       <div class="akis-grup">
@@ -2178,6 +2178,7 @@
     </div>
   </div>
 
+  </div><!-- yon-fwi-en -->
   </div><!-- lang-en -->
 
 </div><!-- sayfa-yontem -->
@@ -2687,6 +2688,9 @@
     btn.classList.add('aktif');
     const panel = document.getElementById(panelId);
     if (panel) panel.classList.add('aktif');
+    // FWI has TR and EN panels
+    const panelEn = document.getElementById(panelId + '-en');
+    if (panelEn) panelEn.classList.add('aktif');
   }
 
   function sayfaAc(id, el) {
