@@ -983,63 +983,42 @@
 <div class="sayfa aktif" id="sayfa-hakkinda">
 
   <div class="hero">
-    <h1 data-i18n="hero_title">&#x1F525; Orman Yangını Erken Uyarı Sistemi</h1>
-    <p data-i18n="hero_desc">Meteorolojik verilerden gerçek zamanlı orman yangını tehlike seviyesi hesaplayan sistem. Van Wagner (1987) Kanada Orman Yangını Hava İndeksi yöntemini esas alır.</p>
+    <h1 data-i18n="hero_title">&#x1F525; Fire-EWS — Orman Yangını Erken Uyarı Sistemi</h1>
+    <p data-i18n="hero_desc">Meteorolojik veri tabanlı, çoklu indeks destekli orman yangını erken uyarı sistemi. 5 farklı bilimsel yöntemle yangın tehlike seviyesi hesaplar.</p>
   </div>
 
   <div class="bilgi-grid">
     <div class="bilgi-kart">
       <h3 data-i18n="card_about_title">Proje Hakkında</h3>
-      <p data-i18n="card_about_p1" data-i18n-html="1">Bu sistem, Sayın <strong>Prof. Dr. Levent ŞAYLAN</strong> danışmanlığında <strong>İklim Bilimi ve Meteoroloji Mühendisliği Tasarım Projesi</strong> kapsamında geliştirilmiştir. Orman yangını erken uyarı sisteminin FWI hesaplama bileşenini oluşturmaktadır.</p>
-      <p style="margin-top:10px" data-i18n="card_about_p2" data-i18n-html="1">Hesaplamalar tamamen <strong>Van Wagner (1987)</strong> referans formüllerine dayanmaktadır. Open-Meteo saatlik yeniden analiz verisiyle otomatik veri çekimi desteklenmektedir.</p>
+      <p data-i18n="card_about_p1" data-i18n-html="1">Bu sistem, Sayın <strong>Prof. Dr. Levent ŞAYLAN</strong> danışmanlığında <strong>İklim Bilimi ve Meteoroloji Mühendisliği Tasarım Projesi</strong> kapsamında geliştirilmiştir.</p>
+      <p style="margin-top:10px" data-i18n="card_about_p2" data-i18n-html="1">Sistem, <strong>5 farklı yangın tehlike indeksini</strong> (FWI, Angström, Nesterov, KBDI, Carrega I87) birlikte hesaplayarak kapsamlı bir risk değerlendirmesi sunar. Open-Meteo API ile otomatik veri çekimi ve 7 günlük tahmin desteklenmektedir.</p>
     </div>
 
     <div class="bilgi-kart">
-      <h3 data-i18n="card_components_title">FWI Bileşenleri</h3>
+      <h3 data-i18n="card_components_title">Kullanılan İndeksler</h3>
       <ul class="komponent-liste">
-        <li><span class="komponent-badge">FFMC</span><span data-i18n="comp_ffmc">İnce üst tabaka yanıcı madde nem kodu — yüzey tutuşması</span></li>
-        <li><span class="komponent-badge">DMC</span><span data-i18n="comp_dmc">Döküntü nem kodu — orta derinlik yakıtı</span></li>
-        <li><span class="komponent-badge">DC</span><span data-i18n="comp_dc">Derin organik tabaka nem kodu — uzun süreli kuraklık</span></li>
-        <li><span class="komponent-badge">ISI</span><span data-i18n="comp_isi">Başlangıç yayılma indeksi</span></li>
-        <li><span class="komponent-badge">BUI</span><span data-i18n="comp_bui">Birikmiş yanıcı madde indeksi</span></li>
-        <li><span class="komponent-badge">FWI</span><span data-i18n="comp_fwi">Yangın hava indeksi — nihai çıktı</span></li>
+        <li><span class="komponent-badge">FWI</span><span data-i18n="comp_fwi_full">Van Wagner (1987) — 6 bileşenli Kanada sistemi</span></li>
+        <li><span class="komponent-badge">Angström</span><span data-i18n="comp_ang">Angström (1942) — anlık yangın tehlike değerlendirmesi</span></li>
+        <li><span class="komponent-badge">Nesterov</span><span data-i18n="comp_nes">Nesterov (1949) — kümülatif kuraklık takibi</span></li>
+        <li><span class="komponent-badge">KBDI</span><span data-i18n="comp_kbdi">Keetch-Byram (1968) — toprak nem eksikliği indeksi</span></li>
+        <li><span class="komponent-badge">Carrega</span><span data-i18n="comp_car">Carrega I87 (1991) — Akdeniz iklimi için özel</span></li>
       </ul>
     </div>
 
     <div class="bilgi-kart">
-      <h3 data-i18n="card_risk_title">Tehlike Sınıfları</h3>
-      <div class="risk-liste">
-        <div class="risk-satir">
-          <div class="risk-nokta" style="background:#4ade80"></div>
-          <span class="risk-adi" style="color:#4ade80" data-i18n="risk_low">Düşük</span>
-          <span class="risk-aralik">FWI &lt; 5</span>
-        </div>
-        <div class="risk-satir">
-          <div class="risk-nokta" style="background:#fbbf24"></div>
-          <span class="risk-adi" style="color:#fbbf24" data-i18n="risk_moderate">Orta</span>
-          <span class="risk-aralik">5 – 10</span>
-        </div>
-        <div class="risk-satir">
-          <div class="risk-nokta" style="background:#fb923c"></div>
-          <span class="risk-adi" style="color:#fb923c" data-i18n="risk_high">Yüksek</span>
-          <span class="risk-aralik">10 – 20</span>
-        </div>
-        <div class="risk-satir">
-          <div class="risk-nokta" style="background:#f87171"></div>
-          <span class="risk-adi" style="color:#f87171" data-i18n="risk_very_high">Çok Yüksek</span>
-          <span class="risk-aralik">20 – 30</span>
-        </div>
-        <div class="risk-satir">
-          <div class="risk-nokta" style="background:#c084fc"></div>
-          <span class="risk-adi" style="color:#c084fc" data-i18n="risk_extreme">Aşırı</span>
-          <span class="risk-aralik">FWI ≥ 30</span>
-        </div>
-      </div>
+      <h3 data-i18n="card_features_title">Özellikler</h3>
+      <ul class="komponent-liste">
+        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)">Harita</span><span>İnteraktif uydu haritasıyla konum seçimi</span></li>
+        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)">Tahmin</span><span>7 günlük yangın riski tahmini</span></li>
+        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)">Oto Veri</span><span>Open-Meteo API ile geçmiş/gelecek veri çekimi</span></li>
+        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)">PDF</span><span>Hesaplama sonuçlarını rapor olarak indir</span></li>
+        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)">TR/EN</span><span>Türkçe ve İngilizce dil desteği</span></li>
+      </ul>
     </div>
 
     <div class="bilgi-kart">
       <h3 data-i18n="card_datasrc_title">Veri Kaynağı</h3>
-      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px" data-i18n="card_datasrc_desc" data-i18n-html="1">Open-Meteo saatlik yeniden analiz verisi — <strong style="color:var(--text)">öğlen 12:00 LST</strong> anlık değerler</p>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px" data-i18n="card_datasrc_desc" data-i18n-html="1">Open-Meteo saatlik yeniden analiz + tahmin verisi — <strong style="color:var(--text)">öğlen 12:00 LST</strong> anlık değerler</p>
       <div class="veri-grid">
         <div class="veri-chip">
           <div class="v-etiket" data-i18n="data_temp">Sıcaklık</div>
@@ -1056,6 +1035,14 @@
         <div class="veri-chip">
           <div class="v-etiket" data-i18n="data_precip">Yağış</div>
           <div class="v-acik" data-i18n="data_precip_desc">Günlük toplam · mm</div>
+        </div>
+        <div class="veri-chip">
+          <div class="v-etiket">Çiy Noktası</div>
+          <div class="v-acik">12:00 LST anlık · °C</div>
+        </div>
+        <div class="veri-chip">
+          <div class="v-etiket">T_max</div>
+          <div class="v-acik">Günlük maksimum · °C</div>
         </div>
       </div>
     </div>
