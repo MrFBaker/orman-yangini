@@ -5,8 +5,22 @@ Saatlik veri alınır, her gün için 12:00 LST değerleri + günlük yağış t
 """
 import urllib.request
 import json
+import time
 
 BASE = "https://api.open-meteo.com/v1/forecast"
+
+
+def _fetch_with_retry(url, max_retries=3):
+    """429 rate limit durumunda bekleyip tekrar dener."""
+    for attempt in range(max_retries):
+        try:
+            with urllib.request.urlopen(url, timeout=30) as resp:
+                return json.loads(resp.read())
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and attempt < max_retries - 1:
+                time.sleep(2 ** attempt + 1)
+                continue
+            raise
 
 
 def tahmin_cek(lat, lon):
@@ -32,8 +46,7 @@ def tahmin_cek(lat, lon):
         f"&wind_speed_unit=kmh&timezone=auto&forecast_days=7"
     )
 
-    with urllib.request.urlopen(url, timeout=30) as resp:
-        data = json.loads(resp.read())
+    data = _fetch_with_retry(url)
 
     hourly = data["hourly"]
     times = hourly["time"]

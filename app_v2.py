@@ -437,9 +437,9 @@ def tahmin():
         data = request.get_json()
         lat = float(data["lat"])
         lon = float(data["lon"])
-        gunler = fc.tahmin_cek(lat, lon)
         ffmc0, dmc0, dc0 = warmup_fwi(lat, lon,
                                         datetime.now().strftime("%Y%m%d"))
+        gunler = fc.tahmin_cek(lat, lon)
         sonuclar = []
         for gun in gunler:
             ay = int(gun["tarih"][4:6])

@@ -5,8 +5,22 @@ FWI standardi: oglen olcumu (sicaklik, nem, ruzgar) + gunluk toplam yagis.
 """
 import urllib.request
 import json
+import time
 
 BASE = "https://archive-api.open-meteo.com/v1/archive"
+
+
+def _fetch_with_retry(url, max_retries=3):
+    """429 rate limit durumunda bekleyip tekrar dener."""
+    for attempt in range(max_retries):
+        try:
+            with urllib.request.urlopen(url, timeout=30) as resp:
+                return json.loads(resp.read())
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and attempt < max_retries - 1:
+                time.sleep(2 ** attempt + 1)
+                continue
+            raise
 
 
 def veri_cek(lat, lon, baslangic, bitis):
@@ -25,8 +39,7 @@ def veri_cek(lat, lon, baslangic, bitis):
         f"&windspeed_unit=kmh&timezone=auto"
     )
 
-    with urllib.request.urlopen(url, timeout=30) as resp:
-        data = json.loads(resp.read())
+    data = _fetch_with_retry(url)
 
     hourly  = data["hourly"]
     times   = hourly["time"]           # "2023-06-01T12:00"
