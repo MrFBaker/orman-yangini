@@ -1,4 +1,4 @@
-# Proje Checkpoint — 22 Mart 2026 (Son güncelleme: 22 Mart 2026 gece)
+# Proje Checkpoint — 23 Mart 2026 (Son güncelleme: 23 Mart 2026)
 
 ## Proje Adı
 **Fire-EWS — Meteorolojik Veri Tabanlı Orman Yangını Erken Uyarı Sistemi**
@@ -46,11 +46,11 @@
 
 | Sayfa | İçerik | Durum |
 |---|---|---|
-| Hakkında | 5 indeks tanıtımı, özellikler, veri kaynağı, sistem mimarisi | ✅ Güncel |
-| Hesaplayıcı | Manuel giriş (T, RH, W, P, Td, T_max), Open-Meteo otomatik, CSV | ✅ 5 indeks |
-| 7 Günlük Tahmin | Harita + koordinat, bar grafik, günlük kartlar | ⚠️ Grafik/istatistik hala FWI odaklı |
-| Hesaplama Yöntemi | Sekme tabanlı (FWI, Angström, Nesterov, KBDI, Carrega), her biri eşik tablolu | ✅ Güncel |
-| Doğrulama | FWI referans testi + 3 yangın olayı (5 indeks renk kodlu) | ✅ Güncel |
+| Hakkında | Proje bilgisi, ekip, 5 indeks, özellikler, veri kaynağı, sistem mimarisi | ✅ Yeniden düzenlendi |
+| Hesaplayıcı | Manuel (5 indeks renk kodlu + FWI alt bileşenler detay), Open-Meteo otomatik, CSV | ✅ 5 indeks eşit |
+| 7 Günlük Tahmin | Harita + koordinat, 5 indeks çizgi grafik, günlük kartlar (5 indeks) | ✅ 5 indeks eşit |
+| Hesaplama Yöntemi | Sekme tabanlı (FWI, Angström, Nesterov, KBDI, Carrega), tümü bar stilinde eşik tablosu | ✅ Güncel |
+| Doğrulama | FWI referans testi + 3 yangın olayı (5 indeks renk kodlu, çevrilebilir) | ✅ Güncel |
 
 ---
 
@@ -68,7 +68,7 @@ Claude/
 ├── requirements.txt     — Python bağımlılıkları
 ├── Procfile             — gunicorn app_v2:app
 ├── templates/
-│   ├── index_v2.html    — Web arayüzü (SPA, ~3500+ satır)
+│   ├── index_v2.html    — Web arayüzü (SPA, ~3700+ satır)
 │   └── index.html       — Eski arayüz (arşiv)
 ├── docs/
 │   ├── CHECKPOINT.md         — Bu doküman
@@ -109,7 +109,7 @@ Claude/
 | `/` | GET | Ana sayfa |
 | `/hesapla` | POST | Tek gün hesaplama (FWI + 4 ek indeks) |
 | `/nasa` | POST | Open-Meteo çoklu gün (tüm indeksler) |
-| `/csv` | POST | CSV toplu hesaplama |
+| `/csv` | POST | CSV toplu hesaplama (tüm indeksler) |
 | `/tahmin` | POST | 7 günlük tahmin (tüm indeksler) |
 | `/referans` | GET | Van Wagner referans testi |
 | `/test` | GET | Gerçek yangın olayları (tüm indeksler) |
@@ -135,11 +135,9 @@ Detaylı doğrulama: `docs/bilimsel_referanslar.md`
 
 - **Nesterov Akdeniz sorunu:** Rusya için tasarlanmış, Akdeniz'de on binlere çıkıyor → K formatıyla gösteriliyor
 - **Carrega Türkiye uyumu:** Güney Fransa kalibrasyonlu, Türkiye'de yangın günlerinde "Orta" çıkabiliyor
-- **7 Günlük Tahmin:** Grafik ve istatistikler hala sadece FWI odaklı — 5 indeks eşit gösterilmeli
-- **CSV hesaplama:** Backend'de ek indeks entegrasyonu eksik (sadece FWI hesaplıyor)
+- **Grafik işlevselliği:** 5 indeks çizgi grafik (tehlike sınıfı normalize) çalışıyor ama daha işlevsel hale getirilebilir
 - **Doğrulama:** Sadece 3 yangın olayı var — 8-10'a çıkarılmalı
-- **Mobil:** Test edilmeli
-- **İngilizce çeviriler:** Yeni eklenen metinler çevrilmedi
+- **Mobil:** Temel düzeltmeler yapıldı (z-index, scroll, dil butonu) ama grafik mobilde sınırlı
 
 ---
 
@@ -156,7 +154,7 @@ Detaylı doğrulama: `docs/bilimsel_referanslar.md`
 
 ---
 
-## 9. Bu Oturumda Yapılanlar (22 Mart 2026)
+## 9. Oturum 1 — 22 Mart 2026
 
 ### Altyapı (sıfırdan kuruldu)
 1. DigitalOcean Droplet ($6/ay, Frankfurt, $200 kredi)
@@ -181,46 +179,66 @@ Detaylı doğrulama: `docs/bilimsel_referanslar.md`
 18. 35 birim testi yazıldı (test_indeksler.py)
 19. bilimsel_referanslar.md oluşturuldu
 
-### Frontend Güncellemeleri
-20. Hakkında sayfası: 5 indeks, özellikler kartı, sistem mimarisi diyagramı
-21. Hesaplayıcı: manuel formda çiy noktası + T_max alanları
-22. Hesaplayıcı: tablo sadeleştirildi (FWI alt bileşenleri kaldırıldı, 5 indeks renk kodlu)
-23. Hesaplayıcı: sonuç alanında tüm indeksler eşit seviyede
-24. 7 Günlük Tahmin: kartlarda 5 indeks eşit seviyede renk kodlu
-25. Hesaplama Yöntemi: sekme tabanlı yapı (FWI, Angström, Nesterov, KBDI, Carrega)
-26. Hesaplama Yöntemi: her indekse özel formül kartları + eşik tabloları
-27. Doğrulama: test kartlarında 5 indeks renk kodlu
-28. Doğrulama: backend ek indeksler döndürüyor
-29. PDF rapor: manuel ve çoklu gün raporlarında 4 ek indeks
-30. CSV format açıklaması güncellendi (badge'li gösterim)
-31. Nesterov büyük değerler K formatında (25188 → 25.2K)
-32. Türkçe karakter desteği (sinifCevir, Yangını, Muğla, İzmir)
-
-### UI/UX Düzeltmeleri
-33. FWI System → Fire-EWS isim değişikliği
-34. Sidebar taşma düzeltildi (iki satır)
-35. İndeks badge'leri kısaltıldı (ANG, NES, CAR)
-36. Title, favicon güncellendi
-37. Footer: Fire-EWS + 5 indeks
-38. Formüllerdeki parantez açıklamaları şık badge'lere dönüştürüldü
-39. Mobil uyumluluk iyileştirmeleri (dokunma alanları, grid'ler, breakpoint'ler)
-40. Özellikler kartı düzenlendi (badge hizalama, boşluk)
-41. Referans testi başlığı güncellendi + ek indeks doğrulama notu
-42. API retry mekanizması (429 rate limit)
+### Frontend (ilk geçiş)
+20–42. Hakkında, Hesaplayıcı, Tahmin, Yöntem, Doğrulama sayfaları güncellendi (detaylar önceki checkpoint'te)
 
 ---
 
-## 10. Sonraki Oturum İçin Yapılacaklar
+## 10. Oturum 2 — 23 Mart 2026
+
+### FWI Odaklı → 5 İndeks Eşit Gösterim
+1. **7 Günlük Tahmin:** İstatistik kutuları kaldırıldı, 5 indeks çizgi grafik (tehlike sınıfı normalize, farklı çizgi/nokta stilleri, çakışma önleme ofset)
+2. **Hesaplayıcı Otomatik Veri:** Aynı 5 indeks çizgi grafik, istatistik kutuları kaldırıldı
+3. **Manuel Hesaplama:** FWI banner kaldırıldı, 5 indeks eşit renk kodlu kutu, FWI alt bileşenleri açılır detay (details/summary)
+4. **CSV Backend:** `/csv` endpoint'ine ek indeks entegrasyonu (KBDI₀, Nesterov₀ state tracking)
+5. **Gelişmiş Ayarlar:** Manuel ve CSV'ye KBDI₀ ve Nesterov₀ başlangıç değerleri eklendi
+
+### i18n — Kapsamlı Çeviri Düzeltmesi
+6. Özellikler kartı: badge + açıklama çevirileri (Harita→Map, Tahmin→Forecast, Oto Veri→Auto Data)
+7. Veri kaynağı: Çiy Noktası→Dew Point, T_max açıklamaları
+8. Form label'ları: Çiy Noktası (°C), T_max (°C), Enlem (opsiyonel)
+9. Gelişmiş Ayarlar: FWI Başlangıç→FWI Initial Values, Kümülatif İndeks Başlangıç→Cumulative Index Initial Values
+10. FWI Alt Bileşenleri → FWI Sub-Components
+11. Sistem Mimarisi: Meteorolojik Veri→Meteorological Data, Tehlike Seviyesi→Danger Level
+12. Kullanılan İndeksler: 5 indeks açıklaması EN çevirileri
+13. Doğrulama: girdi bilgisi, ek indeks notu, yangın isimleri (Manavgat Fire vb.)
+14. CSV bölümü: Sütunları başlığı ve açıklama çevirisi
+15. Sayfa title: Fire-EWS uyumu
+16. card_features_title TR/EN tanımı eklendi
+
+### Hesaplama Yöntemi
+17. Tüm 5 indeks tehlike sınıfları aynı bar stiliyle (tehlike-olcek) — FWI eskisi gibi, diğerleri de aynı
+18. Angström/Nesterov/KBDI/Carrega panelleri lang-tr dışına taşındı (EN'de de görünür)
+19. EN FWI paneli yontem-panel class'ıyla sarıldı, sekme değiştirme düzgün çalışıyor
+20. FWI Sistemi sekme butonu data-i18n eklendi
+
+### Hakkında Sayfası Yeniden Düzenleme
+21. Proje + Ekip: tam genişlik kart, ekip isimleri (Ahmet Emre EKMEKCİ, Ahsen REYHAN, Doğukan TOPAL, Sedanur BAYAZTAŞ, Zeynep Selma OTLUOĞLU)
+22. İndeksler: tam genişlik kart
+23. Özellikler + Veri Kaynağı: yan yana 2 sütun (mobilde 1 sütun)
+24. Sistem Mimarisi: tam genişlik akış diyagramı
+25. Badge'ler sabit 56px genişlik — yazılar hizalı
+26. Open-Meteo açıklama metni 5 indeks kapsayacak şekilde güncellendi
+
+### Mobil Düzeltmeler
+27. Harita container z-index:0 — sidebar/overlay üst üste binme düzeltildi
+28. Metodoloji sekmeleri: mobilde yatay scroll, gap ile ayrık, pill stili
+29. Dil seçimi sidebar'da nav linklerinin hemen altına taşındı
+30. Sistem Mimarisi mobilde dikey akış (oklar ↓, indeksler 3 sütun grid)
+31. Grafik mobil: yatay scroll wrapper, kısa Y ekseni etiketleri (D, O, Y, ÇY, A), legend altta
+
+---
+
+## 11. Sonraki Oturum İçin Yapılacaklar
 
 ### Öncelikli
-- [ ] **7 Günlük Tahmin** grafik ve istatistikleri 5 indeks eşit gösterecek şekilde güncelle
-- [ ] **CSV hesaplama** backend'de ek indeks entegrasyonu
-- [ ] **Mobil test** — telefonda kontrol, sorunları düzelt
+- [ ] **Grafikleri iyileştir** — mevcut çizgi grafik işlevsel değil, daha kullanışlı bir görselleştirme bul
+- [ ] **Mobil genel test** — tüm sayfaları telefonda kontrol et, kalan sorunları düzelt
 
 ### Orta Öncelik
 - [ ] Daha fazla yangın olayı (3 → 8-10)
-- [ ] İngilizce çeviriler güncelleme
-- [ ] Loading animasyonları
+- [ ] Loading animasyonları (API çağrıları sırasında spinner)
+- [ ] i18n kalan eksikler (metodoloji formül adımları, açıklamalar)
 
 ### Düşük Öncelik
 - [ ] Tarihsel trend analizi
@@ -229,12 +247,12 @@ Detaylı doğrulama: `docs/bilimsel_referanslar.md`
 
 ---
 
-## 11. Görev Dağılımı (Takım)
+## 12. Görev Dağılımı (Takım)
 
 | Kişi | Görev | Durum |
 |---|---|---|
-| Seda | KBDI + FWI DC/DMC (uzun vadeli kuraklık) | ✅ Kod tamamlandı |
-| Emre | ISI, BUI, FWI + Sistem Tasarımı | ✅ Kod tamamlandı |
-| Zeynep | Nesterov + FWI FFMC (anlık tutuşma) | ✅ Kod tamamlandı |
-| Ahsen | Carrega I87 + Angström (günlük su dengesi) | ✅ Kod tamamlandı |
-| Doğukan | Meteorolojik Veri Altyapısı | ✅ openmeteo.py + forecast.py |
+| Sedanur BAYAZTAŞ | KBDI + FWI DC/DMC (uzun vadeli kuraklık) | ✅ Kod tamamlandı |
+| Ahmet Emre EKMEKCİ | ISI, BUI, FWI + Sistem Tasarımı | ✅ Kod tamamlandı |
+| Zeynep Selma OTLUOĞLU | Nesterov + FWI FFMC (anlık tutuşma) | ✅ Kod tamamlandı |
+| Ahsen REYHAN | Carrega I87 + Angström (günlük su dengesi) | ✅ Kod tamamlandı |
+| Doğukan TOPAL | Meteorolojik Veri Altyapısı | ✅ openmeteo.py + forecast.py |
