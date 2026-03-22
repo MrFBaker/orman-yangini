@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+import sentry_sdk
+sentry_sdk.init(
+    dsn="https://3c46d86740823152fba5c5738ffa1987@o4511089160683520.ingest.de.sentry.io/4511089167433808",
+    send_default_pii=True,
+)
+
 from flask import Flask, render_template, request, jsonify, send_file
 from datetime import datetime, timedelta
 import sys, os, io
