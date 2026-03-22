@@ -126,17 +126,28 @@ def csv_hesapla():
         ffmc0 = float(data.get("ffmc0", f.FFMC_BASLANGIC))
         dmc0 = float(data.get("dmc0", f.DMC_BASLANGIC))
         dc0 = float(data.get("dc0", f.DC_BASLANGIC))
+        kbdi0 = float(data.get("kbdi0", idx.KBDI_BASLANGIC))
+        nesterov0 = float(data.get("nesterov0", idx.NESTEROV_BASLANGIC))
         lat_v = float(data["lat"]) if "lat" in data and data["lat"] != "" else None
         sonuclar = []
         for satir in satirlar:
             tarih = str(satir.get("tarih", ""))
             ay = int(tarih[4:6]) if len(tarih) == 8 else int(satir.get("month", 7))
-            r = f.hesapla(temp=float(satir["temp"]), rh=float(satir["rh"]),
-                          wind=float(satir["wind"]), precip=float(satir["precip"]),
+            temp = float(satir["temp"])
+            rh = float(satir["rh"])
+            wind = float(satir["wind"])
+            precip = float(satir["precip"])
+            dew_point = float(satir.get("dew_point", 10.0))
+            temp_max = float(satir.get("temp_max", temp))
+            r = f.hesapla(temp=temp, rh=rh, wind=wind, precip=precip,
                           month=ay, ffmc0=ffmc0, dmc0=dmc0, dc0=dc0, lat=lat_v)
-            sonuclar.append({"tarih": tarih, "temp": float(satir["temp"]), "rh": float(satir["rh"]),
-                             "wind_kmh": float(satir["wind"]), "precip": float(satir["precip"]), **r})
+            ek = idx.hesapla_ek(temp=temp, rh=rh, wind=wind, precip=precip,
+                                temp_max=temp_max, dew_point=dew_point,
+                                kbdi0=kbdi0, nesterov0=nesterov0)
+            sonuclar.append({"tarih": tarih, "temp": temp, "rh": rh,
+                             "wind_kmh": wind, "precip": precip, **r, **ek})
             ffmc0, dmc0, dc0 = r["ffmc"], r["dmc"], r["dc"]
+            kbdi0, nesterov0 = ek["kbdi"], ek["nesterov"]
         return jsonify({"ok": True, "sonuclar": sonuclar})
     except Exception as e:
         return jsonify({"ok": False, "hata": str(e)}), 400

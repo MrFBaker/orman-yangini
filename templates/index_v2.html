@@ -905,6 +905,34 @@
     .tahmin-idx .etiket { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; }
     .tahmin-idx .deger { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-top: 2px; }
 
+    /* Heatmap */
+    .tahmin-heatmap { overflow-x: auto; }
+    .tahmin-hm-grid {
+      display: grid;
+      grid-template-columns: 72px repeat(7, 1fr);
+      gap: 3px;
+      min-width: 480px;
+    }
+    .tahmin-hm-header {
+      text-align: center; color: var(--text-muted);
+      font-size: 0.62rem; font-weight: 600;
+      padding: 6px 2px; letter-spacing: 0.3px;
+    }
+    .tahmin-hm-label {
+      display: flex; align-items: center;
+      color: var(--accent); font-weight: 700;
+      font-size: 0.68rem; padding: 0 6px;
+    }
+    .tahmin-hm-cell {
+      text-align: center; padding: 8px 2px;
+      border-radius: 6px; font-weight: 700;
+      font-size: 0.65rem; line-height: 1.3;
+      transition: transform 0.1s;
+    }
+    .tahmin-hm-cell:hover { transform: scale(1.08); z-index: 1; }
+    .tahmin-hm-cell .hm-val { font-size: 0.78rem; display: block; }
+    .tahmin-hm-cell .hm-sinif { font-size: 0.55rem; opacity: 0.85; display: block; margin-top: 1px; }
+
     .tahmin-konum-bilgi {
       display: flex; align-items: center; gap: 12px;
       padding: 12px 16px; border-radius: 10px;
@@ -2136,8 +2164,8 @@
 <div class="sayfa" id="sayfa-tahmin">
 
   <div class="hero">
-    <h1 data-i18n="forecast_title">7 Günlük FWI Tahmini</h1>
-    <p data-i18n="forecast_desc">Open-Meteo hava tahmin verisini kullanarak önümüzdeki 7 gün için yangın hava indeksi hesaplar. Haritadan konum seçin ve tahmini başlatın.</p>
+    <h1 data-i18n="forecast_title">7 Günlük Yangın Tehlike Tahmini</h1>
+    <p data-i18n="forecast_desc">Open-Meteo hava tahmin verisini kullanarak önümüzdeki 7 gün için 5 farklı yangın tehlike indeksini hesaplar. Haritadan konum seçin ve tahmini başlatın.</p>
   </div>
 
   <div class="harita-container" id="harita-tahmin" style="height:360px">
@@ -2167,14 +2195,14 @@
   <div id="tahmin-sonuc-alani" style="display:none">
     <div class="sonuc-ust-grid" style="margin-bottom:20px">
       <div class="istatistik-grid">
-        <div class="istat-kutu"><div class="etiket" data-i18n="stat_max">En Yüksek FWI</div><div class="deger" id="tahmin-stat-max">—</div><div class="alt" id="tahmin-stat-max-tarih">—</div></div>
-        <div class="istat-kutu"><div class="etiket" data-i18n="stat_avg">Ortalama FWI</div><div class="deger" id="tahmin-stat-ort">—</div><div class="alt" data-i18n="forecast_7day">7 günlük</div></div>
-        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_max_class">En Yüksek Sınıf</div><div class="deger" id="tahmin-stat-sinif">—</div><div class="alt" id="tahmin-stat-sinif-tarih">—</div></div>
-        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_risky_days">Riskli Gün</div><div class="deger" id="tahmin-stat-risk">—</div><div class="alt">FWI ≥ 10</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_general_danger">Genel Tehlike</div><div class="deger" id="tahmin-stat-genel">—</div><div class="alt" id="tahmin-stat-genel-tarih">—</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_risky_days">Riskli Gün</div><div class="deger" id="tahmin-stat-risk">—</div><div class="alt" data-i18n="forecast_risky_desc">indeks ≥ Yüksek</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_critical_idx">En Kritik İndeks</div><div class="deger" id="tahmin-stat-kritik">—</div><div class="alt" id="tahmin-stat-kritik-neden">—</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_total_warn">Toplam Uyarı</div><div class="deger" id="tahmin-stat-uyari">—</div><div class="alt" data-i18n="forecast_warn_desc">Yüksek+ okuma</div></div>
       </div>
       <div class="grafik-kutu">
-        <div class="grafik-baslik" data-i18n="forecast_chart_title">7 Günlük FWI Tahmini</div>
-        <canvas id="tahmin-grafik"></canvas>
+        <div class="grafik-baslik" data-i18n="forecast_chart_title">7 Günlük Yangın Tehlike Tahmini</div>
+        <div id="tahmin-heatmap" class="tahmin-heatmap"></div>
       </div>
     </div>
     <div class="tahmin-grid" id="tahmin-kartlar"></div>
@@ -2372,17 +2400,23 @@
       beklenti_fail: "✗ Beklentinin altında",
       csv_hata: "Hata: geçerli veri bulunamadı",
       nav_forecast: "7 Günlük Tahmin",
-      forecast_title: "7 Günlük FWI Tahmini",
-      forecast_desc: "Open-Meteo hava tahmin verisini kullanarak önümüzdeki 7 gün için yangın hava indeksi hesaplar. Haritadan konum seçin ve tahmini başlatın.",
+      forecast_title: "7 Günlük Yangın Tehlike Tahmini",
+      forecast_desc: "Open-Meteo hava tahmin verisini kullanarak önümüzdeki 7 gün için 5 farklı yangın tehlike indeksini hesaplar. Haritadan konum seçin ve tahmini başlatın.",
       map_hint: "Haritaya tıklayarak konum seçin",
       forecast_location: "Seçilen konum:",
       btn_forecast: "Konum Seçin →",
       btn_forecast_ready: "Tahmini Hesapla",
       btn_forecast_loading: "Tahmin hesaplanıyor...",
       forecast_7day: "7 günlük",
-      forecast_max_class: "En Yüksek Sınıf",
+      forecast_general_danger: "Genel Tehlike",
       forecast_risky_days: "Riskli Gün",
-      forecast_chart_title: "7 Günlük FWI Tahmini",
+      forecast_risky_desc: "indeks ≥ Yüksek",
+      forecast_critical_idx: "En Kritik İndeks",
+      forecast_total_warn: "Toplam Uyarı",
+      forecast_warn_desc: "Yüksek+ okuma",
+      forecast_days_risky: "gün riskli",
+      forecast_no_risk: "risk yok",
+      forecast_chart_title: "7 Günlük Yangın Tehlike Tahmini",
       forecast_today: "Bugün",
       forecast_tomorrow: "Yarın",
       forecast_days: ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"],
@@ -2495,17 +2529,23 @@
       beklenti_fail: "✗ Below expectation",
       csv_hata: "Error: no valid data found",
       nav_forecast: "7-Day Forecast",
-      forecast_title: "7-Day FWI Forecast",
-      forecast_desc: "Calculates the Fire Weather Index for the next 7 days using Open-Meteo weather forecast data. Select a location on the map and start the forecast.",
+      forecast_title: "7-Day Fire Danger Forecast",
+      forecast_desc: "Calculates 5 different fire danger indices for the next 7 days using Open-Meteo weather forecast data. Select a location on the map and start the forecast.",
       map_hint: "Click on the map to select a location",
       forecast_location: "Selected location:",
       btn_forecast: "Select Location →",
       btn_forecast_ready: "Calculate Forecast",
       btn_forecast_loading: "Calculating forecast...",
       forecast_7day: "7-day",
-      forecast_max_class: "Highest Class",
+      forecast_general_danger: "Overall Danger",
       forecast_risky_days: "Risky Days",
-      forecast_chart_title: "7-Day FWI Forecast",
+      forecast_risky_desc: "index ≥ High",
+      forecast_critical_idx: "Most Critical Index",
+      forecast_total_warn: "Total Warnings",
+      forecast_warn_desc: "High+ readings",
+      forecast_days_risky: "days risky",
+      forecast_no_risk: "no risk",
+      forecast_chart_title: "7-Day Fire Danger Forecast",
       forecast_today: "Today",
       forecast_tomorrow: "Tomorrow",
       forecast_days: ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
@@ -3124,7 +3164,6 @@
   // ═══════════════════════════════════════════
   let nasaMap = null, nasaMarker = null;
   let tahminMap = null, tahminMarker = null;
-  let tahminChart = null;
   let tahminLat = null, tahminLon = null;
 
   function initNasaMap() {
@@ -3248,32 +3287,60 @@
   }
 
   function gosterTahminSonuc(satirlar) {
-    // Stats
-    const fwiList = satirlar.map(r => r.fwi);
-    const maxFwi = Math.max(...fwiList);
-    const maxGun = satirlar.find(r => r.fwi === maxFwi);
-    const maxTarih = maxGun ? formatTarih(maxGun.tarih) : "—";
-    const ort = fwiList.reduce((a,b)=>a+b,0) / fwiList.length;
-    const riskli = fwiList.filter(v => v >= 10).length;
+    // Tüm indeksler için sınıf sıralama haritası
+    const sinifSira = {"Tehlike Yok":0,"Dusuk":1,"Orta":2,"Yuksek":3,"Cok Yuksek":4,"Asiri":5};
+    const indeksler = [
+      { key: "sinif",           ad: "FWI" },
+      { key: "angstrom_sinif",  ad: "Angström" },
+      { key: "nesterov_sinif",  ad: "Nesterov" },
+      { key: "kbdi_sinif",      ad: "KBDI" },
+      { key: "carrega_sinif",   ad: "Carrega" },
+    ];
 
-    document.getElementById("tahmin-stat-max").textContent = maxFwi.toFixed(1);
-    document.getElementById("tahmin-stat-max-tarih").textContent = maxTarih;
-    document.getElementById("tahmin-stat-ort").textContent = ort.toFixed(1);
-    document.getElementById("tahmin-stat-risk").textContent = riskli;
-
-    // Max class
-    const sinifSiraMap = {"Dusuk":0,"Orta":1,"Yuksek":2,"Cok Yuksek":3,"Asiri":4};
-    let maxSinif = "Dusuk";
-    let maxSinifTarih = "";
+    // Genel tehlike — tüm indeksler arasındaki en yüksek sınıf
+    let genelMax = "Dusuk", genelTarih = "";
     for (const r of satirlar) {
-      if ((sinifSiraMap[r.sinif]||0) > (sinifSiraMap[maxSinif]||0)) {
-        maxSinif = r.sinif;
-        maxSinifTarih = formatTarih(r.tarih);
+      for (const idx of indeksler) {
+        const s = r[idx.key];
+        if (s && (sinifSira[s]||0) > (sinifSira[genelMax]||0)) {
+          genelMax = s;
+          genelTarih = formatTarih(r.tarih);
+        }
       }
     }
-    const sinifInfo = SINIF_MAP[maxSinif];
-    document.getElementById("tahmin-stat-sinif").textContent = sinifInfo ? sinifInfo.tr() : maxSinif;
-    document.getElementById("tahmin-stat-sinif-tarih").textContent = maxSinifTarih;
+    const genelInfo = SINIF_MAP[genelMax];
+    document.getElementById("tahmin-stat-genel").textContent = genelInfo ? genelInfo.tr() : genelMax;
+    document.getElementById("tahmin-stat-genel-tarih").textContent = genelTarih;
+
+    // Riskli gün — herhangi bir indeks Yüksek veya üstü
+    const riskli = satirlar.filter(r =>
+      indeksler.some(idx => (sinifSira[r[idx.key]]||0) >= 3)
+    ).length;
+    document.getElementById("tahmin-stat-risk").textContent = riskli;
+
+    // En kritik indeks — en çok yüksek+ okuma veren indeks
+    const kritikSay = {};
+    for (const idx of indeksler) kritikSay[idx.ad] = 0;
+    for (const r of satirlar) {
+      for (const idx of indeksler) {
+        if ((sinifSira[r[idx.key]]||0) >= 3) kritikSay[idx.ad]++;
+      }
+    }
+    let kritikAd = "—", kritikMax = 0;
+    for (const [ad, say] of Object.entries(kritikSay)) {
+      if (say > kritikMax) { kritikMax = say; kritikAd = ad; }
+    }
+    document.getElementById("tahmin-stat-kritik").textContent = kritikMax > 0 ? kritikAd : "—";
+    document.getElementById("tahmin-stat-kritik-neden").textContent = kritikMax > 0 ? (kritikMax + " " + t("forecast_days_risky")) : t("forecast_no_risk");
+
+    // Toplam uyarı — tüm indeksler × günler arasında Yüksek+ okuma sayısı
+    let toplamUyari = 0;
+    for (const r of satirlar) {
+      for (const idx of indeksler) {
+        if ((sinifSira[r[idx.key]]||0) >= 3) toplamUyari++;
+      }
+    }
+    document.getElementById("tahmin-stat-uyari").textContent = toplamUyari;
 
     // Chart
     tahminGrafikCiz(satirlar);
@@ -3335,49 +3402,49 @@
   }
 
   function tahminGrafikCiz(satirlar) {
-    const labels = satirlar.map(r => formatTarih(r.tarih));
-    const fwiDeger = satirlar.map(r => r.fwi);
-    const noktaRenkler = fwiDeger.map(noktaRenk);
-    const n = satirlar.length;
+    const hmRenk = {
+      "Tehlike Yok": { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+      "Dusuk":       { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+      "Orta":        { bg: "#422006", renk: "#fbbf24", border: "#713f12" },
+      "Yuksek":      { bg: "#431407", renk: "#fb923c", border: "#7c2d12" },
+      "Cok Yuksek":  { bg: "#450a0a", renk: "#f87171", border: "#7f1d1d" },
+      "Asiri":       { bg: "#2e1065", renk: "#c084fc", border: "#581c87" },
+    };
+    const indeksler = [
+      { key: "sinif",          valKey: "fwi",      ad: "FWI",  fmt: v => v != null ? v : "—" },
+      { key: "angstrom_sinif", valKey: "angstrom",  ad: "Ang.", fmt: v => v != null ? v : "—" },
+      { key: "nesterov_sinif", valKey: "nesterov",  ad: "Nes.", fmt: v => fmtK(v) },
+      { key: "kbdi_sinif",     valKey: "kbdi",      ad: "KBDI", fmt: v => v != null ? v : "—" },
+      { key: "carrega_sinif",  valKey: "carrega",   ad: "Car.", fmt: v => v != null ? v : "—" },
+    ];
 
-    if (tahminChart) tahminChart.destroy();
-    const ctx = document.getElementById("tahmin-grafik").getContext("2d");
-    tahminChart = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [
-          {
-            label: "FWI",
-            data: fwiDeger,
-            backgroundColor: noktaRenkler.map(c => c + "88"),
-            borderColor: noktaRenkler,
-            borderWidth: 2,
-            borderRadius: 6,
-          },
-          { label: "Orta", data: Array(n).fill(5),  type: "line", borderColor: "#166534", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
-          { label: "Yüksek", data: Array(n).fill(10), type: "line", borderColor: "#713f12", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
-          { label: "Çok Y.", data: Array(n).fill(20), type: "line", borderColor: "#7c2d12", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
-          { label: "Aşırı", data: Array(n).fill(30), type: "line", borderColor: "#7f1d1d", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
-        ]
-      },
-      options: {
-        responsive: true,
-        interaction: { mode: "index", intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: "#111827",
-            borderColor: "#374151",
-            borderWidth: 1,
-          }
-        },
-        scales: {
-          x: { ticks: { color: "#9ca3af", font: { size: 10 } }, grid: { color: "#1f2937" } },
-          y: { beginAtZero: true, ticks: { color: "#9ca3af", font: { size: 11 } }, grid: { color: "#1f2937" } }
-        }
-      }
+    const bugun = new Date();
+    let html = '<div class="tahmin-hm-grid">';
+    // Header row — boş köşe + gün isimleri
+    html += '<div class="tahmin-hm-header"></div>';
+    satirlar.forEach((r, i) => {
+      const d = new Date(bugun); d.setDate(d.getDate() + i);
+      const gun = i === 0 ? t("forecast_today") : i === 1 ? t("forecast_tomorrow") : t("forecast_days")[d.getDay()];
+      const tarih = formatTarih(r.tarih);
+      html += `<div class="tahmin-hm-header">${gun}<br><span style="opacity:0.6">${tarih.slice(5)}</span></div>`;
     });
+
+    // İndeks satırları
+    for (const idx of indeksler) {
+      html += `<div class="tahmin-hm-label">${idx.ad}</div>`;
+      for (const r of satirlar) {
+        const sinif = r[idx.key] || "Dusuk";
+        const c = hmRenk[sinif] || hmRenk["Orta"];
+        const val = idx.fmt(r[idx.valKey]);
+        const sinifAd = sinifCevir(sinif);
+        html += `<div class="tahmin-hm-cell" style="background:${c.bg};color:${c.renk};border-color:${c.border}" title="${idx.ad}: ${val} (${sinifAd})">
+          <span class="hm-val">${val}</span>
+          <span class="hm-sinif">${sinifAd}</span>
+        </div>`;
+      }
+    }
+    html += '</div>';
+    document.getElementById("tahmin-heatmap").innerHTML = html;
   }
 
   function formatTarih(t) {
