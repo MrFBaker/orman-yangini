@@ -436,6 +436,8 @@
       background: var(--card-bg); border: 1px solid var(--border);
       border-radius: 10px; padding: 20px;
     }
+    .grafik-scroll { overflow-x: auto; }
+    .grafik-scroll canvas { min-width: 500px; }
     .grafik-baslik { font-size: 0.78rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
 
     /* TABLO */
@@ -1316,7 +1318,7 @@
   <div id="nasa-sonuc-alani">
     <div class="grafik-kutu" style="margin-bottom:16px">
       <div class="grafik-baslik" data-i18n="chart_title">Yangın Tehlike Zaman Serisi</div>
-      <canvas id="fwi-grafik"></canvas>
+      <div class="grafik-scroll"><canvas id="fwi-grafik"></canvas></div>
     </div>
     <div class="tablo-wrapper" style="margin-top:16px;">
       <table>
@@ -2223,7 +2225,7 @@
   <div id="tahmin-sonuc-alani" style="display:none">
     <div class="grafik-kutu" style="margin-bottom:20px">
       <div class="grafik-baslik" data-i18n="forecast_chart_title">7 Günlük Yangın Tehlike Tahmini</div>
-      <canvas id="tahmin-grafik"></canvas>
+      <div class="grafik-scroll"><canvas id="tahmin-grafik"></canvas></div>
     </div>
     <div class="tahmin-grid" id="tahmin-kartlar"></div>
   </div>
@@ -2866,7 +2868,8 @@
 
     if (fwiChart) fwiChart.destroy();
     const ctx = document.getElementById("fwi-grafik").getContext("2d");
-    const seviyeLabels = [t("sinif_tehlike_yok") || "—", t("sinif_dusuk"), t("sinif_orta"), t("sinif_yuksek"), t("sinif_cok_yuksek"), t("sinif_asiri")];
+    const mob = window.innerWidth < 768;
+    const seviyeLabels = mob ? ["—","D","O","Y","ÇY","A"] : [t("sinif_tehlike_yok") || "—", t("sinif_dusuk"), t("sinif_orta"), t("sinif_yuksek"), t("sinif_cok_yuksek"), t("sinif_asiri")];
     fwiChart = new Chart(ctx, {
       type: "line",
       data: { labels, datasets },
@@ -2874,7 +2877,7 @@
         responsive: true,
         interaction: { mode: "index", intersect: false },
         plugins: {
-          legend: { labels: { color: "#9ca3af", font: { size: 11 }, usePointStyle: true } },
+          legend: { position: mob ? "bottom" : "top", labels: { color: "#9ca3af", font: { size: mob ? 9 : 11 }, usePointStyle: true, padding: mob ? 8 : 12 } },
           tooltip: {
             backgroundColor: "#111827", borderColor: "#374151", borderWidth: 1,
             callbacks: {
@@ -3502,7 +3505,8 @@
 
     if (tahminChart) tahminChart.destroy();
     const ctx = document.getElementById("tahmin-grafik").getContext("2d");
-    const seviyeLabels = [t("sinif_tehlike_yok") || "—", t("sinif_dusuk"), t("sinif_orta"), t("sinif_yuksek"), t("sinif_cok_yuksek"), t("sinif_asiri")];
+    const mob = window.innerWidth < 768;
+    const seviyeLabels = mob ? ["—","D","O","Y","ÇY","A"] : [t("sinif_tehlike_yok") || "—", t("sinif_dusuk"), t("sinif_orta"), t("sinif_yuksek"), t("sinif_cok_yuksek"), t("sinif_asiri")];
     tahminChart = new Chart(ctx, {
       type: "line",
       data: { labels, datasets },
@@ -3510,7 +3514,7 @@
         responsive: true,
         interaction: { mode: "index", intersect: false },
         plugins: {
-          legend: { labels: { color: "#9ca3af", font: { size: 11 }, usePointStyle: true } },
+          legend: { position: mob ? "bottom" : "top", labels: { color: "#9ca3af", font: { size: mob ? 9 : 11 }, usePointStyle: true, padding: mob ? 8 : 12 } },
           tooltip: {
             backgroundColor: "#111827", borderColor: "#374151", borderWidth: 1,
             callbacks: {
