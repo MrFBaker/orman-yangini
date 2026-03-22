@@ -2179,7 +2179,7 @@
       event_3: "İzmir Yangını — 19 Ağustos 2019, İzmir",
       footer_text: "Meteoroloji Mühendisliği Tasarım Projesi · Open-Meteo Saatlik Veri",
       sinif_dusuk: "DÜŞÜK", sinif_orta: "ORTA", sinif_yuksek: "YÜKSEK",
-      sinif_cok_yuksek: "ÇOK YÜKSEK", sinif_asiri: "AŞIRI",
+      sinif_cok_yuksek: "ÇOK YÜKSEK", sinif_asiri: "AŞIRI", sinif_tehlike_yok: "TEHLİKE YOK",
       aciklama_dusuk: "Yangın riski düşük", aciklama_orta: "Dikkatli olunmalı",
       aciklama_yuksek: "Yüksek yangın riski", aciklama_cok_yuksek: "Çok yüksek yangın riski",
       aciklama_asiri: "Aşırı tehlike — kritik koşullar",
@@ -2302,7 +2302,7 @@
       event_3: "İzmir Fire — August 19, 2019, İzmir",
       footer_text: "Meteorological Engineering Design Project · Open-Meteo Hourly Data",
       sinif_dusuk: "LOW", sinif_orta: "MODERATE", sinif_yuksek: "HIGH",
-      sinif_cok_yuksek: "VERY HIGH", sinif_asiri: "EXTREME",
+      sinif_cok_yuksek: "VERY HIGH", sinif_asiri: "EXTREME", sinif_tehlike_yok: "NO DANGER",
       aciklama_dusuk: "Low fire risk", aciklama_orta: "Caution advised",
       aciklama_yuksek: "High fire risk", aciklama_cok_yuksek: "Very high fire risk",
       aciklama_asiri: "Extreme danger — critical conditions",
@@ -2384,12 +2384,14 @@
   }
 
   const SINIF_MAP = {
-    "Dusuk":      { tr: () => t("sinif_dusuk"),      renk: "Dusuk",     aciklama: () => t("aciklama_dusuk") },
-    "Orta":       { tr: () => t("sinif_orta"),        renk: "Orta",      aciklama: () => t("aciklama_orta") },
-    "Yuksek":     { tr: () => t("sinif_yuksek"),      renk: "Yuksek",    aciklama: () => t("aciklama_yuksek") },
-    "Cok Yuksek": { tr: () => t("sinif_cok_yuksek"),  renk: "CokYuksek", aciklama: () => t("aciklama_cok_yuksek") },
-    "Asiri":      { tr: () => t("sinif_asiri"),       renk: "Asiri",     aciklama: () => t("aciklama_asiri") },
+    "Dusuk":       { tr: () => t("sinif_dusuk"),      renk: "Dusuk",     aciklama: () => t("aciklama_dusuk") },
+    "Orta":        { tr: () => t("sinif_orta"),        renk: "Orta",      aciklama: () => t("aciklama_orta") },
+    "Yuksek":      { tr: () => t("sinif_yuksek"),      renk: "Yuksek",    aciklama: () => t("aciklama_yuksek") },
+    "Cok Yuksek":  { tr: () => t("sinif_cok_yuksek"),  renk: "CokYuksek", aciklama: () => t("aciklama_cok_yuksek") },
+    "Asiri":       { tr: () => t("sinif_asiri"),       renk: "Asiri",     aciklama: () => t("aciklama_asiri") },
+    "Tehlike Yok": { tr: () => t("sinif_tehlike_yok"), renk: "Dusuk",     aciklama: () => "" },
   };
+  function sinifCevir(s) { const m = SINIF_MAP[s]; return m ? m.tr() : s; }
 
   function sayfaAc(id, el) {
     document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("aktif"));
@@ -2620,13 +2622,13 @@
     document.getElementById("val-bui").textContent  = s.bui;
     document.getElementById("val-dsr").textContent  = s.dsr;
     document.getElementById("val-angstrom").textContent = s.angstrom != null ? s.angstrom : "—";
-    document.getElementById("val-angstrom-sinif").textContent = s.angstrom_sinif || "—";
+    document.getElementById("val-angstrom-sinif").textContent = s.angstrom_sinif ? sinifCevir(s.angstrom_sinif) : "—";
     document.getElementById("val-nesterov").textContent = s.nesterov != null ? s.nesterov : "—";
-    document.getElementById("val-nesterov-sinif").textContent = s.nesterov_sinif || "—";
+    document.getElementById("val-nesterov-sinif").textContent = s.nesterov_sinif ? sinifCevir(s.nesterov_sinif) : "—";
     document.getElementById("val-kbdi").textContent = s.kbdi != null ? s.kbdi : "—";
-    document.getElementById("val-kbdi-sinif").textContent = s.kbdi_sinif || "—";
+    document.getElementById("val-kbdi-sinif").textContent = s.kbdi_sinif ? sinifCevir(s.kbdi_sinif) : "—";
     document.getElementById("val-carrega").textContent = s.carrega != null ? s.carrega : "—";
-    document.getElementById("val-carrega-sinif").textContent = s.carrega_sinif || "—";
+    document.getElementById("val-carrega-sinif").textContent = s.carrega_sinif ? sinifCevir(s.carrega_sinif) : "—";
     document.getElementById("sonuc-alani").style.display = "block";
     document.getElementById("sonuc-alani").scrollIntoView({ behavior: "smooth" });
   }
