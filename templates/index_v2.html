@@ -181,13 +181,14 @@
 
     .bilgi-kart {
       background: var(--card-bg); border: 1px solid var(--border);
-      border-radius: 12px; padding: 22px;
+      border-radius: 12px; padding: 22px; display: flex; flex-direction: column;
     }
+    .bilgi-kart > :last-child { margin-bottom: 0; }
     .bilgi-kart h3 {
       font-size: 0.75rem; color: var(--accent);
       text-transform: uppercase; letter-spacing: 1px;
       margin-bottom: 14px; padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
     }
     .bilgi-kart p {
       font-size: 0.84rem; color: var(--text-muted); line-height: 1.65;
