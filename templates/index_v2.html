@@ -1031,6 +1031,12 @@
       <h3 data-i18n="card_about_title">Proje Hakkında</h3>
       <p data-i18n="card_about_p1" data-i18n-html="1">Bu sistem, Sayın <strong>Prof. Dr. Levent ŞAYLAN</strong> danışmanlığında <strong>İklim Bilimi ve Meteoroloji Mühendisliği Tasarım Projesi</strong> kapsamında geliştirilmiştir.</p>
       <p style="margin-top:10px" data-i18n="card_about_p2" data-i18n-html="1">Sistem, <strong>5 farklı yangın tehlike indeksini</strong> (FWI, Angström, Nesterov, KBDI, Carrega I87) birlikte hesaplayarak kapsamlı bir risk değerlendirmesi sunar. Open-Meteo API ile otomatik veri çekimi ve 7 günlük tahmin desteklenmektedir.</p>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="font-size:0.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;font-weight:600" data-i18n="card_team_title">Geliştirici Ekip</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);line-height:1.8">
+          Ahmet Emre EKMEKCİ · Ahsen REYHAN · Doğukan TOPAL · Sedanur BAYAZTAŞ · Zeynep Selma OTLUOĞLU
+        </div>
+      </div>
     </div>
 
     <div class="bilgi-kart">
@@ -1303,17 +1309,9 @@
 
   <!-- NASA / MULTI-DAY SONUÇ TABLOSU -->
   <div id="nasa-sonuc-alani">
-    <div class="sonuc-ust-grid">
-      <div class="istatistik-grid">
-        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_general_danger">Genel Tehlike</div><div class="deger" id="stat-genel">—</div><div class="alt" id="stat-genel-tarih">—</div></div>
-        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_risky_days">Riskli Gün</div><div class="deger" id="stat-risk">—</div><div class="alt" data-i18n="forecast_risky_desc">indeks ≥ Yüksek</div></div>
-        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_critical_idx">En Kritik İndeks</div><div class="deger" id="stat-kritik">—</div><div class="alt" id="stat-kritik-neden">—</div></div>
-        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_total_warn">Toplam Uyarı</div><div class="deger" id="stat-uyari">—</div><div class="alt" data-i18n="forecast_warn_desc">Yüksek+ okuma</div></div>
-      </div>
-      <div class="grafik-kutu">
-        <div class="grafik-baslik" data-i18n="chart_title">Yangın Tehlike Zaman Serisi</div>
-        <canvas id="fwi-grafik"></canvas>
-      </div>
+    <div class="grafik-kutu" style="margin-bottom:16px">
+      <div class="grafik-baslik" data-i18n="chart_title">Yangın Tehlike Zaman Serisi</div>
+      <canvas id="fwi-grafik"></canvas>
     </div>
     <div class="tablo-wrapper" style="margin-top:16px;">
       <table>
@@ -1664,12 +1662,12 @@
     </div>
     <div class="formul-kart">
       <div class="formul-kart-baslik"><span class="formul-badge">Sınıf</span><h3>FWI tehlike sınıfları</h3></div>
-      <div class="tehlike-detay">
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#86efac">Düşük</div><div class="td-aralik">FWI &lt; 5</div><div class="td-aciklama">Yangın riski düşük</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fde047">Orta</div><div class="td-aralik">5 ≤ FWI &lt; 10</div><div class="td-aciklama">Dikkatli olunmalı</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fdba74">Yüksek</div><div class="td-aralik">10 ≤ FWI &lt; 20</div><div class="td-aciklama">Yüksek yangın riski</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fca5a5">Çok Yüksek</div><div class="td-aralik">20 ≤ FWI &lt; 30</div><div class="td-aciklama">Çok yüksek yangın riski</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#d8b4fe">Aşırı</div><div class="td-aralik">FWI ≥ 30</div><div class="td-aciklama">Kritik koşullar</div></div>
+      <div class="tehlike-olcek">
+        <div class="tehlike-dilim td-dusuk"><span>Düşük</span><small>&lt; 5</small></div>
+        <div class="tehlike-dilim td-orta"><span>Orta</span><small>5–10</small></div>
+        <div class="tehlike-dilim td-yuksek"><span>Yüksek</span><small>10–20</small></div>
+        <div class="tehlike-dilim td-cokyuksek"><span>Çok Yüksek</span><small>20–30</small></div>
+        <div class="tehlike-dilim td-asiri"><span>Aşırı</span><small>≥ 30</small></div>
       </div>
       <div class="formul-not">Kaynak: Van Wagner, C.E. (1987). Development and Structure of the Canadian Forest Fire Weather Index System. Canadian Forestry Service, Technical Report 35.</div>
     </div>
@@ -1701,11 +1699,11 @@
     </div>
     <div class="formul-kart" style="margin-top:16px">
       <div class="formul-kart-baslik"><span class="formul-badge">Sınıf</span><h3>Angström tehlike sınıfları (düşük değer = yüksek tehlike)</h3></div>
-      <div class="tehlike-detay">
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#d8b4fe">Aşırı</div><div class="td-aralik">I &lt; 2.0</div><div class="td-aciklama">Yangın koşulları uygun</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fdba74">Yüksek</div><div class="td-aralik">2.0 ≤ I &lt; 2.5</div><div class="td-aciklama">Yangın mümkün</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fde047">Orta</div><div class="td-aralik">2.5 ≤ I &lt; 4.0</div><div class="td-aciklama">Koşullar olumsuz</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#86efac">Düşük</div><div class="td-aralik">I ≥ 4.0</div><div class="td-aciklama">Yangın olası değil</div></div>
+      <div class="tehlike-olcek">
+        <div class="tehlike-dilim td-asiri"><span>Aşırı</span><small>&lt; 2.0</small></div>
+        <div class="tehlike-dilim td-yuksek"><span>Yüksek</span><small>2.0–2.5</small></div>
+        <div class="tehlike-dilim td-orta"><span>Orta</span><small>2.5–4.0</small></div>
+        <div class="tehlike-dilim td-dusuk"><span>Düşük</span><small>≥ 4.0</small></div>
       </div>
     </div>
   </div>
@@ -1746,12 +1744,12 @@
     </div>
     <div class="formul-kart" style="margin-top:16px">
       <div class="formul-kart-baslik"><span class="formul-badge">Sınıf</span><h3>Nesterov tehlike sınıfları (Shetinsky 1994)</h3></div>
-      <div class="tehlike-detay">
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#86efac">Tehlike Yok</div><div class="td-aralik">G &lt; 300</div><div class="td-aciklama">Sınıf I</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fde047">Düşük</div><div class="td-aralik">300–1000</div><div class="td-aciklama">Sınıf II</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fdba74">Orta</div><div class="td-aralik">1000–4000</div><div class="td-aciklama">Sınıf III</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fca5a5">Yüksek</div><div class="td-aralik">4000–10000</div><div class="td-aciklama">Sınıf IV</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#d8b4fe">Aşırı</div><div class="td-aralik">G &gt; 10000</div><div class="td-aciklama">Sınıf V</div></div>
+      <div class="tehlike-olcek">
+        <div class="tehlike-dilim td-dusuk"><span>Tehlike Yok</span><small>&lt; 300</small></div>
+        <div class="tehlike-dilim td-orta"><span>Düşük</span><small>300–1K</small></div>
+        <div class="tehlike-dilim td-yuksek"><span>Orta</span><small>1K–4K</small></div>
+        <div class="tehlike-dilim td-cokyuksek"><span>Yüksek</span><small>4K–10K</small></div>
+        <div class="tehlike-dilim td-asiri"><span>Aşırı</span><small>&gt; 10K</small></div>
       </div>
     </div>
   </div>
@@ -1797,11 +1795,11 @@
     </div>
     <div class="formul-kart" style="margin-top:16px">
       <div class="formul-kart-baslik"><span class="formul-badge">Sınıf</span><h3>KBDI tehlike sınıfları (0–800 ölçeği)</h3></div>
-      <div class="tehlike-detay">
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#86efac">Düşük</div><div class="td-aralik">0–200</div><div class="td-aciklama">Toprak doygun</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fde047">Orta</div><div class="td-aralik">200–400</div><div class="td-aciklama">Üst tabaka kuruyor</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fdba74">Yüksek</div><div class="td-aralik">400–600</div><div class="td-aciklama">Ciddi kuraklık</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#d8b4fe">Aşırı</div><div class="td-aralik">600–800</div><div class="td-aciklama">Maksimum hassasiyet</div></div>
+      <div class="tehlike-olcek">
+        <div class="tehlike-dilim td-dusuk"><span>Düşük</span><small>0–200</small></div>
+        <div class="tehlike-dilim td-orta"><span>Orta</span><small>200–400</small></div>
+        <div class="tehlike-dilim td-yuksek"><span>Yüksek</span><small>400–600</small></div>
+        <div class="tehlike-dilim td-asiri"><span>Aşırı</span><small>600–800</small></div>
       </div>
     </div>
   </div>
@@ -1833,11 +1831,11 @@
     </div>
     <div class="formul-kart" style="margin-top:16px">
       <div class="formul-kart-baslik"><span class="formul-badge">Sınıf</span><h3>Carrega I87 tehlike sınıfları (Akdeniz kalibrasyonu)</h3></div>
-      <div class="tehlike-detay">
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#86efac">Düşük</div><div class="td-aralik">I87 &lt; 5</div><div class="td-aciklama">Düşük risk</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fde047">Orta</div><div class="td-aralik">5–10</div><div class="td-aciklama">Dikkat gerekli</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fdba74">Yüksek</div><div class="td-aralik">10–15</div><div class="td-aciklama">Yüksek risk</div></div>
-        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#d8b4fe">Aşırı</div><div class="td-aralik">I87 &gt; 15</div><div class="td-aciklama">Kritik tehlike</div></div>
+      <div class="tehlike-olcek">
+        <div class="tehlike-dilim td-dusuk"><span>Düşük</span><small>&lt; 5</small></div>
+        <div class="tehlike-dilim td-orta"><span>Orta</span><small>5–10</small></div>
+        <div class="tehlike-dilim td-yuksek"><span>Yüksek</span><small>10–15</small></div>
+        <div class="tehlike-dilim td-asiri"><span>Aşırı</span><small>&gt; 15</small></div>
       </div>
     </div>
   </div>
@@ -2161,6 +2159,13 @@
     </div>
     <div class="formul-kart">
       <div class="formul-kart-baslik"><span class="formul-badge">Class</span><h3>FWI danger classes</h3></div>
+      <div class="tehlike-olcek">
+        <div class="tehlike-dilim td-dusuk"><span>Low</span><small>&lt; 5</small></div>
+        <div class="tehlike-dilim td-orta"><span>Moderate</span><small>5–10</small></div>
+        <div class="tehlike-dilim td-yuksek"><span>High</span><small>10–20</small></div>
+        <div class="tehlike-dilim td-cokyuksek"><span>Very High</span><small>20–30</small></div>
+        <div class="tehlike-dilim td-asiri"><span>Extreme</span><small>≥ 30</small></div>
+      </div>
       <div class="tehlike-detay">
         <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#86efac">Low</div><div class="td-aralik">FWI &lt; 5</div><div class="td-aciklama">Normal conditions</div></div>
         <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fde047">Moderate</div><div class="td-aralik">5 ≤ FWI &lt; 10</div><div class="td-aciklama">Caution advised</div></div>
@@ -2211,17 +2216,9 @@
   </button>
 
   <div id="tahmin-sonuc-alani" style="display:none">
-    <div class="sonuc-ust-grid" style="margin-bottom:20px">
-      <div class="istatistik-grid">
-        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_general_danger">Genel Tehlike</div><div class="deger" id="tahmin-stat-genel">—</div><div class="alt" id="tahmin-stat-genel-tarih">—</div></div>
-        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_risky_days">Riskli Gün</div><div class="deger" id="tahmin-stat-risk">—</div><div class="alt" data-i18n="forecast_risky_desc">indeks ≥ Yüksek</div></div>
-        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_critical_idx">En Kritik İndeks</div><div class="deger" id="tahmin-stat-kritik">—</div><div class="alt" id="tahmin-stat-kritik-neden">—</div></div>
-        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_total_warn">Toplam Uyarı</div><div class="deger" id="tahmin-stat-uyari">—</div><div class="alt" data-i18n="forecast_warn_desc">Yüksek+ okuma</div></div>
-      </div>
-      <div class="grafik-kutu">
-        <div class="grafik-baslik" data-i18n="forecast_chart_title">7 Günlük Yangın Tehlike Tahmini</div>
-        <canvas id="tahmin-grafik"></canvas>
-      </div>
+    <div class="grafik-kutu" style="margin-bottom:20px">
+      <div class="grafik-baslik" data-i18n="forecast_chart_title">7 Günlük Yangın Tehlike Tahmini</div>
+      <canvas id="tahmin-grafik"></canvas>
     </div>
     <div class="tahmin-grid" id="tahmin-kartlar"></div>
   </div>
@@ -2337,6 +2334,7 @@
       comp_nes: "Kümülatif kuraklık takibi — Nesterov (1949)",
       comp_kbdi: "Toprak nem eksikliği indeksi — Keetch-Byram (1968)",
       comp_car: "Akdeniz iklimi için özel — Carrega I87 (1991)",
+      card_team_title: "Geliştirici Ekip",
       card_datasrc_title: "Veri Kaynağı",
       card_datasrc_desc: "Open-Meteo saatlik yeniden analiz verisi — <strong style=\"color:var(--text)\">öğlen 12:00 LST</strong> anlık değerler",
       data_temp: "Sıcaklık", data_rh: "Bağıl Nem", data_wind: "Rüzgar", data_precip: "Yağış",
@@ -2494,6 +2492,7 @@
       comp_nes: "Cumulative drought tracking — Nesterov (1949)",
       comp_kbdi: "Soil moisture deficit index — Keetch-Byram (1968)",
       comp_car: "Mediterranean climate specialized — Carrega I87 (1991)",
+      card_team_title: "Development Team",
       card_datasrc_title: "Data Source",
       card_datasrc_desc: "Open-Meteo hourly reanalysis data — <strong style=\"color:var(--text)\">noon 12:00 LST</strong> instantaneous values",
       data_temp: "Temperature", data_rh: "Relative Humidity", data_wind: "Wind", data_precip: "Precipitation",
@@ -2805,59 +2804,7 @@
   }
 
   function gosterIstatistik(satirlar) {
-    const sinifSira = {"Tehlike Yok":0,"Dusuk":1,"Orta":2,"Yuksek":3,"Cok Yuksek":4,"Asiri":5};
-    const idxList = [
-      { key: "sinif",           ad: "FWI" },
-      { key: "angstrom_sinif",  ad: "Angström" },
-      { key: "nesterov_sinif",  ad: "Nesterov" },
-      { key: "kbdi_sinif",      ad: "KBDI" },
-      { key: "carrega_sinif",   ad: "Carrega" },
-    ];
-
-    // Genel tehlike
-    let genelMax = "Dusuk", genelTarih = "";
-    for (const r of satirlar) {
-      for (const idx of idxList) {
-        const s = r[idx.key];
-        if (s && (sinifSira[s]||0) > (sinifSira[genelMax]||0)) {
-          genelMax = s;
-          genelTarih = r.tarih.slice(0,4)+"-"+r.tarih.slice(4,6)+"-"+r.tarih.slice(6,8);
-        }
-      }
-    }
-    const genelInfo = SINIF_MAP[genelMax];
-    document.getElementById("stat-genel").textContent = genelInfo ? genelInfo.tr() : genelMax;
-    document.getElementById("stat-genel-tarih").textContent = genelTarih;
-
-    // Riskli gün
-    const riskli = satirlar.filter(r =>
-      idxList.some(idx => (sinifSira[r[idx.key]]||0) >= 3)
-    ).length;
-    document.getElementById("stat-risk").textContent = riskli;
-
-    // En kritik indeks
-    const kritikSay = {};
-    for (const idx of idxList) kritikSay[idx.ad] = 0;
-    for (const r of satirlar) {
-      for (const idx of idxList) {
-        if ((sinifSira[r[idx.key]]||0) >= 3) kritikSay[idx.ad]++;
-      }
-    }
-    let kritikAd = "—", kritikMax = 0;
-    for (const [ad, say] of Object.entries(kritikSay)) {
-      if (say > kritikMax) { kritikMax = say; kritikAd = ad; }
-    }
-    document.getElementById("stat-kritik").textContent = kritikMax > 0 ? kritikAd : "—";
-    document.getElementById("stat-kritik-neden").textContent = kritikMax > 0 ? (kritikMax + " " + t("forecast_days_risky")) : t("forecast_no_risk");
-
-    // Toplam uyarı
-    let toplamUyari = 0;
-    for (const r of satirlar) {
-      for (const idx of idxList) {
-        if ((sinifSira[r[idx.key]]||0) >= 3) toplamUyari++;
-      }
-    }
-    document.getElementById("stat-uyari").textContent = toplamUyari;
+    // İstatistik kutuları kaldırıldı — grafik ve tablo yeterli
   }
 
   function noktaRenk(v) {
@@ -3436,51 +3383,6 @@
       { key: "kbdi_sinif",      ad: "KBDI" },
       { key: "carrega_sinif",   ad: "Carrega" },
     ];
-
-    // Genel tehlike — tüm indeksler arasındaki en yüksek sınıf
-    let genelMax = "Dusuk", genelTarih = "";
-    for (const r of satirlar) {
-      for (const idx of indeksler) {
-        const s = r[idx.key];
-        if (s && (sinifSira[s]||0) > (sinifSira[genelMax]||0)) {
-          genelMax = s;
-          genelTarih = formatTarih(r.tarih);
-        }
-      }
-    }
-    const genelInfo = SINIF_MAP[genelMax];
-    document.getElementById("tahmin-stat-genel").textContent = genelInfo ? genelInfo.tr() : genelMax;
-    document.getElementById("tahmin-stat-genel-tarih").textContent = genelTarih;
-
-    // Riskli gün — herhangi bir indeks Yüksek veya üstü
-    const riskli = satirlar.filter(r =>
-      indeksler.some(idx => (sinifSira[r[idx.key]]||0) >= 3)
-    ).length;
-    document.getElementById("tahmin-stat-risk").textContent = riskli;
-
-    // En kritik indeks — en çok yüksek+ okuma veren indeks
-    const kritikSay = {};
-    for (const idx of indeksler) kritikSay[idx.ad] = 0;
-    for (const r of satirlar) {
-      for (const idx of indeksler) {
-        if ((sinifSira[r[idx.key]]||0) >= 3) kritikSay[idx.ad]++;
-      }
-    }
-    let kritikAd = "—", kritikMax = 0;
-    for (const [ad, say] of Object.entries(kritikSay)) {
-      if (say > kritikMax) { kritikMax = say; kritikAd = ad; }
-    }
-    document.getElementById("tahmin-stat-kritik").textContent = kritikMax > 0 ? kritikAd : "—";
-    document.getElementById("tahmin-stat-kritik-neden").textContent = kritikMax > 0 ? (kritikMax + " " + t("forecast_days_risky")) : t("forecast_no_risk");
-
-    // Toplam uyarı — tüm indeksler × günler arasında Yüksek+ okuma sayısı
-    let toplamUyari = 0;
-    for (const r of satirlar) {
-      for (const idx of indeksler) {
-        if ((sinifSira[r[idx.key]]||0) >= 3) toplamUyari++;
-      }
-    }
-    document.getElementById("tahmin-stat-uyari").textContent = toplamUyari;
 
     // Chart
     tahminGrafikCiz(satirlar);
