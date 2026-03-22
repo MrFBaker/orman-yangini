@@ -264,6 +264,19 @@
     .akis-kutu.cikti strong { color: var(--accent); font-size: 1.05rem; }
     .akis-ok-ic { text-align: center; color: var(--border-light); font-size: 1rem; padding: 4px 0; }
 
+    /* Hakkında — Sistem Mimarisi akışı */
+    .mimari-akis {
+      display: flex; align-items: center; gap: 12px; margin-top: 16px;
+    }
+    .mimari-ok {
+      color: var(--border-light); font-size: 1.2rem; flex-shrink: 0;
+    }
+    .mimari-indeksler {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; flex: 1; min-width: 0;
+    }
+    .mimari-girdi { min-width: 120px; flex-shrink: 0; }
+    .mimari-cikti { min-width: 100px; flex-shrink: 0; }
+
     .basla-btn {
       display: block; width: 100%; padding: 16px;
       background: var(--accent); color: #fff;
@@ -782,6 +795,10 @@
       .sayfa { padding: 24px 16px; }
 
       .bilgi-grid { grid-template-columns: 1fr; }
+      .mimari-akis { flex-direction: column; }
+      .mimari-ok { transform: rotate(90deg); }
+      .mimari-indeksler { grid-template-columns: repeat(3, 1fr); width: 100%; }
+      .mimari-girdi, .mimari-cikti { width: 100%; min-width: 0; }
       .form-grid { grid-template-columns: 1fr; }
       .onceki-grid { grid-template-columns: 1fr; }
       .veri-grid { grid-template-columns: 1fr; }
@@ -1082,21 +1099,21 @@
   <!-- Sistem Mimarisi -->
   <div class="akis-kart">
     <h3 data-i18n="flow_title">Sistem Mimarisi</h3>
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px">
-      <div class="akis-kutu girdi" style="min-width:120px">
+    <div class="mimari-akis">
+      <div class="akis-kutu girdi mimari-girdi">
         <strong data-i18n="flow_meteo_data">Meteorolojik Veri</strong>
         T · RH · W · P · Td · T_max
       </div>
-      <div class="akis-ok-sutun">→</div>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;flex:1;min-width:0">
+      <div class="mimari-ok">→</div>
+      <div class="mimari-indeksler">
         <div class="akis-kutu cikti"><strong>FWI</strong><span style="font-size:0.65rem">Van Wagner 1987</span></div>
         <div class="akis-kutu cikti"><strong>Angström</strong><span style="font-size:0.65rem">1942</span></div>
         <div class="akis-kutu cikti"><strong>Nesterov</strong><span style="font-size:0.65rem">1949</span></div>
         <div class="akis-kutu cikti"><strong>KBDI</strong><span style="font-size:0.65rem">Keetch-Byram 1968</span></div>
         <div class="akis-kutu cikti"><strong>Carrega</strong><span style="font-size:0.65rem">I87 — 1991</span></div>
       </div>
-      <div class="akis-ok-sutun">→</div>
-      <div class="akis-kutu girdi" style="min-width:100px;border-color:var(--accent)">
+      <div class="mimari-ok">→</div>
+      <div class="akis-kutu girdi mimari-cikti" style="border-color:var(--accent)">
         <strong style="color:var(--accent)" data-i18n="flow_danger_level">Tehlike Seviyesi</strong>
         <span style="font-size:0.7rem" data-i18n="flow_5_indices">5 indeks birlikte</span>
       </div>
