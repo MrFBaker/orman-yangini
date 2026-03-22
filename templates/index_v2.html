@@ -443,6 +443,29 @@
     /* ═══════════════════════════════════════════ */
     #sayfa-yontem { max-width: 1060px; }
 
+    .yontem-sekmeler {
+      display: flex; gap: 0; flex-wrap: wrap;
+      background: var(--sidebar-bg); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      position: sticky; top: 0; z-index: 50;
+      margin-bottom: 28px;
+    }
+    .yontem-sekme {
+      flex: 1; min-width: 120px; padding: 14px 16px;
+      background: transparent; border: none; border-bottom: 3px solid transparent;
+      color: var(--text-muted); font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
+      text-align: center; white-space: nowrap;
+    }
+    .yontem-sekme:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+    .yontem-sekme.aktif { color: var(--accent); border-bottom-color: var(--accent); background: rgba(249,115,22,0.06); }
+    @media (max-width: 768px) {
+      .yontem-sekme { min-width: 0; padding: 12px 10px; font-size: 0.72rem; }
+    }
+
+    .yontem-panel { display: none; }
+    .yontem-panel.aktif { display: block; }
+
     .yontem-nav {
       display: flex; gap: 6px; flex-wrap: wrap;
       padding: 12px 16px; background: var(--sidebar-bg);
@@ -1274,39 +1297,19 @@
 
   <div class="hero">
     <h1 data-i18n="method_title">Hesaplama Yöntemi</h1>
-    <p data-i18n="method_desc">Van Wagner (1987) — Canadian Forest Fire Weather Index System. Her bileşen için kullanılan girdiler ve adım adım formüller.</p>
+    <p data-i18n="method_desc">Kullanılan tüm yangın tehlike indekslerinin formülleri ve bilimsel referansları.</p>
   </div>
 
-  <nav class="yontem-nav lang-tr">
-    <a href="#bolum-akis">Hesaplama Akışı</a>
-    <a href="#bolum-ffmc">1 · FFMC</a>
-    <a href="#bolum-dmc">2 · DMC</a>
-    <a href="#bolum-dc">3 · DC</a>
-    <a href="#bolum-isi">4 · ISI</a>
-    <a href="#bolum-bui">5 · BUI</a>
-    <a href="#bolum-fwi">6 · FWI</a>
-    <a href="#bolum-angstrom">7 · Angström</a>
-    <a href="#bolum-nesterov">8 · Nesterov</a>
-    <a href="#bolum-kbdi">9 · KBDI</a>
-    <a href="#bolum-carrega">10 · Carrega</a>
-    <a href="#bolum-esik">Eşikler</a>
-  </nav>
-  <nav class="yontem-nav lang-en">
-    <a href="#bolum-akis">Calculation Flow</a>
-    <a href="#bolum-ffmc">1 · FFMC</a>
-    <a href="#bolum-dmc">2 · DMC</a>
-    <a href="#bolum-dc">3 · DC</a>
-    <a href="#bolum-isi">4 · ISI</a>
-    <a href="#bolum-bui">5 · BUI</a>
-    <a href="#bolum-fwi">6 · FWI</a>
-    <a href="#bolum-angstrom">7 · Angström</a>
-    <a href="#bolum-nesterov">8 · Nesterov</a>
-    <a href="#bolum-kbdi">9 · KBDI</a>
-    <a href="#bolum-carrega">10 · Carrega</a>
-    <a href="#bolum-esik">Thresholds</a>
-  </nav>
+  <div class="yontem-sekmeler">
+    <button class="yontem-sekme aktif" onclick="yontemSekmeAc('yon-fwi', this)">FWI Sistemi</button>
+    <button class="yontem-sekme" onclick="yontemSekmeAc('yon-angstrom', this)">Angström</button>
+    <button class="yontem-sekme" onclick="yontemSekmeAc('yon-nesterov', this)">Nesterov</button>
+    <button class="yontem-sekme" onclick="yontemSekmeAc('yon-kbdi', this)">KBDI</button>
+    <button class="yontem-sekme" onclick="yontemSekmeAc('yon-carrega', this)">Carrega I87</button>
+  </div>
 
   <div class="lang-tr">
+  <div class="yontem-panel aktif" id="yon-fwi">
   <div id="bolum-akis" style="scroll-margin-top:80px">
     <div class="akis-diagram">
       <div class="akis-grup">
@@ -1607,8 +1610,9 @@
     </div>
   </div>
 
-  <div class="yon-kategori" style="margin-top:28px"><span>Ek İndeksler (Additional Indices)</span></div>
+  </div><!-- yon-fwi -->
 
+  <div class="yontem-panel" id="yon-angstrom">
   <div class="yontem-bolum" id="bolum-angstrom">
     <h2>7. Angström İndeksi</h2>
     <div class="formul-kart">
@@ -1632,7 +1636,9 @@
       <div class="formul-not">Kaynak: Angström, A. (1942). Väder och skogsbrand. Svenska Brandförsvarsföreningen, Stockholm.</div>
     </div>
   </div>
+  </div><!-- yon-angstrom -->
 
+  <div class="yontem-panel" id="yon-nesterov">
   <div class="yontem-bolum" id="bolum-nesterov">
     <h2>8. Nesterov İndeksi</h2>
     <div class="formul-kart">
@@ -1666,7 +1672,9 @@
       <div class="formul-not">Kaynak: Nesterov, V.G. (1949). Gorimostʹ lesa i metody eë opredeleniia. Goslesbumizdat, Moskova. Eşikler: Shetinsky (1994).</div>
     </div>
   </div>
+  </div><!-- yon-nesterov -->
 
+  <div class="yontem-panel" id="yon-kbdi">
   <div class="yontem-bolum" id="bolum-kbdi">
     <h2>9. KBDI — Keetch-Byram Kuraklık İndeksi</h2>
     <div class="formul-kart">
@@ -1705,7 +1713,9 @@
       <div class="formul-not">Kaynak: Keetch, J.J. & Byram, G.M. (1968). A Drought Index for Forest Fire Control. USDA Forest Service, Research Paper SE-38.</div>
     </div>
   </div>
+  </div><!-- yon-kbdi -->
 
+  <div class="yontem-panel" id="yon-carrega">
   <div class="yontem-bolum" id="bolum-carrega">
     <h2>10. Carrega I87 İndeksi</h2>
     <div class="formul-kart">
@@ -1730,6 +1740,7 @@
       <div class="formul-not">Kaynak: Carrega, P. (1991). A meteorological index of forest fire hazard in Mediterranean France. Int. J. Wildland Fire, 1(2), 79–86.</div>
     </div>
   </div>
+  </div><!-- yon-carrega -->
 
   <div class="yon-kategori kat-sonuc" style="margin-top:28px"><span>Eşikler ve Tehlike Sınıfları</span></div>
 
@@ -2524,6 +2535,14 @@
     "Tehlike Yok": { tr: () => t("sinif_tehlike_yok"), renk: "Dusuk",     aciklama: () => "" },
   };
   function sinifCevir(s) { const m = SINIF_MAP[s]; return m ? m.tr() : s; }
+
+  function yontemSekmeAc(panelId, btn) {
+    document.querySelectorAll('.yontem-sekme').forEach(s => s.classList.remove('aktif'));
+    document.querySelectorAll('.yontem-panel').forEach(p => p.classList.remove('aktif'));
+    btn.classList.add('aktif');
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add('aktif');
+  }
 
   function sayfaAc(id, el) {
     document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("aktif"));
