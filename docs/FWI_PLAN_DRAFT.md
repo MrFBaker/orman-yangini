@@ -1,191 +1,231 @@
-# FWI Orman Yangini Erken Uyari Sistemi
+# FWI Orman Yangını Erken Uyarı Sistemi
 
 ## Bu Proje Nedir?
 
-Bu proje, meteorolojik verileri kullanarak orman yangini tehlike seviyesini onceden hesaplayan
-web tabanli bir erken uyari sistemidir. Meteoroloji Muhendisligi bolumu tasarim projesi olarak
-gelistirilmistir.
+Bu proje, meteorolojik verileri kullanarak orman yangını tehlike seviyesini önceden hesaplayan
+web tabanlı bir erken uyarı sistemidir. Meteoroloji Mühendisliği bölümü tasarım projesi olarak
+geliştirilmiştir.
 
-Sistem, kullanicidan aldigi hava durumu bilgilerini (sicaklik, nem, ruzgar, yagis) matematiksel
-formullere sokarak o gun icin yangin tehlike seviyesini belirler. Sonuc olarak "Dusuk", "Orta",
-"Yuksek", "Cok Yuksek" veya "Asiri" seklinde bir tehlike sinifi uretir.
+Sistem, kullanıcıdan aldığı hava durumu bilgilerini (sıcaklık, nem, rüzgar, yağış) matematiksel
+formüllere sokarak o gün için yangın tehlike seviyesini belirler. Sonuç olarak "Düşük", "Orta",
+"Yüksek", "Çok Yüksek" veya "Aşırı" şeklinde bir tehlike sınıfı üretir.
 
 
-## Neden Bu Projeyi Yapiyoruz?
+## Neden Bu Projeyi Yapıyoruz?
 
-Turkiye, ozellikle Akdeniz ve Ege kusaginda her yil ciddi orman yanginlari yasayan bir ulkedir.
-2021 yazinda Manavgat ve Marmaris'te yasanan felaketler, erken uyari sistemlerinin ne kadar
-kritik oldugunu bir kez daha gostermistir.
+Türkiye, özellikle Akdeniz ve Ege kuşağında her yıl ciddi orman yangınları yaşayan bir ülkedir.
+2021 yazında Manavgat ve Marmaris'te yaşanan felaketler, erken uyarı sistemlerinin ne kadar
+kritik olduğunu bir kez daha göstermiştir.
 
-Mevcut durumda Turkiye'de kamuya acik, meteorolojik veriye dayali, otomatik calisan bir FWI
-hesaplama araci bulunmamaktadir. Bu proje, bu boslugu doldurmak amaciyla uluslararasi kabul
-gormmus bilimsel bir yontemi (Van Wagner FWI) Turkiye kosullarina uyarlayarak herkesin
-erisebilecegi bir web uygulamasi haline getirmeyi hedefler.
+Mevcut durumda Türkiye'de kamuya açık, meteorolojik veriye dayalı, otomatik çalışan bir FWI
+hesaplama aracı bulunmamaktadır. Bu proje, bu boşluğu doldurmak amacıyla uluslararası kabul
+görmüş bilimsel bir yöntemi (Van Wagner FWI) Türkiye koşullarına uyarlayarak herkesin
+erişebileceği bir web uygulaması haline getirmeyi hedefler.
 
 
 ## Hedeflerimiz
 
-1. Van Wagner (1987) FWI formullerini bilimsel olarak dogru bicimde uygulamak
-2. Turkiye'nin Akdeniz iklim kusagina uygun tehlike esiklerini (EFFIS) kullanmak
-3. Gercek hava verisiyle otomatik calisan, kullanici dostu bir web arayuzu sunmak
-4. Hesaplamalarin dogrulugunu referans testler ve gercek yangin olaylariyla kanitlamak
-5. Sistemi herkesin erisebilecegi sekilde canli olarak yayimlamak
+1. Van Wagner (1987) FWI formüllerini bilimsel olarak doğru biçimde uygulamak
+2. Türkiye'nin Akdeniz iklim kuşağına uygun tehlike eşiklerini (EFFIS) kullanmak
+3. Gerçek hava verisiyle otomatik çalışan, kullanıcı dostu bir web arayüzü sunmak
+4. Hesaplamaların doğruluğunu referans testler ve gerçek yangın olaylarıyla kanıtlamak
+5. Sistemi herkesin erişebileceği şekilde canlı olarak yayımlamak
 
 
-## Hangi Yontemi Kullaniyor?
+## Hangi Yöntemi Kullanıyor?
 
-Sistem, Kanada Orman Servisi'nin 1987 yilinda yayimladigi FWI (Fire Weather Index) yontemini
-kullanir. Bu yontemi C.E. Van Wagner gelistirmistir ve bugun dunyada en yaygin kullanilan
-orman yangini tehlike degerlendirme sistemidir.
+Sistem, Kanada Orman Servisi'nin 1987 yılında yayımladığı FWI (Fire Weather Index) yöntemini
+kullanır. Bu yöntemi C.E. Van Wagner geliştirmiştir ve bugün dünyada en yaygın kullanılan
+orman yangını tehlike değerlendirme sistemidir.
 
-FWI sistemi tek bir sayi degil, birbirine bagli 6 alt bilesenden olusur:
+FWI sistemi tek bir sayı değil, birbirine bağlı 6 alt bileşenden oluşur:
 
-**Nem Kodlari (onceki gunlerin etkisini tasir):**
-- FFMC — Ince Ust Tabaka Yanici Madde Nem Kodu (IYMNK): Olu ortunun ust tabakasindaki kucuk dallar,
-  yapraklar gibi ince yanici maddelerin ne kadar kuru oldugunu gosterir. Birka saat icinde kurur veya nemlenir.
-- DMC — Dokuntu Nem Kodu: Orta derinlikteki hafif sikistirilmis organik (dokuntu) tabakanin
-  nem durumunu gosterir. Kurumasi veya nemlenmesi birka gun surer.
-- DC — Derin Organik Tabaka Nem Kodu (DONK): Derin sikistirilmis organik tabakanin
-  nem durumunu olcer. Mevsimsel kurakligin etkisini gosterir. Haftalarca surecek bir gosterge.
+**Nem Kodları (önceki günlerin etkisini taşır):**
+- FFMC — İnce Üst Tabaka Yanıcı Madde Nem Kodu: Ölü örtünün üst tabakasındaki küçük dallar,
+  yapraklar gibi ince yanıcı maddelerin ne kadar kuru olduğunu gösterir. Birkaç saat içinde kurur veya nemlenir.
+- DMC — Döküntü Nem Kodu: Orta derinlikteki hafif sıkıştırılmış organik (döküntü) tabakasının
+  nem durumunu gösterir. Kuruması veya nemlenmesi birkaç gün sürer.
+- DC — Derin Organik Tabaka Nem Kodu: Derin sıkıştırılmış organik tabakasının
+  nem durumunu ölçer. Mevsimsel kuraklığın etkisini gösterir. Haftalarca sürecek bir gösterge.
 
-**Davranis Indisleri (o anki kosullari yansitir):**
-- ISI — Ilk Yayilma Indeksi: Ruzgar hizi ve FFMC'den hesaplanir. Bir yangin baslarsa
-  ne kadar hizli yayilacagini tahmin eder.
-- BUI — Birikmis Yanici Madde Indeksi: DMC ve DC'den hesaplanir. Yanacak malzeme miktarini,
-  yani yanginin ne kadar siddetli olacagini gosterir.
-- FWI — Yangin Hava Indeksi: ISI ve BUI'yi birlestiren nihai skor. Genel yangin
-  tehlike seviyesini tek bir sayiyla ifade eder.
+**Davranış İndisleri (o anki koşulları yansıtır):**
+- ISI — İlk Yayılma İndeksi: Rüzgar hızı ve FFMC'den hesaplanır. Bir yangın başlarsa
+  ne kadar hızlı yayılacağını tahmin eder.
+- BUI — Birikmiş Yanıcı Madde İndeksi: DMC ve DC'den hesaplanır. Yanacak malzeme miktarını,
+  yani yangının ne kadar şiddetli olacağını gösterir.
+- FWI — Yangın Hava İndeksi: ISI ve BUI'yi birleştiren nihai skor. Genel yangın
+  tehlike seviyesini tek bir sayıyla ifade eder.
 
-Hesaplama sirasi soyledir:
+Hesaplama sırası şöyledir:
 Hava verileri → FFMC, DMC, DC → ISI, BUI → FWI
 
 
-## Turkiye Icin Ne Yapildi?
+## Türkiye İçin Ne Yapıldı?
 
-FWI formullerinin kendisi evrenseldir ve degistirilmez. Ancak iki noktada bolgesel uyarlama
-yapilmistir:
+FWI formüllerinin kendisi evrenseldir ve değiştirilmez. Ancak iki noktada bölgesel uyarlama
+yapılmıştır:
 
-1. **Gun uzunlugu faktorleri:** DMC ve DC hesaplarinda kullanilan Le ve Lf degerleri enleme
-   gore degisir. Sistem, kullanicinin girdigi koordinata gore Turkiye'nin enlem bandina
-   (36-42 derece Kuzey) uygun tabloyu otomatik secer.
+1. **Gün uzunluğu faktörleri:** DMC ve DC hesaplarında kullanılan Le ve Lf değerleri enleme
+   göre değişir. Sistem, kullanıcının girdiği koordinata göre Türkiye'nin enlem bandına
+   (36-42 derece Kuzey) uygun tabloyu otomatik seçer.
 
-2. **Tehlike sinifi esikleri:** Kanada'nin standart esikleri yerine, Avrupa Orman Yangini
-   Bilgi Sistemi'nin (EFFIS) Akdeniz iklimi icin belirledigiesikler kullanilmaktadir.
-   Turkiye'nin Akdeniz iklim kusaginda olmasi nedeniyle bu esikler daha gercekci sonuclar
-   uretir.
-
-
-## Sistem Nasil Calisiyor?
-
-Kullanicinin iki secenegi vardir:
-
-**Manuel Giris:** Kullanici sicaklik, nem, ruzgar hizi, yagis ve ay bilgisini elle girer.
-Sistem aninda FWI hesaplar ve tehlike sinifini gosterir.
-
-**Otomatik Hesaplama:** Kullanici enlem, boylam ve tarih araligi girer. Sistem, Open-Meteo
-API uzerinden o konumun gercek hava verilerini otomatik olarak ceker ve her gun icin
-ayri ayri FWI hesaplar. Sonuclar tablo halinde gosterilir ve PDF olarak indirilebilir.
-
-Hava verileri ogle saati (12:00 yerel saat) degerleri olarak alinir. Bunun sebebi,
-Van Wagner'in FWI formullerini ogle gozlemleri uzerine tasarlamis olmasidir.
+2. **Tehlike sınıfı eşikleri:** Kanada'nın standart eşikleri yerine, Avrupa Orman Yangını
+   Bilgi Sistemi'nin (EFFIS) Akdeniz iklimi için belirlediği eşikler kullanılmaktadır.
+   Türkiye'nin Akdeniz iklim kuşağında olması nedeniyle bu eşikler daha gerçekçi sonuçlar
+   üretir.
 
 
-## Dogrulama Nasil Yapildi?
+## Sistem Nasıl Çalışıyor?
 
-Sistemin dogru hesap yaptigini kanitlamak icin iki yontem kullanilmistir:
+Kullanıcının üç seçeneği vardır:
 
-1. **Van Wagner Referans Testi:** Van Wagner'in raporundaki bilinen girdi degerlerıyle
-   (T=17C, H=%42, W=25 km/h, r=0 mm) hesaplama yapilir. Sonuclar beklenen ciktilarla
-   karsilastirilir. Tum ara adimlar (mo, ed, ew, K, Lf vb.) ayri ayri gosterilir.
+**Manuel Giriş:** Kullanıcı sıcaklık, nem, rüzgar hızı, yağış ve ay bilgisini elle girer.
+Sistem anında FWI hesaplar ve tehlike sınıfını gösterir.
 
-2. **Gercek Yangin Olaylari:** Turkiye'de yasanmis buyuk orman yanginlarinin
-   (2021 Manavgat, 2021 Marmaris, 2019 Izmir) tarih ve koordinatlari girilir. O gunun
-   gercek hava verileriyle FWI hesaplanir. Beklenti, bu olaylarin yuksek tehlike
-   sinifina dusmesidir — ki oyle cikmistir.
+**Otomatik Hesaplama (Open-Meteo):** Kullanıcı haritaya tıklayarak veya elle enlem/boylam
+ve tarih aralığı girer. Sistem, Open-Meteo Archive API üzerinden o konumun gerçek hava
+verilerini otomatik olarak çeker ve her gün için ayrı ayrı FWI hesaplar. Sonuçlar tablo
+ve grafik halinde gösterilir, PDF olarak indirilebilir.
+
+**7 Günlük Tahmin:** Kullanıcı haritadan konum seçer veya koordinat girer. Open-Meteo
+Forecast API üzerinden önümüzdeki 7 günün tahmini hava verileri çekilir, FWI hesaplanır.
+Sonuçlar bar grafik ve günlük kartlar halinde gösterilir.
+
+Hava verileri öğle saati (12:00 yerel saat) değerleri olarak alınır. Bunun sebebi,
+Van Wagner'in FWI formüllerini öğle gözlemleri üzerine tasarlamış olmasıdır.
+
+**Warmup Sistemi:** Hem otomatik hesaplama hem 7 günlük tahmin, 1 Ocak'tan itibaren
+geçmiş verileri kullanarak FFMC/DMC/DC başlangıç değerlerini biriktirerek doğru sonuçlar üretir.
 
 
-## Hangi Kaynaklar Kullaniliyor?
+## Doğrulama Nasıl Yapıldı?
 
-| Kaynak | Ne Icin | Guvenilirlik |
+Sistemin doğru hesap yaptığını kanıtlamak için iki yöntem kullanılmıştır:
+
+1. **Van Wagner Referans Testi:** Van Wagner'in raporundaki bilinen girdi değerleriyle
+   (T=17°C, H=%42, W=25 km/h, r=0 mm) hesaplama yapılır. Sonuçlar beklenen çıktılarla
+   karşılaştırılır. Tüm ara adımlar (mo, ed, ew, K, Lf vb.) ayrı ayrı gösterilir.
+
+2. **Gerçek Yangın Olayları:** Türkiye'de yaşanmış büyük orman yangınlarının
+   (2021 Manavgat, 2021 Marmaris, 2019 İzmir) tarih ve koordinatları girilir. O günün
+   gerçek hava verileriyle FWI hesaplanır. Beklenti, bu olayların yüksek tehlike
+   sınıfına düşmesidir — ki öyle çıkmıştır.
+
+
+## Hangi Kaynaklar Kullanılıyor?
+
+| Kaynak | Ne İçin | Güvenilirlik |
 |---|---|---|
-| Van Wagner (1987) — Forestry Technical Report 35 | Tum FWI formulleri | Kanada Orman Servisi resmi yayini, 37 yildir dunya standardi |
-| cffdrs R paketi (bcgov/cffdrs) | Formul ve katsayi dogrulama | Kanada hukumetinin acik kaynakli referans uygulamasi |
-| EFFIS (Avrupa Komisyonu) | Akdeniz tehlike sinifi esikleri | AB resmi orman yangini bilgi sistemi |
-| Open-Meteo / ERA5 (ECMWF) | Gercek zamanli hava verisi | Dunya genelinde en cok kullanilan atmosfer yeniden analiz verisi |
+| Van Wagner (1987) — Forestry Technical Report 35 | Tüm FWI formülleri | Kanada Orman Servisi resmi yayını, 37 yıldır dünya standardı |
+| cffdrs R paketi (bcgov/cffdrs) | Formül ve katsayı doğrulama | Kanada hükümetinin açık kaynaklı referans uygulaması |
+| EFFIS (Avrupa Komisyonu) | Akdeniz tehlike sınıfı eşikleri | AB resmi orman yangını bilgi sistemi |
+| Open-Meteo / ERA5 (ECMWF) | Gerçek zamanlı ve tahmin hava verisi | Dünya genelinde en çok kullanılan atmosfer yeniden analiz verisi |
 
 
-## Teknik Altyapi
+## Teknik Altyapı
 
-| Bilesen | Teknoloji |
+| Bileşen | Teknoloji |
 |---|---|
-| Hesaplama motoru | Python |
-| Web sunucu | Flask |
-| Hava verisi API | Open-Meteo (ERA5 tabanli) |
-| PDF rapor | ReportLab |
-| Canli yayin | Railway (su an) → DigitalOcean (gelecek) |
-| Versiyon kontrolu | Git + GitHub |
-| Arayuz | HTML/CSS/JavaScript (tek sayfa uygulama) |
-| Harita gorsellestirme (gelecek) | CARTO / Leaflet.js |
+| Hesaplama motoru | Python (fwi_hesap.py) |
+| Web sunucu | Flask (app_v2.py) |
+| Geçmiş hava verisi API | Open-Meteo Archive API (openmeteo.py) |
+| Tahmin hava verisi API | Open-Meteo Forecast API (forecast.py) |
+| PDF rapor | ReportLab (app_v2.py içinde) |
+| Arayüz | HTML/CSS/JavaScript — tek sayfa uygulama (SPA) |
+| Harita | Leaflet.js + Esri World Imagery (uydu görüntüsü) |
+| Grafik | Chart.js (zaman serisi + tahmin bar grafikleri) |
+| Çok dilli destek | TR/EN — ~260+ çeviri anahtarı (i18n) |
+| Birim testleri | Python unittest (test_fwi.py) |
 
 
-## Projenin Dosya Yapisi
+## Projenin Dosya Yapısı
 
 ```
 Claude/
-├── fwi_hesap.py      — FWI hesaplama motoru (tum formuller)
-├── app.py             — Flask web sunucusu ve API endpointleri
-├── openmeteo.py       — Open-Meteo API ile veri cekme
+├── fwi_hesap.py        — FWI hesaplama motoru (Van Wagner formülleri)
+├── app_v2.py           — Flask web sunucusu ve tüm API endpointleri
+├── openmeteo.py        — Open-Meteo Archive API ile geçmiş veri çekme
+├── forecast.py         — Open-Meteo Forecast API ile 7 günlük tahmin
+├── test_fwi.py         — Birim testleri
 ├── templates/
-│   └── index.html     — Web arayuzu (tek sayfa, tum sekmeler dahil)
-├── test_fwi.py        — Birim testleri
-└── generate_pdf.py    — Kaynak guvenilirligi PDF olusturucu
+│   ├── index_v2.html   — Web arayüzü (tek sayfa, tüm sekmeler dahil)
+│   └── index.html      — Eski arayüz (arşiv)
+├── docs/
+│   ├── FWI_PLAN_DRAFT.md   — Bu doküman
+│   └── teknik_referans.md  — Formül referans dokümanı
+├── requirements.txt    — Python bağımlılıkları
+└── Procfile            — Deploy yapılandırması
 ```
 
 
-## Mevcut Eksiklikler ve Tamamlanmasi Gereken Isler
+## Tamamlanan Özellikler
 
-1. **EFFIS Esik Uyarlamasi:** Tehlike sinifi esikleri halen Kanada standartlarini kullaniyor.
-   EFFIS Akdeniz esiklerine (5.2 / 11.2 / 21.3 / 38.0) guncellenmeli. Web arayuzundeki
-   esik bilgileri de buna paralel duzeltilmeli.
+### Temel Hesaplama
+- [x] Van Wagner (1987) FWI formüllerinin tam uygulaması (FFMC, DMC, DC, ISI, BUI, FWI, DSR)
+- [x] Enleme göre dinamik Le/Lf tablo seçimi
+- [x] Kanada standart tehlike sınıfı eşikleri
+- [x] Warmup sistemi (1 Ocak'tan itibaren başlangıç değeri biriktirme)
 
-2. **Mobil Uyumluluk Iyilestirmeleri:** Bazi butonlarin ve sekme basliklarin dokunma alanlari
-   mobil cihazlarda kucuk kaliyor (minimum 44px olmali). Kucuk ekranlarda bazi kartlarin
-   ic boslugu azaltilmali.
+### Web Arayüzü (5 Sayfa)
+- [x] **Hakkında** — Projenin tanıtımı ve başlangıç sayfası
+- [x] **Hesaplayıcı** — Manuel giriş, Open-Meteo otomatik veri çekimi, CSV toplu hesaplama
+- [x] **7 Günlük Tahmin** — Open-Meteo Forecast API ile gelecek 7 günün FWI tahmini
+- [x] **Hesaplama Yöntemi** — Tüm formüllerin adım adım açıklaması, akış diyagramı, eşik tabloları
+- [x] **Doğrulama** — Van Wagner referans testi + gerçek yangın olayları (Manavgat, Marmaris, İzmir)
 
-3. **Daha Fazla Validasyon Olaylari:** Su an 3 yangin olayiyla dogrulama yapiliyor
-   (Manavgat, Marmaris, Izmir). En az 8-10 olaya cikarilmasi sistemin guvenilirligini
-   daha guclu kanitlar.
+### Etkileşimli Özellikler
+- [x] Leaflet.js interaktif haritalar (Esri uydu görüntüsü + sınır etiketleri)
+- [x] Haritaya tıklayarak veya koordinat girerek konum seçimi (çift yönlü senkronizasyon)
+- [x] Chart.js grafikleri (zaman serisi çizgi grafik + tahmin bar grafik)
+- [x] PDF rapor indirme (manuel ve çoklu hesaplama sonuçları için)
+- [x] TR/EN dil desteği (~260+ çeviri anahtarı)
+- [x] Dark tema arayüz
+
+### API Endpointleri
+- [x] `POST /hesapla` — Tek günlük manuel FWI hesaplama
+- [x] `POST /nasa` — Open-Meteo Archive API ile çoklu gün hesaplama
+- [x] `POST /csv` — CSV dosyasından toplu hesaplama
+- [x] `POST /tahmin` — 7 günlük FWI tahmini
+- [x] `GET /referans` — Van Wagner referans testi
+- [x] `GET /test` — Gerçek yangın olaylarıyla doğrulama
+- [x] `POST /rapor-pdf` — PDF rapor oluşturma
 
 
-## Gelecek Planlamasi — Eklenebilecek Ozellikler
+## Mevcut Eksiklikler ve İyileştirme Fırsatları
 
-### Kisa Vadeli (Dusuk Efor)
-- **PDF Rapor Indirme:** Kullanici hesaplama yaptiktan sonra sonuclari PDF olarak
-  indirebilmeli. Altyapi (ReportLab) zaten mevcut, sadece kullanici arayuzune buton
-  ve endpoint eklenmesi gerekiyor.
-- **Daha Fazla Yangin Olaylari:** Validasyon sayfasina 2022-2024 arasi Turkiye yanginlari
-  eklenerek dogrulama veri seti genisletilebilir.
+1. **Mobil Uyumluluk İyileştirmeleri:** Bazı butonların ve sekme başlıklarının dokunma alanları
+   mobil cihazlarda küçük kalıyor (minimum 44px olmalı). Küçük ekranlarda bazı kartların
+   iç boşluğu azaltılmalı.
+
+2. **Daha Fazla Validasyon Olayları:** Şu an 3 yangın olayıyla doğrulama yapılıyor
+   (Manavgat, Marmaris, İzmir). En az 8-10 olaya çıkarılması sistemin güvenilirliğini
+   daha güçlü kanıtlar.
+
+
+## Gelecek Planlaması — Eklenebilecek Özellikler
+
+### Kısa Vadeli (Düşük Efor)
+- **Daha Fazla Yangın Olayları:** Validasyon sayfasına 2022-2024 arası Türkiye yangınları
+  eklenerek doğrulama veri seti genişletilebilir.
+- **Yükleme Animasyonları:** API çağrıları sırasında skeleton loader veya progress göstergesi.
+- **Favori Konumlar:** Sık kullanılan konumları localStorage'da saklama.
 
 ### Orta Vadeli (Orta Efor)
-- **7 Gunluk FWI Tahmin Grafigi:** Open-Meteo'nun forecast API'si kullanilarak onumuzdeki
-  7 gunun tahmini FWI degerleri hesaplanip Chart.js ile gorsellestirilir. Sistemi
-  "hesaplayici"dan gercek bir "erken uyari sistemi"ne donusturur.
-- **Interaktif Harita:** Leaflet.js ile Turkiye haritasi eklenir. Kullanici haritaya
-  tiklayarak konum secer, koordinatlari elle yazmak zorunda kalmaz.
-- **Tarihsel Trend Analizi:** Secilen konum icin gecmis 1 yilin FWI degerlerini grafik
-  olarak gostermek. Mevsimsel oruntuleri ve en riskli donemleri gorsellestirmek.
+- **Tarihsel Trend Analizi:** Seçilen konum için geçmiş 1 yılın FWI değerlerini grafik
+  olarak göstermek. Mevsimsel örüntüleri ve en riskli dönemleri görselleştirmek.
+- **Çoklu Konum Karşılaştırması:** Birden fazla konumun FWI değerlerini yan yana karşılaştırma.
+- **Takvim Heatmap:** Yıllık FWI değerlerini takvim formatında renk kodlu gösterme.
+- **PWA (Progressive Web App):** Offline kullanım ve mobil ana ekrana ekleme desteği.
 
-### Altyapi Gecisi
-- **DigitalOcean'a Tasima:** Proje buyudukce Railway'den DigitalOcean'a gecis yapilacak.
-  GitHub Student Developer Pack uzerinden $200 kredi (1 yil) mevcut. Kendi sunucu,
-  veritabani, cron job ve daha fazla kontrol imkani saglar.
+### Uzun Vadeli (Yüksek Efor)
+- **Türkiye Tehlike Haritası:** Birden fazla konum için toplu FWI hesaplayıp harita
+  üzerinde renk kodlu (heatmap) göstermek. Hangi bölgenin o gün en riskli olduğunu
+  tek bakışta görmek mümkün olur.
+- **Otomatik Bildirim Sistemi:** Kullanıcının bir konumu kaydetmesi ve FWI belirli
+  eşiği aştığında e-posta ile uyarılması.
+- **Uydu Verisi Entegrasyonu:** MODIS veya VIIRS uydu verileriyle gerçek yangın
+  noktalarını harita üzerinde göstermek ve FWI tahminleriyle karşılaştırmak.
 
-### Uzun Vadeli (Yuksek Efor)
-- **Turkiye Tehlike Haritasi:** Birden fazla konum icin toplu FWI hesaplayip harita
-  uzerinde renk kodlu (heatmap) gostermek. Hangi bolgenin o gun en riskli oldugunu
-  tek bakista gormek mumkun olur.
-- **Otomatik Bildirim Sistemi:** Kullanicinin bir konumu kaydetmesi ve FWI belirli
-  esigi astiginda e-posta ile uyarilmasi. Gercek bir operasyonel uyari sistemi
-  ozelligi kazandirir.
-- **Uydu Verisi Entegrasyonu:** MODIS veya VIIRS uydu verileriyle gercek yangin
-  noktalarini harita uzerinde gostermek ve FWI tahminleriyle karsilastirmak.
+### Altyapı
+- **DigitalOcean'a Taşıma:** Proje büyüdükçe Railway'den DigitalOcean'a geçiş yapılacak.
+  GitHub Student Developer Pack üzerinden $200 kredi (1 yıl) mevcut.

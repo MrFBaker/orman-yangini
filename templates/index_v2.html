@@ -1,0 +1,3381 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FWI - Orman Yangını Erken Uyarı Sistemi v2</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sidebar-bg: #0b0f19;
+      --main-bg: #111827;
+      --card-bg: #1f2937;
+      --border: #374151;
+      --border-light: #4b5563;
+      --accent: #f97316;
+      --accent-hover: #fb923c;
+      --text: #e5e7eb;
+      --text-muted: #9ca3af;
+      --text-accent: #f97316;
+      --blue: #3b82f6;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --purple: #a855f7;
+      --sidebar-w: 260px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--main-bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  SIDEBAR                                    */
+    /* ═══════════════════════════════════════════ */
+    .sidebar {
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      left: 0; top: 0;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: 20px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sidebar-logo {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), #dc2626);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .sidebar-title {
+      font-size: 16px; font-weight: 800; color: #fff;
+      white-space: nowrap; overflow: hidden;
+    }
+    .sidebar-title span {
+      display: block; font-size: 11px; font-weight: 400;
+      color: var(--text-muted); margin-top: 2px;
+    }
+
+    .sidebar-nav {
+      flex: 1; padding: 16px 10px;
+      display: flex; flex-direction: column; gap: 4px;
+      overflow-y: auto;
+    }
+    .nav-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px; border-radius: 10px;
+      cursor: pointer; border: none; background: none;
+      color: var(--text-muted); font-size: 14px; font-weight: 600;
+      font-family: inherit; width: 100%; text-align: left;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap; overflow: hidden;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .nav-link.aktif { background: rgba(249,115,22,0.12); color: var(--accent); }
+    .nav-link svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    .sidebar-footer {
+      padding: 14px 10px;
+      border-top: 1px solid var(--border);
+    }
+    .lang-toggle { display: flex; gap: 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+    .lang-btn {
+      flex: 1; padding: 8px; text-align: center;
+      background: transparent; border: none; color: var(--text-muted);
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .lang-btn.aktif { background: var(--accent); color: #fff; }
+    .lang-btn:hover:not(.aktif) { background: rgba(255,255,255,0.05); color: var(--text); }
+
+    /* ═══ MOBILE HAMBURGER & OVERLAY ═══ */
+    .mobile-header {
+      display: none;
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 56px; background: var(--sidebar-bg);
+      border-bottom: 1px solid var(--border);
+      align-items: center; padding: 0 16px; gap: 12px;
+      z-index: 150;
+    }
+    .hamburger {
+      width: 40px; height: 40px; border: none; background: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--text); font-size: 22px; border-radius: 8px;
+      transition: background 0.15s;
+    }
+    .hamburger:hover { background: rgba(255,255,255,0.08); }
+    .mobile-header .sidebar-logo { width: 30px; height: 30px; font-size: 14px; }
+    .mobile-header .mob-title { font-size: 15px; font-weight: 700; color: #fff; }
+
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); z-index: 190;
+    }
+    .overlay.acik { display: block; }
+
+    /* ═══════════════════════════════════════════ */
+    /*  MAIN CONTENT                               */
+    /* ═══════════════════════════════════════════ */
+    .main {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+      transition: margin-left 0.3s ease;
+    }
+
+    /* DİL BLOKLARI */
+    .lang-tr, .lang-en { display: none !important; }
+    html[lang="tr"] .lang-tr, html:not([lang="en"]) .lang-tr { display: block !important; }
+    html[lang="en"] .lang-en { display: block !important; }
+    html[lang="tr"] nav.lang-tr, html:not([lang="en"]) nav.lang-tr { display: flex !important; }
+    html[lang="en"] nav.lang-en { display: flex !important; }
+
+    /* SAYFALAR */
+    .sayfa { display: none; width: 100%; max-width: 1100px; margin: 0 auto; padding: 40px 32px; }
+    .sayfa.aktif { display: block; }
+
+    /* ═══════════════════════════════════════════ */
+    /*  PAGE 1: HAKKINDA                           */
+    /* ═══════════════════════════════════════════ */
+    .hero {
+      text-align: center;
+      padding: 48px 24px 40px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 40px;
+    }
+    .hero h1 {
+      font-size: 2rem; font-weight: 900;
+      color: var(--accent); margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 0.95rem; color: var(--text-muted);
+      line-height: 1.7; max-width: 540px; margin: 0 auto;
+    }
+
+    .bilgi-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px; margin-bottom: 28px;
+    }
+
+    .bilgi-kart {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 22px;
+    }
+    .bilgi-kart h3 {
+      font-size: 0.75rem; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .bilgi-kart p {
+      font-size: 0.84rem; color: var(--text-muted); line-height: 1.65;
+    }
+
+    .komponent-liste { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .komponent-liste li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 0.82rem; color: var(--text); line-height: 1.5;
+    }
+    .komponent-badge {
+      font-size: 0.68rem; font-weight: 700;
+      background: var(--main-bg); border: 1px solid var(--border-light);
+      border-radius: 4px; padding: 2px 0;
+      color: var(--accent); white-space: nowrap; flex-shrink: 0; margin-top: 1px;
+      width: 48px; text-align: center; display: inline-block;
+    }
+
+    /* TEHLİKE SINIFI SATIRI */
+    .risk-liste { display: flex; flex-direction: column; gap: 6px; }
+    .risk-satir {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-radius: 8px;
+      background: var(--main-bg); border: 1px solid var(--border);
+    }
+    .risk-nokta { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .risk-adi { font-size: 0.85rem; font-weight: 600; flex: 1; }
+    .risk-aralik {
+      font-size: 0.72rem; color: var(--text-muted);
+      background: var(--sidebar-bg); border: 1px solid var(--border);
+      padding: 2px 10px; border-radius: 20px; white-space: nowrap;
+    }
+
+    /* VERİ KAYNAGI GRID */
+    .veri-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .veri-chip {
+      background: var(--main-bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px;
+    }
+    .veri-chip .v-etiket { font-size: 0.68rem; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+    .veri-chip .v-acik   { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+
+    /* HESAPLAMA AKIŞI */
+    .akis-kart {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px 28px; margin-bottom: 16px;
+    }
+    .akis-kart h3 {
+      font-size: 0.75rem; color: var(--accent); text-transform: uppercase;
+      letter-spacing: 1px; margin-bottom: 24px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .akis-diagram {
+      display: grid;
+      grid-template-columns: auto 24px 1fr 24px auto;
+      gap: 0; align-items: center;
+    }
+    .akis-ok-sutun {
+      display: flex; align-items: center; justify-content: center;
+      color: var(--border-light); font-size: 1.2rem;
+    }
+    .akis-nem-kodlari { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .akis-indeksler { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: center; }
+    .akis-kutu {
+      background: var(--main-bg); border: 1px solid var(--border-light);
+      border-radius: 10px; padding: 10px 8px;
+      font-size: 0.75rem; color: var(--text-muted); text-align: center;
+    }
+    .akis-kutu strong { display: block; font-size: 0.95rem; font-weight: 800; color: var(--accent); margin-bottom: 3px; }
+    .akis-kutu.girdi { border-color: var(--blue); padding: 12px 16px; }
+    .akis-kutu.girdi strong { color: var(--blue); font-size: 1rem; }
+    .akis-kutu.cikti { border-color: var(--accent); border-width: 2px; background: #1a1000; }
+    .akis-kutu.cikti strong { color: var(--accent); font-size: 1.05rem; }
+    .akis-ok-ic { text-align: center; color: var(--border-light); font-size: 1rem; padding: 4px 0; }
+
+    .basla-btn {
+      display: block; width: 100%; padding: 16px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      transition: background 0.2s; letter-spacing: 0.5px;
+      margin-top: 8px; font-family: inherit;
+    }
+    .basla-btn:hover { background: var(--accent-hover); }
+
+    /* ═══════════════════════════════════════════ */
+    /*  PAGE 2: HESAPLAYICI                        */
+    /* ═══════════════════════════════════════════ */
+    .sekmeler {
+      display: flex; gap: 0; width: 100%; max-width: 560px;
+      margin: 0 auto; border-radius: 12px 12px 0 0;
+      overflow: hidden; border: 1px solid var(--border); border-bottom: none;
+    }
+    .sekme {
+      flex: 1; padding: 12px; text-align: center; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600; background: var(--main-bg); color: var(--text-muted);
+      border: none; transition: background 0.2s, color 0.2s; letter-spacing: 0.5px;
+      font-family: inherit;
+    }
+    .sekme.aktif { background: var(--card-bg); color: var(--accent); }
+    .sekme:hover:not(.aktif) { color: var(--text); }
+
+    .kart {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 0 0 14px 14px; padding: 28px 32px;
+      width: 100%; max-width: 560px; margin: 0 auto 24px;
+    }
+    .kart h2 { font-size: 1rem; color: var(--blue); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+
+    .panel { display: none; }
+    .panel.aktif { display: block; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grup { display: flex; flex-direction: column; gap: 6px; }
+    .form-grup label { font-size: 0.78rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    .form-grup input, .form-grup select {
+      background: var(--main-bg); border: 1px solid var(--border-light); border-radius: 8px;
+      color: var(--text); padding: 10px 12px; font-size: 0.95rem; outline: none;
+      transition: border 0.2s; font-family: inherit;
+    }
+    .form-grup input:focus, .form-grup select:focus { border-color: var(--accent); }
+    .form-grup input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+
+    .onceki-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; width: 100%; }
+
+    details { margin-top: 16px; }
+    details summary { cursor: pointer; font-size: 0.82rem; color: var(--text-muted); user-select: none; padding: 4px 0; font-weight: 500; }
+    details summary:hover { color: var(--text); }
+
+    .btn {
+      width: 100%; margin-top: 24px; padding: 14px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 10px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.5px;
+      font-family: inherit;
+    }
+    .btn:hover { background: var(--accent-hover); }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { background: #5a3a10; color: #8a7a50; cursor: not-allowed; }
+    .rapor-btn { margin-top: 16px; background: #1a5a8a; color: #fff; font-size: 0.9rem; padding: 12px; }
+    .rapor-btn:hover { background: #2070aa; }
+
+    .info-notu {
+      background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); border-radius: 8px;
+      padding: 10px 14px; font-size: 0.8rem; color: var(--blue); margin-bottom: 16px;
+    }
+
+    /* ALT SEKMELER */
+    .alt-sekmeler {
+      display: flex; gap: 0; border-radius: 8px; overflow: hidden;
+      border: 1px solid var(--border-light); width: fit-content;
+    }
+    .alt-sekme {
+      padding: 7px 20px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; border: none; background: var(--main-bg); color: var(--text-muted);
+      transition: background 0.2s, color 0.2s; font-family: inherit;
+    }
+    .alt-sekme.aktif { background: rgba(59,130,246,0.15); color: var(--blue); }
+    .alt-sekme:hover:not(.aktif) { color: var(--text); }
+    .alt-panel { display: none; }
+    .alt-panel.aktif { display: block; }
+
+    /* CSV YÜKLEME */
+    .csv-yukle-alani {
+      margin-top: 14px; border: 2px dashed var(--border-light); border-radius: 10px;
+      padding: 32px 20px; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .csv-yukle-alani:hover { border-color: var(--accent); background: rgba(249,115,22,0.04); }
+    .csv-yukle-alani.dolu { border-color: var(--green); background: rgba(34,197,94,0.04); }
+    .csv-ikon { font-size: 2rem; margin-bottom: 8px; }
+    .csv-metin { font-size: 0.9rem; color: var(--text); }
+    .csv-alt   { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+    code { background: var(--main-bg); border: 1px solid var(--border-light); border-radius: 4px; padding: 1px 6px; font-size: 0.78rem; color: var(--accent); }
+
+    /* SONUÇ */
+    #sonuc-alani { display: none; width: 100%; max-width: 560px; margin: 0 auto; }
+
+    .sinif-banner {
+      border-radius: 12px; padding: 20px 24px; text-align: center;
+      margin-bottom: 20px; transition: background 0.4s;
+    }
+    .sinif-banner .sinif-adi { font-size: 1.6rem; font-weight: 800; letter-spacing: 1px; }
+    .sinif-banner .fwi-deger { font-size: 3rem; font-weight: 900; line-height: 1.1; margin: 8px 0 4px; }
+    .sinif-banner .sinif-aciklama { font-size: 0.85rem; opacity: 0.85; }
+
+    .renk-Dusuk     { background: linear-gradient(135deg, #14532d, #166534); color: #4ade80; border: 1px solid #22c55e33; }
+    .renk-Orta      { background: linear-gradient(135deg, #422006, #713f12); color: #fbbf24; border: 1px solid #eab30833; }
+    .renk-Yuksek    { background: linear-gradient(135deg, #431407, #7c2d12); color: #fb923c; border: 1px solid #f9731633; }
+    .renk-CokYuksek { background: linear-gradient(135deg, #450a0a, #7f1d1d); color: #f87171; border: 1px solid #ef444433; }
+    .renk-Asiri     { background: linear-gradient(135deg, #2e1065, #581c87); color: #c084fc; border: 1px solid #a855f733; }
+
+    .indeksler { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .indeks-kutu {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 12px; text-align: center;
+    }
+    .indeks-kutu .etiket { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .indeks-kutu .deger  { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+    .indeks-kutu .birim  { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* NASA / MULTI-DAY SONUÇ */
+    #nasa-sonuc-alani { display: none; width: 100%; max-width: 1100px; margin: 0 auto 8px; }
+    .sonuc-ust-grid {
+      display: grid; grid-template-columns: 200px 1fr; gap: 16px;
+      margin-top: 16px; margin-bottom: 16px;
+    }
+    .istatistik-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .istat-kutu {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 10px; text-align: center;
+    }
+    .istat-kutu .etiket { font-size: 0.65rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .istat-kutu .deger  { font-size: 1.15rem; font-weight: 700; color: var(--accent); }
+    .istat-kutu .alt    { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
+
+    .grafik-kutu {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px;
+    }
+    .grafik-baslik { font-size: 0.78rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+
+    /* TABLO */
+    .tablo-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    thead { background: var(--sidebar-bg); }
+    th {
+      padding: 10px 8px; color: var(--accent); text-align: center; font-weight: 600;
+      letter-spacing: 0.3px; border-bottom: 1px solid var(--border); white-space: nowrap; font-size: 0.78rem;
+    }
+    td {
+      padding: 9px 8px; text-align: center; border-bottom: 1px solid var(--border);
+      color: var(--text); white-space: nowrap;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.03); }
+    .sinif-hucre { font-weight: 700; font-size: 0.75rem; padding: 3px 10px; border-radius: 20px; }
+    .sc-Dusuk     { background: #14532d; color: #4ade80; }
+    .sc-Orta      { background: #422006; color: #fbbf24; }
+    .sc-Yuksek    { background: #431407; color: #fb923c; }
+    .sc-CokYuksek { background: #450a0a; color: #f87171; }
+    .sc-Asiri     { background: #2e1065; color: #c084fc; }
+
+    /* HATA */
+    .hata-mesaji {
+      background: #450a0a; border: 1px solid #7f1d1d; border-radius: 10px;
+      padding: 14px 18px; color: #fca5a5; font-size: 0.9rem; display: none;
+      width: 100%; max-width: 560px; margin: 0 auto;
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  PAGE 3: HESAPLAMA YÖNTEMİ                  */
+    /* ═══════════════════════════════════════════ */
+    #sayfa-yontem { max-width: 1060px; }
+
+    .yontem-nav {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      padding: 12px 16px; background: var(--sidebar-bg);
+      border: 1px solid var(--border); border-radius: 10px;
+      position: sticky; top: 0; z-index: 50;
+      margin-bottom: 32px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .yontem-nav a {
+      font-size: 0.78rem; font-weight: 700; color: var(--text-muted);
+      background: transparent; border: 1px solid var(--border-light);
+      border-radius: 6px; padding: 6px 14px; text-decoration: none;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .yontem-nav a:hover { color: var(--accent); border-color: var(--accent); background: rgba(249,115,22,0.06); }
+
+    .yontem-bolum { margin-bottom: 36px; scroll-margin-top: 80px; }
+    .yontem-bolum h2 {
+      font-size: 0.85rem; color: var(--accent); font-weight: 800;
+      text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 16px; padding-bottom: 10px;
+      border-bottom: 2px solid var(--border);
+    }
+    .formul-kart {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px 28px; margin-bottom: 12px;
+    }
+    .formul-kart-baslik {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+      padding-bottom: 16px; border-bottom: 1px solid var(--border);
+    }
+    .formul-badge {
+      font-size: 0.9rem; font-weight: 800; background: var(--main-bg);
+      border: 2px solid var(--accent); border-radius: 8px;
+      padding: 5px 12px; color: var(--accent); flex-shrink: 0;
+    }
+    .formul-kart-baslik h3 { font-size: 1rem; color: var(--text); font-weight: 600; line-height: 1.4; }
+
+    .girdi-etiketler { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+    .girdi-badge {
+      font-size: 0.78rem; background: var(--main-bg); border: 1px solid var(--border-light);
+      border-radius: 6px; padding: 4px 10px; color: var(--text); line-height: 1.4;
+    }
+
+    .formul-satirlar { display: flex; flex-direction: column; }
+    .formul-satir {
+      display: grid; grid-template-columns: 240px 1fr;
+      gap: 20px; align-items: start;
+      padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .formul-satirlar .formul-satir:last-child { border-bottom: none; }
+    .formul-etiket {
+      font-size: 0.85rem; color: var(--blue); font-weight: 700;
+      line-height: 1.5; padding-top: 3px;
+    }
+    .formul-etiket small { display: block; font-size: 0.75rem; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+    .formul-deger { color: var(--text); line-height: 1.8; }
+    .formul-deger .f {
+      font-family: 'Courier New', monospace;
+      background: var(--sidebar-bg); border: 1px solid var(--border);
+      border-radius: 5px; padding: 4px 10px; color: #ffc060;
+      font-size: 0.85rem; display: inline-block; margin: 2px 0;
+    }
+    .formul-deger .acik {
+      display: block; margin-top: 6px;
+      font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;
+    }
+    .formul-deger small {
+      display: block; margin-top: 6px;
+      font-size: 0.82rem !important; color: var(--text-muted) !important; line-height: 1.5;
+    }
+    .formul-not {
+      margin-top: 14px; padding: 10px 16px;
+      background: rgba(59,130,246,0.06); border-left: 3px solid var(--blue);
+      border-radius: 0 8px 8px 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.6;
+    }
+
+    .esik-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .esik-kutu {
+      background: var(--main-bg); border: 1px solid var(--border-light);
+      border-radius: 10px; padding: 16px; text-align: center;
+    }
+    .esik-kutu .ad  { font-size: 0.72rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .esik-kutu .dg  { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+    .esik-kutu .alt { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* ═══ FLOW DIAGRAM ═══ */
+    .akis-diagram {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; padding: 28px 16px;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 14px; margin-bottom: 36px;
+      overflow-x: auto;
+    }
+    .akis-grup {
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      padding: 10px 14px;
+    }
+    .akis-baslik {
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.2px; color: var(--text-muted);
+    }
+    .akis-dugumler { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .akis-dugum {
+      width: 50px; height: 50px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.3px;
+      border: 2px solid; transition: transform 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+    .akis-dugum:hover { transform: scale(1.15); box-shadow: 0 0 18px rgba(249,115,22,0.25); }
+    .akis-dugum.girdi  { background: rgba(96,165,250,0.1); border-color: #60a5fa; color: #93bbfc; }
+    .akis-dugum.nem    { background: rgba(249,115,22,0.1); border-color: var(--accent); color: var(--accent); }
+    .akis-dugum.indeks { background: rgba(52,211,153,0.1); border-color: #34d399; color: #6ee7b7; }
+    .akis-dugum.sonuc  { background: rgba(239,68,68,0.12); border-color: #ef4444; color: #fca5a5; font-size: 0.76rem; }
+    .akis-dugum.dsr    { background: rgba(168,85,247,0.1); border-color: #a855f7; color: #c4b5fd; }
+    .akis-ok-wrap {
+      display: flex; align-items: center; padding: 0 4px; color: var(--text-muted);
+    }
+    .akis-ok-wrap svg { width: 26px; height: 26px; opacity: 0.35; }
+    .akis-aciklama {
+      text-align: center; font-size: 0.75rem; color: var(--text-muted);
+      margin: -20px 0 32px; line-height: 1.5;
+    }
+    @media (max-width: 640px) {
+      .akis-diagram { flex-wrap: wrap; gap: 8px; padding: 20px 12px; }
+      .akis-ok-wrap svg { transform: rotate(90deg); }
+    }
+
+    /* ═══ ACCORDION ═══ */
+    .yon-accordion {
+      margin-bottom: 14px; border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border);
+      transition: border-color 0.25s;
+    }
+    .yon-accordion:hover { border-color: rgba(249,115,22,0.3); }
+    .yon-accordion-header {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 22px; background: var(--card-bg);
+      cursor: pointer; user-select: none;
+      transition: background 0.2s;
+    }
+    .yon-accordion-header:hover { background: rgba(249,115,22,0.04); }
+    .yon-accordion-num {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem; font-weight: 800; flex-shrink: 0;
+      border: 2px solid var(--accent); color: var(--accent);
+      background: rgba(249,115,22,0.08);
+    }
+    .yon-accordion.kat-indeks .yon-accordion-num { border-color: #34d399; color: #34d399; background: rgba(52,211,153,0.08); }
+    .yon-accordion.kat-sonuc .yon-accordion-num { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.08); }
+    .yon-accordion-info { flex: 1; min-width: 0; }
+    .yon-accordion-info h2 {
+      font-size: 0.88rem; color: var(--text); font-weight: 700;
+      margin: 0; border: none; padding: 0; text-transform: none; letter-spacing: 0;
+    }
+    .yon-accordion-info p {
+      font-size: 0.74rem; color: var(--text-muted); margin: 3px 0 0; line-height: 1.4;
+    }
+    .yon-accordion-chevron {
+      width: 20px; height: 20px; flex-shrink: 0;
+      color: var(--text-muted); transition: transform 0.3s ease;
+    }
+    .yon-accordion.acik .yon-accordion-chevron { transform: rotate(180deg); }
+    .yon-accordion-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .yon-accordion.acik .yon-accordion-body { max-height: 3000px; }
+    .yon-accordion-body-inner { padding: 0 22px 22px; background: var(--card-bg); }
+
+    /* Color-coded left border for categories */
+    .yon-accordion.kat-nem    { border-left: 3px solid var(--accent); }
+    .yon-accordion.kat-indeks { border-left: 3px solid #34d399; }
+    .yon-accordion.kat-sonuc  { border-left: 3px solid #ef4444; }
+
+    /* Category separator labels */
+    .yon-kategori {
+      display: flex; align-items: center; gap: 12px;
+      margin: 28px 0 14px; padding: 0 4px;
+    }
+    .yon-kategori span {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.5px; color: var(--accent); white-space: nowrap;
+    }
+    .yon-kategori.kat-indeks span { color: #34d399; }
+    .yon-kategori.kat-sonuc span { color: #ef4444; }
+    .yon-kategori::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* ═══ DANGER SCALE BAR ═══ */
+    .tehlike-olcek {
+      display: flex; border-radius: 10px; overflow: hidden;
+      height: 52px; margin: 16px 0 8px;
+      border: 1px solid var(--border);
+    }
+    .tehlike-dilim {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      flex: 1; padding: 4px 6px; transition: flex 0.3s;
+      cursor: default;
+    }
+    .tehlike-dilim:hover { flex: 1.6; }
+    .tehlike-dilim span { font-size: 0.65rem; font-weight: 700; white-space: nowrap; }
+    .tehlike-dilim small { font-size: 0.58rem; opacity: 0.8; }
+    .tehlike-dilim.td-dusuk     { background: #166534; color: #86efac; }
+    .tehlike-dilim.td-orta      { background: #854d0e; color: #fde047; }
+    .tehlike-dilim.td-yuksek    { background: #9a3412; color: #fdba74; }
+    .tehlike-dilim.td-cokyuksek { background: #991b1b; color: #fca5a5; }
+    .tehlike-dilim.td-asiri     { background: #581c87; color: #d8b4fe; }
+    .tehlike-detay {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+      margin-top: 12px;
+    }
+    .tehlike-detay-kutu {
+      padding: 10px 8px; border-radius: 8px; text-align: center;
+      background: var(--main-bg); border: 1px solid var(--border-light);
+    }
+    .tehlike-detay-kutu .td-sinif { font-size: 0.72rem; font-weight: 700; margin-bottom: 4px; }
+    .tehlike-detay-kutu .td-aralik { font-size: 0.68rem; color: var(--text-muted); margin-bottom: 2px; }
+    .tehlike-detay-kutu .td-aciklama { font-size: 0.62rem; color: var(--text-muted); }
+    @media (max-width: 700px) {
+      .tehlike-detay { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .tehlike-detay { grid-template-columns: 1fr 1fr; }
+      .formul-satir { grid-template-columns: 1fr; gap: 6px; }
+    }
+
+    /* ═══ FORMULA ANNOTATIONS ═══ */
+    .f-not {
+      display: inline-block;
+      font-size: 0.68rem; font-weight: 600;
+      color: #7dd3fc;
+      background: rgba(56,189,248,0.08);
+      border: 1px solid rgba(56,189,248,0.18);
+      border-radius: 20px;
+      padding: 2px 10px;
+      margin-left: 8px;
+      vertical-align: middle;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  PAGE 4: DOĞRULAMA                          */
+    /* ═══════════════════════════════════════════ */
+    .test-kart {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 22px 24px; margin-bottom: 16px;
+    }
+    .test-kart-baslik {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; flex-wrap: wrap; gap: 8px;
+    }
+    .test-kart-baslik h3 { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .test-kart-baslik .tarih { font-size: 0.78rem; color: var(--text-muted); }
+    .test-meta {
+      display: flex; gap: 20px; flex-wrap: wrap;
+      margin-bottom: 16px; font-size: 0.82rem; color: var(--text-muted);
+    }
+    .test-meta span strong { color: var(--text); }
+    .test-indeksler {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
+      margin-bottom: 14px;
+    }
+    .test-idx {
+      background: var(--main-bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 8px; text-align: center;
+    }
+    .test-idx .etiket { font-size: 0.65rem; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+    .test-idx .deger  { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+    .test-sonuc {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 16px; border-radius: 8px; flex-wrap: wrap;
+    }
+    .test-sonuc .fwi-buyuk { font-size: 1.8rem; font-weight: 900; }
+    .test-sonuc .sinif-adi { font-size: 1rem; font-weight: 700; }
+    .test-sonuc .beklenti  { font-size: 0.78rem; opacity: 0.8; margin-left: auto; }
+    .test-hata { color: #fca5a5; font-size: 0.85rem; }
+
+    /* LOADING */
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* FOOTER */
+    footer {
+      margin-top: 40px; padding: 20px 16px; font-size: 0.75rem;
+      color: var(--text-muted); text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  RESPONSIVE                                 */
+    /* ═══════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.acik { transform: translateX(0); }
+      .mobile-header { display: flex !important; }
+      .main { margin-left: 0; padding-top: 56px; }
+      .sayfa { padding: 24px 16px; }
+
+      .bilgi-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .onceki-grid { grid-template-columns: 1fr; }
+      .veri-grid { grid-template-columns: 1fr; }
+      .indeksler { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .sonuc-ust-grid { grid-template-columns: 1fr; }
+      .istatistik-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .test-indeksler { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .esik-grid { grid-template-columns: 1fr; }
+      .formul-satir { grid-template-columns: 1fr; gap: 6px; }
+      .akis-diagram { grid-template-columns: 1fr; }
+      .akis-ok-sutun { transform: rotate(90deg); margin: 4px auto; }
+      .akis-nem-kodlari { grid-template-columns: 1fr 1fr; }
+      .akis-indeksler { grid-template-columns: 1fr 1fr; }
+
+      .hero { padding: 24px 10px 20px; margin-bottom: 24px; }
+      .hero h1 { font-size: 1.3rem; }
+      .hero p { font-size: 0.82rem; }
+      .sekmeler { max-width: 100%; }
+      .sekme { padding: 12px 6px; font-size: 0.78rem; min-height: 44px; }
+      .kart { padding: 18px 14px; max-width: 100%; }
+      .sinif-banner { padding: 16px; }
+      .sinif-banner .fwi-deger { font-size: 2rem; }
+      .sinif-banner .sinif-adi { font-size: 1.1rem; }
+
+      .yontem-nav { flex-wrap: nowrap; padding: 8px 10px; gap: 4px; }
+      .yontem-nav a { padding: 8px 14px; font-size: 0.72rem; min-height: 44px; display: flex; align-items: center; flex-shrink: 0; }
+      .formul-kart { padding: 16px 12px; }
+      .grafik-kutu { padding: 14px 10px; }
+      table { font-size: 0.68rem; }
+      th, td { padding: 5px 4px; }
+    }
+
+    @media (max-width: 480px) {
+      .indeksler { grid-template-columns: 1fr 1fr; }
+      .test-indeksler { grid-template-columns: repeat(2, 1fr); }
+      .hero h1 { font-size: 1.1rem; }
+      .alt-sekme { padding: 11px 14px; min-height: 44px; }
+      .basla-btn { padding: 14px; font-size: 0.92rem; min-height: 48px; }
+      .btn { padding: 14px; min-height: 48px; }
+      .test-kart { padding: 16px 14px; }
+      .test-idx { padding: 8px 6px; }
+      .test-idx .deger { font-size: 0.95rem; }
+      .komponent-liste li { font-size: 0.82rem; padding: 8px 0; }
+      .komponent-badge { font-size: 0.7rem; padding: 3px 8px; }
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  LEAFLET MAP                                */
+    /* ═══════════════════════════════════════════ */
+    .harita-container {
+      width: 100%; height: 300px;
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border);
+      margin-bottom: 16px; position: relative;
+    }
+    .harita-container .leaflet-container { background: var(--main-bg); }
+    .harita-ipucu {
+      position: absolute; bottom: 8px; left: 50%;
+      transform: translateX(-50%); z-index: 1000;
+      background: rgba(0,0,0,0.75); color: #e5e7eb;
+      padding: 6px 14px; border-radius: 20px;
+      font-size: 0.72rem; pointer-events: none;
+      white-space: nowrap; backdrop-filter: blur(4px);
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  PAGE 5: TAHMİN (FORECAST)                  */
+    /* ═══════════════════════════════════════════ */
+    .tahmin-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px; margin-top: 20px;
+    }
+    .tahmin-kart {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; position: relative;
+      overflow: hidden; transition: transform 0.15s, border-color 0.15s;
+    }
+    .tahmin-kart:hover { transform: translateY(-2px); border-color: var(--border-light); }
+    .tahmin-kart .tahmin-tarih {
+      font-size: 0.82rem; font-weight: 700; color: var(--text);
+      margin-bottom: 4px;
+    }
+    .tahmin-kart .tahmin-gun {
+      font-size: 0.7rem; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
+    .tahmin-meteo {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      margin-bottom: 14px;
+    }
+    .tahmin-meteo-item {
+      font-size: 0.75rem; color: var(--text-muted);
+    }
+    .tahmin-meteo-item strong {
+      color: var(--text); font-size: 0.85rem;
+      display: block; margin-top: 2px;
+    }
+    .tahmin-fwi {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-radius: 10px;
+      background: var(--main-bg); border: 1px solid var(--border);
+    }
+    .tahmin-fwi-deger {
+      font-size: 1.4rem; font-weight: 900;
+    }
+    .tahmin-fwi-sinif {
+      font-size: 0.75rem; font-weight: 700;
+      padding: 4px 12px; border-radius: 20px;
+    }
+    .tahmin-indeksler {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+      margin-top: 12px;
+    }
+    .tahmin-idx {
+      text-align: center; padding: 6px 4px;
+      background: var(--main-bg); border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .tahmin-idx .etiket { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; }
+    .tahmin-idx .deger { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-top: 2px; }
+
+    .tahmin-konum-bilgi {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 10px;
+      background: var(--card-bg); border: 1px solid var(--border);
+      margin-bottom: 16px; font-size: 0.82rem; color: var(--text-muted);
+    }
+    .tahmin-konum-bilgi strong { color: var(--text); }
+
+    @media (max-width: 768px) {
+      .harita-container { height: 220px; }
+      .tahmin-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ MOBILE HEADER ═══ -->
+<div class="mobile-header">
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menü">&#9776;</button>
+  <div class="sidebar-logo">&#x1F525;</div>
+  <span class="mob-title">FWI System</span>
+</div>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  SIDEBAR                                    -->
+<!-- ═══════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">&#x1F525;</div>
+    <div class="sidebar-title">
+      FWI System
+      <span data-i18n="nav_subtitle">Yangın Erken Uyarı Sistemi</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <button class="nav-link aktif" onclick="sayfaAc('hakkinda', this)" data-i18n="nav_about">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      Proje Hakkında
+    </button>
+    <button class="nav-link" onclick="sayfaAc('hesap', this)" data-i18n="nav_calc">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+      Hesaplayıcı
+    </button>
+    <button class="nav-link" onclick="sayfaAc('tahmin', this)" data-i18n="nav_forecast">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4m-7.07-3.93l2.83-2.83m8.48-8.48l2.83-2.83M2 12h4m12 0h4m-3.93 7.07l-2.83-2.83M6.76 6.76L3.93 3.93"/></svg>
+      7 Günlük Tahmin
+    </button>
+    <button class="nav-link" onclick="sayfaAc('yontem', this)" data-i18n="nav_method">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Hesaplama Yöntemi
+    </button>
+    <button class="nav-link" onclick="sayfaAc('dogrulama', this)" data-i18n="nav_valid">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      Doğrulama
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="lang-toggle">
+      <button class="lang-btn aktif" id="lang-opt-tr" onclick="setLang('tr')">TR</button>
+      <button class="lang-btn" id="lang-opt-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  MAIN CONTENT                               -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="main" id="main">
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SAYFA 1: PROJE HAKKINDA                   -->
+<!-- ══════════════════════════════════════════ -->
+<div class="sayfa aktif" id="sayfa-hakkinda">
+
+  <div class="hero">
+    <h1 data-i18n="hero_title">&#x1F525; Orman Yangını Erken Uyarı Sistemi</h1>
+    <p data-i18n="hero_desc">Meteorolojik verilerden gerçek zamanlı orman yangını tehlike seviyesi hesaplayan sistem. Van Wagner (1987) Kanada Orman Yangını Hava İndeksi yöntemini esas alır.</p>
+  </div>
+
+  <div class="bilgi-grid">
+    <div class="bilgi-kart">
+      <h3 data-i18n="card_about_title">Proje Hakkında</h3>
+      <p data-i18n="card_about_p1" data-i18n-html="1">Bu sistem, Sayın <strong>Prof. Dr. Levent ŞAYLAN</strong> danışmanlığında <strong>İklim Bilimi ve Meteoroloji Mühendisliği Tasarım Projesi</strong> kapsamında geliştirilmiştir. Orman yangını erken uyarı sisteminin FWI hesaplama bileşenini oluşturmaktadır.</p>
+      <p style="margin-top:10px" data-i18n="card_about_p2" data-i18n-html="1">Hesaplamalar tamamen <strong>Van Wagner (1987)</strong> referans formüllerine dayanmaktadır. Open-Meteo saatlik yeniden analiz verisiyle otomatik veri çekimi desteklenmektedir.</p>
+    </div>
+
+    <div class="bilgi-kart">
+      <h3 data-i18n="card_components_title">FWI Bileşenleri</h3>
+      <ul class="komponent-liste">
+        <li><span class="komponent-badge">FFMC</span><span data-i18n="comp_ffmc">İnce üst tabaka yanıcı madde nem kodu — yüzey tutuşması</span></li>
+        <li><span class="komponent-badge">DMC</span><span data-i18n="comp_dmc">Döküntü nem kodu — orta derinlik yakıtı</span></li>
+        <li><span class="komponent-badge">DC</span><span data-i18n="comp_dc">Derin organik tabaka nem kodu — uzun süreli kuraklık</span></li>
+        <li><span class="komponent-badge">ISI</span><span data-i18n="comp_isi">Başlangıç yayılma indeksi</span></li>
+        <li><span class="komponent-badge">BUI</span><span data-i18n="comp_bui">Birikmiş yanıcı madde indeksi</span></li>
+        <li><span class="komponent-badge">FWI</span><span data-i18n="comp_fwi">Yangın hava indeksi — nihai çıktı</span></li>
+      </ul>
+    </div>
+
+    <div class="bilgi-kart">
+      <h3 data-i18n="card_risk_title">Tehlike Sınıfları</h3>
+      <div class="risk-liste">
+        <div class="risk-satir">
+          <div class="risk-nokta" style="background:#4ade80"></div>
+          <span class="risk-adi" style="color:#4ade80" data-i18n="risk_low">Düşük</span>
+          <span class="risk-aralik">FWI &lt; 5</span>
+        </div>
+        <div class="risk-satir">
+          <div class="risk-nokta" style="background:#fbbf24"></div>
+          <span class="risk-adi" style="color:#fbbf24" data-i18n="risk_moderate">Orta</span>
+          <span class="risk-aralik">5 – 10</span>
+        </div>
+        <div class="risk-satir">
+          <div class="risk-nokta" style="background:#fb923c"></div>
+          <span class="risk-adi" style="color:#fb923c" data-i18n="risk_high">Yüksek</span>
+          <span class="risk-aralik">10 – 20</span>
+        </div>
+        <div class="risk-satir">
+          <div class="risk-nokta" style="background:#f87171"></div>
+          <span class="risk-adi" style="color:#f87171" data-i18n="risk_very_high">Çok Yüksek</span>
+          <span class="risk-aralik">20 – 30</span>
+        </div>
+        <div class="risk-satir">
+          <div class="risk-nokta" style="background:#c084fc"></div>
+          <span class="risk-adi" style="color:#c084fc" data-i18n="risk_extreme">Aşırı</span>
+          <span class="risk-aralik">FWI ≥ 30</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bilgi-kart">
+      <h3 data-i18n="card_datasrc_title">Veri Kaynağı</h3>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px" data-i18n="card_datasrc_desc" data-i18n-html="1">Open-Meteo saatlik yeniden analiz verisi — <strong style="color:var(--text)">öğlen 12:00 LST</strong> anlık değerler</p>
+      <div class="veri-grid">
+        <div class="veri-chip">
+          <div class="v-etiket" data-i18n="data_temp">Sıcaklık</div>
+          <div class="v-acik" data-i18n="data_temp_desc">12:00 LST anlık · °C</div>
+        </div>
+        <div class="veri-chip">
+          <div class="v-etiket" data-i18n="data_rh">Bağıl Nem</div>
+          <div class="v-acik" data-i18n="data_rh_desc">12:00 LST anlık · %</div>
+        </div>
+        <div class="veri-chip">
+          <div class="v-etiket" data-i18n="data_wind">Rüzgar</div>
+          <div class="v-acik" data-i18n="data_wind_desc">12:00 LST anlık · km/h</div>
+        </div>
+        <div class="veri-chip">
+          <div class="v-etiket" data-i18n="data_precip">Yağış</div>
+          <div class="v-acik" data-i18n="data_precip_desc">Günlük toplam · mm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="akis-kart">
+    <h3 data-i18n="flow_title">Hesaplama Akışı</h3>
+    <div class="akis-diagram">
+
+      <!-- Sütun 1: Girdi -->
+      <div class="akis-kutu girdi">
+        <strong data-i18n="flow_input">Girdi</strong>
+        T · RH · W · P
+      </div>
+
+      <!-- Ok 1 -->
+      <div class="akis-ok-sutun">→</div>
+
+      <!-- Sütun 3: Nem Kodları -->
+      <div class="akis-nem-kodlari">
+        <div class="akis-kutu"><strong>FFMC</strong><span data-i18n="flow_ffmc">Üst tabaka</span></div>
+        <div class="akis-kutu"><strong>DMC</strong><span data-i18n="flow_dmc">Döküntü</span></div>
+        <div class="akis-kutu"><strong>DC</strong><span data-i18n="flow_dc">Derin tabaka</span></div>
+      </div>
+
+      <!-- Ok 2 -->
+      <div class="akis-ok-sutun">→</div>
+
+      <!-- Sütun 5: ISI, BUI, FWI -->
+      <div class="akis-indeksler">
+        <div class="akis-kutu"><strong>ISI</strong><span data-i18n="flow_isi">Yayılma</span></div>
+        <div class="akis-kutu"><strong>BUI</strong><span data-i18n="flow_bui">Birikim</span></div>
+        <div class="akis-kutu cikti"><strong>FWI</strong><span data-i18n="flow_fwi">Sonuç</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <button class="basla-btn" onclick="sayfaAc('hesap', document.querySelectorAll('.nav-link')[1])">
+    <span data-i18n="btn_goto_calc">Hesaplayıcıya Geç →</span>
+  </button>
+
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SAYFA 2: HESAPLAYICI                      -->
+<!-- ══════════════════════════════════════════ -->
+<div class="sayfa" id="sayfa-hesap">
+
+  <!-- SEKMELER -->
+  <div class="sekmeler">
+    <button class="sekme aktif" onclick="sekmeAc('manuel', this)" data-i18n="tab_manual">Manuel Giriş</button>
+    <button class="sekme" onclick="sekmeAc('nasa', this)" data-i18n="tab_auto">Otomatik Veri Çekimi</button>
+  </div>
+
+  <div class="kart">
+
+    <!-- PANEL 1: Manuel -->
+    <div class="panel aktif" id="panel-manuel">
+
+      <!-- Alt sekmeler -->
+      <div class="alt-sekmeler">
+        <button class="alt-sekme aktif" onclick="altSekmeAc('tek', this)" data-i18n="subtab_single">Tek Gün</button>
+        <button class="alt-sekme" onclick="altSekmeAc('csv', this)" data-i18n="subtab_csv">CSV Dosyası</button>
+      </div>
+
+      <!-- Alt panel: Tek Gün -->
+      <div class="alt-panel aktif" id="alt-tek">
+        <div class="form-grid" style="margin-top:16px">
+          <div class="form-grup">
+            <label data-i18n="label_temp">Sıcaklık (°C)</label>
+            <input type="number" id="temp" step="0.1" value="17" />
+          </div>
+          <div class="form-grup">
+            <label data-i18n="label_rh">Bağıl Nem (%)</label>
+            <input type="number" id="rh" step="1" min="0" max="100" value="42" />
+          </div>
+          <div class="form-grup">
+            <label data-i18n="label_wind">Rüzgar (km/h)</label>
+            <input type="number" id="wind" step="0.1" min="0" value="25" />
+          </div>
+          <div class="form-grup">
+            <label data-i18n="label_precip">Yağış (mm)</label>
+            <input type="number" id="precip" step="0.1" min="0" value="0" />
+          </div>
+          <div class="form-grup">
+            <label data-i18n="label_month">Ay</label>
+            <select id="month">
+              <option value="1" data-i18n="month_1">Ocak</option><option value="2" data-i18n="month_2">Şubat</option>
+              <option value="3" data-i18n="month_3">Mart</option><option value="4" data-i18n="month_4">Nisan</option>
+              <option value="5" data-i18n="month_5">Mayıs</option><option value="6" data-i18n="month_6">Haziran</option>
+              <option value="7" selected data-i18n="month_7">Temmuz</option><option value="8" data-i18n="month_8">Ağustos</option>
+              <option value="9" data-i18n="month_9">Eylül</option><option value="10" data-i18n="month_10">Ekim</option>
+              <option value="11" data-i18n="month_11">Kasım</option><option value="12" data-i18n="month_12">Aralık</option>
+            </select>
+          </div>
+        </div>
+        <details>
+          <summary data-i18n="prev_day_summary">&#9881; Önceki Gün Değerleri (Gelişmiş)</summary>
+          <div class="onceki-grid">
+            <div class="form-grup"><label>FFMC₀</label><input type="number" id="ffmc0" step="0.1" value="85" /></div>
+            <div class="form-grup"><label>DMC₀</label><input type="number" id="dmc0" step="0.1" value="6" /></div>
+            <div class="form-grup"><label>DC₀</label><input type="number" id="dc0" step="0.1" value="15" /></div>
+          </div>
+          <div class="form-grup" style="margin-top:12px">
+            <label data-i18n="label_lat_optional">Enlem (isteğe bağlı — Le/Lf düzeltmesi için)</label>
+            <input type="number" id="manuel-lat" step="0.01" data-i18n-placeholder="placeholder_lat" placeholder="örn. 37.5 (Türkiye için boş bırakabilirsiniz)" />
+          </div>
+        </details>
+        <button class="btn" onclick="hesapla()" data-i18n="btn_calculate">Hesapla</button>
+      </div>
+
+      <!-- Alt panel: CSV -->
+      <div class="alt-panel" id="alt-csv">
+        <div class="info-notu" style="margin-top:16px">
+          <span data-i18n="csv_format_info" data-i18n-html="1">CSV formatı: <code>tarih,temp,rh,wind,precip</code> — tarih YYYYMMDD, sıcaklık °C, bağıl nem %, rüzgar km/h, yağış mm.</span>
+          <a href="/static/ornek.csv" download style="color:var(--accent);margin-left:8px" data-i18n="csv_download_sample">Örnek indir</a>
+        </div>
+        <div class="csv-yukle-alani" id="csv-yukle-alani" onclick="document.getElementById('csv-input').click()">
+          <div class="csv-ikon">📂</div>
+          <div class="csv-metin" data-i18n="csv_click">CSV dosyası seçmek için tıkla</div>
+          <div class="csv-alt" id="csv-dosya-adi" data-i18n="csv_drag">veya sürükle bırak</div>
+        </div>
+        <input type="file" id="csv-input" accept=".csv,.txt" style="display:none" onchange="csvDosyaSecildi(this)" />
+        <details style="margin-top:12px">
+          <summary data-i18n="csv_initial_values">&#9881; Başlangıç Değerleri</summary>
+          <div class="onceki-grid" style="margin-top:12px">
+            <div class="form-grup"><label>FFMC₀</label><input type="number" id="csv-ffmc0" step="0.1" value="85" /></div>
+            <div class="form-grup"><label>DMC₀</label><input type="number" id="csv-dmc0" step="0.1" value="6" /></div>
+            <div class="form-grup"><label>DC₀</label><input type="number" id="csv-dc0" step="0.1" value="15" /></div>
+          </div>
+          <div class="form-grup" style="margin-top:12px">
+            <label data-i18n="label_lat_optional">Enlem (isteğe bağlı — Le/Lf düzeltmesi için)</label>
+            <input type="number" id="csv-lat" step="0.01" data-i18n-placeholder="placeholder_lat_short" placeholder="örn. 37.5" />
+          </div>
+        </details>
+        <button class="btn" id="csv-btn" onclick="csvHesapla()" disabled data-i18n="btn_csv_calc">CSV Yükle ve Hesapla</button>
+      </div>
+
+    </div>
+
+    <!-- PANEL 2: Open-Meteo -->
+    <div class="panel" id="panel-nasa">
+      <h2 data-i18n="auto_title">Open-Meteo Otomatik Veri</h2>
+      <div class="info-notu" data-i18n="auto_info" data-i18n-html="1">
+        Open-Meteo saatlik veriden <strong>öğlen 12:00</strong> anlık sıcaklık, nem ve rüzgar değerleri alınır. Yağış günlük toplam olarak hesaplanır. Başlangıç değerleri Ocak 1'den ısıtılarak hesaplanır.
+      </div>
+      <div class="harita-container" id="harita-nasa">
+        <div class="harita-ipucu" data-i18n="map_hint">Haritaya tıklayarak konum seçin</div>
+      </div>
+      <div class="form-grid">
+        <div class="form-grup">
+          <label data-i18n="label_lat">Enlem</label>
+          <input type="number" id="lat" step="0.01" value="36.62" />
+        </div>
+        <div class="form-grup">
+          <label data-i18n="label_lon">Boylam</label>
+          <input type="number" id="lon" step="0.01" value="29.12" />
+        </div>
+        <div class="form-grup">
+          <label data-i18n="label_start">Başlangıç</label>
+          <input type="date" id="baslangic" value="2026-01-01" />
+        </div>
+        <div class="form-grup">
+          <label data-i18n="label_end">Bitiş</label>
+          <input type="date" id="bitis" value="2026-01-31" />
+        </div>
+      </div>
+      <button class="btn" id="nasa-btn" onclick="nasaHesapla()" data-i18n="btn_fetch_calc">Veri Çek ve Hesapla</button>
+    </div>
+
+  </div>
+
+  <!-- HATA -->
+  <div class="hata-mesaji" id="hata-mesaji"></div>
+
+  <!-- MANUEL SONUÇ -->
+  <div id="sonuc-alani">
+    <div class="sinif-banner" id="sinif-banner">
+      <div class="sinif-adi" id="sinif-adi"></div>
+      <div class="fwi-deger" id="fwi-deger"></div>
+      <div class="sinif-aciklama" id="sinif-aciklama"></div>
+    </div>
+    <div class="indeksler">
+      <div class="indeks-kutu"><div class="etiket">FFMC</div><div class="deger" id="val-ffmc">—</div><div class="birim" data-i18n="idx_ffmc">İnce Üst Tabaka</div></div>
+      <div class="indeks-kutu"><div class="etiket">DMC</div><div class="deger" id="val-dmc">—</div><div class="birim" data-i18n="idx_dmc">Döküntü Nemi</div></div>
+      <div class="indeks-kutu"><div class="etiket">DC</div><div class="deger" id="val-dc">—</div><div class="birim" data-i18n="idx_dc">Derin Organik Tabaka</div></div>
+      <div class="indeks-kutu"><div class="etiket">ISI</div><div class="deger" id="val-isi">—</div><div class="birim" data-i18n="idx_isi">Başlangıç Yayılma</div></div>
+      <div class="indeks-kutu"><div class="etiket">BUI</div><div class="deger" id="val-bui">—</div><div class="birim" data-i18n="idx_bui">Birikmiş Yanıcı Madde</div></div>
+      <div class="indeks-kutu"><div class="etiket">DSR</div><div class="deger" id="val-dsr">—</div><div class="birim" data-i18n="idx_dsr">Günlük Şiddet Oranı</div></div>
+    </div>
+    <button class="btn rapor-btn" onclick="manuelRaporIndir()" data-i18n="btn_download_pdf">Rapor İndir (PDF)</button>
+  </div>
+
+  <!-- NASA / MULTI-DAY SONUÇ TABLOSU -->
+  <div id="nasa-sonuc-alani">
+    <div class="sonuc-ust-grid">
+      <div class="istatistik-grid">
+        <div class="istat-kutu"><div class="etiket" data-i18n="stat_max">En Yüksek FWI</div><div class="deger" id="stat-max">—</div><div class="alt" id="stat-max-tarih">—</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="stat_avg">Ortalama FWI</div><div class="deger" id="stat-ort">—</div><div class="alt" data-i18n="stat_avg_desc">dönem ortalaması</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="stat_extreme">Aşırı Gün</div><div class="deger" id="stat-asiri">—</div><div class="alt">FWI ≥ 30</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="stat_very_high">Çok Yüksek +</div><div class="deger" id="stat-cok">—</div><div class="alt">FWI ≥ 20</div></div>
+      </div>
+      <div class="grafik-kutu">
+        <div class="grafik-baslik" data-i18n="chart_title">FWI Zaman Serisi</div>
+        <canvas id="fwi-grafik"></canvas>
+      </div>
+    </div>
+    <div class="tablo-wrapper" style="margin-top:16px;">
+      <table>
+        <thead>
+          <tr>
+            <th data-i18n="th_date">Tarih</th><th data-i18n="th_temp">Sıcaklık (°C)</th><th data-i18n="th_rh">Nem (%)</th><th data-i18n="th_wind">Rüzgar (km/h)</th><th data-i18n="th_precip">Yağış (mm)</th>
+            <th>FFMC</th><th>DMC</th><th>DC</th><th>ISI</th><th>BUI</th><th>FWI</th><th data-i18n="th_class">Sınıf</th>
+          </tr>
+        </thead>
+        <tbody id="nasa-tablo-govde"></tbody>
+      </table>
+    </div>
+    <button class="btn rapor-btn" onclick="cokluRaporIndir()" data-i18n="btn_download_pdf">Rapor İndir (PDF)</button>
+  </div>
+
+</div><!-- sayfa-hesap -->
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SAYFA 3: HESAPLAMA YÖNTEMİ               -->
+<!-- ══════════════════════════════════════════ -->
+<div class="sayfa" id="sayfa-yontem">
+
+  <div class="hero">
+    <h1 data-i18n="method_title">Hesaplama Yöntemi</h1>
+    <p data-i18n="method_desc">Van Wagner (1987) — Canadian Forest Fire Weather Index System. Her bileşen için kullanılan girdiler ve adım adım formüller.</p>
+  </div>
+
+  <nav class="yontem-nav lang-tr">
+    <a href="#bolum-akis">Hesaplama Akışı</a>
+    <a href="#bolum-ffmc">1 · FFMC</a>
+    <a href="#bolum-dmc">2 · DMC</a>
+    <a href="#bolum-dc">3 · DC</a>
+    <a href="#bolum-isi">4 · ISI</a>
+    <a href="#bolum-bui">5 · BUI</a>
+    <a href="#bolum-fwi">6 · FWI</a>
+    <a href="#bolum-esik">Eşikler</a>
+  </nav>
+  <nav class="yontem-nav lang-en">
+    <a href="#bolum-akis">Calculation Flow</a>
+    <a href="#bolum-ffmc">1 · FFMC</a>
+    <a href="#bolum-dmc">2 · DMC</a>
+    <a href="#bolum-dc">3 · DC</a>
+    <a href="#bolum-isi">4 · ISI</a>
+    <a href="#bolum-bui">5 · BUI</a>
+    <a href="#bolum-fwi">6 · FWI</a>
+    <a href="#bolum-esik">Thresholds</a>
+  </nav>
+
+  <div class="lang-tr">
+  <div id="bolum-akis" style="scroll-margin-top:80px">
+    <div class="akis-diagram">
+      <div class="akis-grup">
+        <div class="akis-baslik">Günlük Girdiler</div>
+        <div class="akis-dugumler">
+          <span class="akis-dugum girdi">T</span>
+          <span class="akis-dugum girdi">RH</span>
+          <span class="akis-dugum girdi">W</span>
+          <span class="akis-dugum girdi">r</span>
+        </div>
+      </div>
+      <div class="akis-ok-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-4-4 4 4-4 4"/></svg>
+      </div>
+      <div class="akis-grup">
+        <div class="akis-baslik">Nem Kodları</div>
+        <div class="akis-dugumler">
+          <span class="akis-dugum nem">FFMC</span>
+          <span class="akis-dugum nem">DMC</span>
+          <span class="akis-dugum nem">DC</span>
+        </div>
+      </div>
+      <div class="akis-ok-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-4-4 4 4-4 4"/></svg>
+      </div>
+      <div class="akis-grup">
+        <div class="akis-baslik">İndeksler</div>
+        <div class="akis-dugumler">
+          <span class="akis-dugum indeks">ISI</span>
+          <span class="akis-dugum indeks">BUI</span>
+        </div>
+      </div>
+      <div class="akis-ok-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-4-4 4 4-4 4"/></svg>
+      </div>
+      <div class="akis-grup">
+        <div class="akis-baslik">Sonuç</div>
+        <div class="akis-dugumler">
+          <span class="akis-dugum sonuc">FWI</span>
+          <span class="akis-dugum dsr">DSR</span>
+        </div>
+      </div>
+    </div>
+    <div class="akis-aciklama">Öğlen 12:00 LST ölçümü · Sezon başlangıç değerleri: FFMC₀=85, DMC₀=6, DC₀=15<br>1–3 nem kodları bağımsız hesaplanır → 4–6 indeksler birleştirir → Her günün çıktısı ertesi günün girdisi</div>
+  </div>
+
+  <div class="yon-kategori"><span>Nem Kodları (Moisture Codes)</span></div>
+
+  <div class="yontem-bolum" id="bolum-ffmc">
+    <h2>1. FFMC — İnce Üst Tabaka Yanıcı Madde Nem Kodu</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">FFMC</span>
+        <h3>Ölü örtünün üst tabakasındaki ince yanıcı maddelerin nem içeriği · Aralık: 0–101</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — sıcaklık (°C)</span>
+        <span class="girdi-badge">RH — bağıl nem (%)</span>
+        <span class="girdi-badge">W — rüzgar (km/h)</span>
+        <span class="girdi-badge">r — yağış (mm)</span>
+        <span class="girdi-badge">FFMC₀ — önceki gün FFMC değeri</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 1 — Nem içeriğine dönüştür</span>
+          <span class="formul-deger">
+            <span class="f">m₀ = 147.2 × (101 − FFMC₀) / (59.5 + FFMC₀)</span>
+            <br><small style="color:#556070">m₀: FFMC₀'ın karşılık geldiği nem içeriği (%)</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 2 — Yağış düzeltmesi<br><small style="font-weight:400">(yalnızca r &gt; 0.5 mm ise)</small></span>
+          <span class="formul-deger">
+            <span class="f">rf = r − 0.5</span> <span class="f-not">efektif yağış</span>
+            <br><span class="f">Δm = 42.5 × rf × e^(−100/(251−m₀)) × (1 − e^(−6.93/rf))</span>
+            <br><span class="f">m₀ = m₀ + Δm</span> <span class="f-not">max 250</span>
+            <br><small style="color:#556070">rf: eşik altı çıkarılmış yağış · Δm: yağışın eklediği nem</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 3 — Denge nem içerikleri</span>
+          <span class="formul-deger">
+            <span class="f">Ed = 0.942×H^0.679 + 11×e^((H−100)/10) + 0.18×(21.1−T)×(1−e^(−0.115H))</span>
+            <br><span class="f">Ew = 0.618×H^0.753 + 10×e^((H−100)/10) + 0.18×(21.1−T)×(1−e^(−0.115H))</span>
+            <br><small style="color:#556070">Ed: kuruma denge nemi · Ew: ıslanma denge nemi</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 4 — Kuruma veya ıslanma</span>
+          <span class="formul-deger">
+            <strong style="color:#ffa040">m₀ &gt; Ed ise (kuruma):</strong>
+            <span class="f">k = (0.424×(1−(H/100)^1.7) + 0.0694×√W×(1−(H/100)^8)) × 0.581 × e^(0.0365T)</span>
+            <span class="f">m = Ed + (m₀ − Ed) × 10^(−k)</span>
+            <br><strong style="color:var(--blue)">m₀ &lt; Ew ise (ıslanma):</strong>
+            <span class="f">k = (0.424×(1−((100−H)/100)^1.7) + 0.0694×√W×(1−((100−H)/100)^8)) × 0.581 × e^(0.0365T)</span>
+            <span class="f">m = Ew − (Ew − m₀) × 10^(−k)</span>
+            <br><small style="color:#556070">k: kuruma/ıslanma hız katsayısı · m: yeni nem içeriği</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 5 — Koda dönüştür</span>
+          <span class="formul-deger">
+            <span class="f">FFMC = 59.5 × (250 − m) / (147.2 + m)</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum" id="bolum-dmc">
+    <h2>2. DMC — Döküntü Nem Kodu</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">DMC</span>
+        <h3>Hafif sıkıştırılmış organik (döküntü) tabakanın nem durumu · Aralık: 0–300+</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — sıcaklık (°C)</span>
+        <span class="girdi-badge">RH — bağıl nem (%)</span>
+        <span class="girdi-badge">r — yağış (mm)</span>
+        <span class="girdi-badge">DMC₀ — önceki gün DMC değeri</span>
+        <span class="girdi-badge">Le — aylık gün uzunluğu faktörü (enleme göre)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 1 — Yağış düzeltmesi<br><small style="font-weight:400">(yalnızca r &gt; 1.5 mm ise)</small></span>
+          <span class="formul-deger">
+            <span class="f">re = 0.92×r − 1.27</span> <span class="f-not">efektif yağış</span>
+            <br><span class="f">Mo = 20 + 280 / e^(0.023×DMC₀)</span> <span class="f-not">önceki nem içeriği</span>
+            <br><span class="f">Mr = Mo + 1000×re / (48.77 + b×re)</span> <span class="f-not">ıslak nem içeriği</span>
+            <br><span class="f">Pr = 244.72 − 43.43×ln(Mr − 20)</span> <span class="f-not">yağış sonrası DMC</span>
+            <br><small style="color:#556070">re: efektif yağış · Mo: önceki nem · b: DMC₀'a bağlı katsayı (üç aralık)</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 2 — Günlük kuruma</span>
+          <span class="formul-deger">
+            <span class="f">K = 1.894 × (T + 1.1) × (100 − H) × Le × 0.0001</span>
+            <br><small style="color:#556070">T+1.1: ısı etkisi başlangıcı · (100−H): nemsizlik · Le: Temmuz ≥30°N = 12.4</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 3 — Yeni DMC</span>
+          <span class="formul-deger"><span class="f">DMC = Pr + K</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum" id="bolum-dc">
+    <h2>3. DC — Derin Organik Tabaka Nem Kodu</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">DC</span>
+        <h3>Derin sıkıştırılmış organik tabakanın nem durumu · Aralık: 0–1000</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — sıcaklık (°C)</span>
+        <span class="girdi-badge">r — yağış (mm)</span>
+        <span class="girdi-badge">DC₀ — önceki gün DC değeri</span>
+        <span class="girdi-badge">Lf — aylık gün uzunluğu faktörü (enleme göre)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 1 — Yağış düzeltmesi<br><small style="font-weight:400">(yalnızca r &gt; 2.8 mm ise)</small></span>
+          <span class="formul-deger">
+            <span class="f">rd = 0.83×r − 1.27</span> <span class="f-not">efektif yağış</span>
+            <br><span class="f">Q₀ = 800 × e^(−DC₀/400)</span> <span class="f-not">önceki nem eşdeğeri</span>
+            <br><span class="f">Qr = Q₀ + 3.937×rd</span> <span class="f-not">ıslak nem eşdeğeri</span>
+            <br><span class="f">Dr = 400 × ln(800/Qr)</span> <span class="f-not">yağış sonrası DC</span>
+            <br><small style="color:#556070">rd: eşik üstü yağış · Q₀: DC'nin nem eşdeğeri</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 2 — Potansiyel kuruma</span>
+          <span class="formul-deger">
+            <span class="f">V = 0.36 × (T + 2.8) + Lf</span>
+            <br><small style="color:#556070">T+2.8: sıcaklık eşiği · Lf: Temmuz ≥20°N = 6.4, Ocak = −1.6 (kış kısıtlaması)</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 3 — Yeni DC</span>
+          <span class="formul-deger"><span class="f">DC = Dr + 0.5 × V</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum" id="bolum-isi">
+    <h2>4. ISI — Başlangıç Yayılma İndeksi</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">ISI</span>
+        <h3>Yangının ilk yayılma hızı · Rüzgar ve FFMC birleşimi · Aralık: 0–50+</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">FFMC — aynı günün FFMC değeri (adım 1'den)</span>
+        <span class="girdi-badge">W — rüzgar hızı (km/h)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Rüzgar faktörü (fw)</span>
+          <span class="formul-deger">
+            <span class="f">fw = e^(0.05039 × W)</span>
+            <br><small style="color:#556070">W büyüdükçe üstel olarak artar; 25 km/h → fw=3.5</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Nem faktörü (ff)</span>
+          <span class="formul-deger">
+            <span class="f">m = 147.2 × (101 − FFMC) / (59.5 + FFMC)</span> <span class="f-not">FFMC'yi neme çevir</span>
+            <br><span class="f">ff = 91.9 × e^(−0.1386×m) × (1 + m^5.31 / 49300000)</span>
+            <br><small style="color:#556070">m: nem içeriği · ff: nem ne kadar düşükse o kadar yüksek</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">ISI</span>
+          <span class="formul-deger"><span class="f">ISI = 0.208 × fw × ff</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum" id="bolum-bui">
+    <h2>5. BUI — Birikmiş Yanıcı Madde İndeksi</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">BUI</span>
+        <h3>Yangının beslenebileceği birikmiş yanıcı madde miktarı · Aralık: 0–200+</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">DMC — aynı günün DMC değeri (adım 2'den)</span>
+        <span class="girdi-badge">DC — aynı günün DC değeri (adım 3'ten)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">DMC ≤ 0.4 × DC ise<br><small style="font-weight:400">(DC baskın rejimdeyse)</small></span>
+          <span class="formul-deger">
+            <span class="f">BUI = 0.8 × DMC × DC / (DMC + 0.4×DC)</span>
+            <br><small style="color:#556070">İki kodun harmonik ortalamasına benzer bir birleştirme</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">DMC &gt; 0.4 × DC ise<br><small style="font-weight:400">(DMC baskın rejimdeyse)</small></span>
+          <span class="formul-deger">
+            <span class="f">P = 1 − 0.8×DC / (DMC + 0.4×DC)</span>
+            <br><span class="f">BUI = DMC − P × (0.92 + (0.0114×DMC)^1.7)</span>
+            <br><small style="color:#556070">P: DC'nin BUI'ye katkı oranı · DMC yüksekse BUI yaklaşık DMC'ye eşit</small>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum" id="bolum-fwi">
+    <h2>6. FWI — Yangın Hava İndeksi</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">FWI</span>
+        <h3>Yangın yoğunluğunu temsil eden nihai indeks · ISI × BUI birleşimi</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">ISI — aynı günün ISI değeri (adım 4'ten)</span>
+        <span class="girdi-badge">BUI — aynı günün BUI değeri (adım 5'ten)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 1 — Yakıt etkisi (fd)</span>
+          <span class="formul-deger">
+            BUI ≤ 80: <span class="f">fd = 0.626 × BUI^0.809 + 2</span>
+            <br>BUI &gt; 80: <span class="f">fd = 1000 / (25 + 108.64 × e^(−0.023×BUI))</span>
+            <br><small style="color:#556070">fd: yakıt miktarının yayılmayı artırma faktörü</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 2 — Ara değer (B)</span>
+          <span class="formul-deger">
+            <span class="f">B = 0.1 × ISI × fd</span>
+            <br><small style="color:#556070">Yayılma hızı × yakıt miktarı</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 3 — FWI</span>
+          <span class="formul-deger">
+            B ≤ 1: <span class="f">FWI = B</span>
+            <br>B &gt; 1: <span class="f">FWI = e^(2.72 × (0.434 × ln(B))^0.647)</span>
+            <br><small style="color:#556070">Düşük değerlerde doğrusal, yüksek değerlerde üstel ölçek</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">DSR — Günlük Şiddet Değeri</span>
+          <span class="formul-deger">
+            <span class="f">DSR = 0.0272 × FWI^1.77</span>
+            <br><small style="color:#556070">FWI'yi yangın söndürme zorluğuyla ilişkilendiren türetilmiş indeks</small>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yon-kategori kat-sonuc" style="margin-top:28px"><span>Eşikler ve Tehlike Sınıfları</span></div>
+
+  <div class="yontem-bolum" id="bolum-esik" style="scroll-margin-top:80px">
+    <div class="formul-kart" style="margin-bottom:16px">
+      <div class="formul-kart-baslik"><span class="formul-badge">Yağış</span><h3>Yağış düzeltmesi minimum eşikleri</h3></div>
+      <div class="esik-grid">
+        <div class="esik-kutu"><div class="ad">FFMC için</div><div class="dg">r > 0.5 mm</div><div class="alt">altında etki yok</div></div>
+        <div class="esik-kutu"><div class="ad">DMC için</div><div class="dg">r > 1.5 mm</div><div class="alt">altında etki yok</div></div>
+        <div class="esik-kutu"><div class="ad">DC için</div><div class="dg">r > 2.8 mm</div><div class="alt">altında etki yok</div></div>
+      </div>
+    </div>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik"><span class="formul-badge">Sınıf</span><h3>FWI tehlike sınıfları</h3></div>
+      <div class="tehlike-olcek">
+        <div class="tehlike-dilim td-dusuk"><span>Düşük</span><small>&lt; 5</small></div>
+        <div class="tehlike-dilim td-orta"><span>Orta</span><small>5–10</small></div>
+        <div class="tehlike-dilim td-yuksek"><span>Yüksek</span><small>10–20</small></div>
+        <div class="tehlike-dilim td-cokyuksek"><span>Çok Yüksek</span><small>20–30</small></div>
+        <div class="tehlike-dilim td-asiri"><span>Aşırı</span><small>≥ 30</small></div>
+      </div>
+      <div class="tehlike-detay">
+        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#86efac">Düşük</div><div class="td-aralik">FWI &lt; 5</div><div class="td-aciklama">Normal koşullar</div></div>
+        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fde047">Orta</div><div class="td-aralik">5 ≤ FWI &lt; 10</div><div class="td-aciklama">Dikkatli olunmalı</div></div>
+        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fdba74">Yüksek</div><div class="td-aralik">10 ≤ FWI &lt; 20</div><div class="td-aciklama">Yüksek risk</div></div>
+        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fca5a5">Çok Yüksek</div><div class="td-aralik">20 ≤ FWI &lt; 30</div><div class="td-aciklama">İzleme gerekli</div></div>
+        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#d8b4fe">Aşırı</div><div class="td-aralik">FWI ≥ 30</div><div class="td-aciklama">Kritik tehlike</div></div>
+      </div>
+      <div class="formul-not">Kaynak: Van Wagner, C.E. (1987). Development and Structure of the Canadian Forest Fire Weather Index System. Canadian Forestry Service, Technical Report 35.</div>
+    </div>
+  </div>
+  </div><!-- lang-tr -->
+
+  <!-- ═══ ENGLISH METHODOLOGY ═══ -->
+  <div class="lang-en">
+
+  <div id="bolum-akis-en" style="scroll-margin-top:80px">
+    <div class="akis-diagram">
+      <div class="akis-grup">
+        <div class="akis-baslik">Daily Inputs</div>
+        <div class="akis-dugumler">
+          <span class="akis-dugum girdi">T</span>
+          <span class="akis-dugum girdi">RH</span>
+          <span class="akis-dugum girdi">W</span>
+          <span class="akis-dugum girdi">r</span>
+        </div>
+      </div>
+      <div class="akis-ok-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-4-4 4 4-4 4"/></svg>
+      </div>
+      <div class="akis-grup">
+        <div class="akis-baslik">Moisture Codes</div>
+        <div class="akis-dugumler">
+          <span class="akis-dugum nem">FFMC</span>
+          <span class="akis-dugum nem">DMC</span>
+          <span class="akis-dugum nem">DC</span>
+        </div>
+      </div>
+      <div class="akis-ok-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-4-4 4 4-4 4"/></svg>
+      </div>
+      <div class="akis-grup">
+        <div class="akis-baslik">Indices</div>
+        <div class="akis-dugumler">
+          <span class="akis-dugum indeks">ISI</span>
+          <span class="akis-dugum indeks">BUI</span>
+        </div>
+      </div>
+      <div class="akis-ok-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-4-4 4 4-4 4"/></svg>
+      </div>
+      <div class="akis-grup">
+        <div class="akis-baslik">Result</div>
+        <div class="akis-dugumler">
+          <span class="akis-dugum sonuc">FWI</span>
+          <span class="akis-dugum dsr">DSR</span>
+        </div>
+      </div>
+    </div>
+    <div class="akis-aciklama">Noon 12:00 LST observation · Season start values: FFMC₀=85, DMC₀=6, DC₀=15<br>1–3 moisture codes computed independently → 4–6 indices combine them → Each day's output becomes next day's input</div>
+  </div>
+
+  <div class="yon-kategori"><span>Moisture Codes</span></div>
+
+  <div class="yontem-bolum">
+    <h2>1. FFMC — Fine Fuel Moisture Code</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">FFMC</span>
+        <h3>Encodes moisture content of fine surface fuels · Range: 0–101</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — temperature (°C)</span>
+        <span class="girdi-badge">RH — relative humidity (%)</span>
+        <span class="girdi-badge">W — wind speed (km/h)</span>
+        <span class="girdi-badge">r — precipitation (mm)</span>
+        <span class="girdi-badge">FFMC₀ — previous day FFMC value</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 1 — Convert to moisture content</span>
+          <span class="formul-deger">
+            <span class="f">m₀ = 147.2 × (101 − FFMC₀) / (59.5 + FFMC₀)</span>
+            <br><small style="color:#556070">m₀: moisture content (%) corresponding to FFMC₀</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 2 — Rainfall correction<br><small style="font-weight:400">(only if r &gt; 0.5 mm)</small></span>
+          <span class="formul-deger">
+            <span class="f">rf = r − 0.5</span> <span class="f-not">effective rainfall</span>
+            <br><span class="f">Δm = 42.5 × rf × e^(−100/(251−m₀)) × (1 − e^(−6.93/rf))</span>
+            <br><span class="f">m₀ = m₀ + Δm</span> <span class="f-not">max 250</span>
+            <br><small style="color:#556070">rf: rainfall above threshold · Δm: moisture added by rain</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 3 — Equilibrium moisture contents</span>
+          <span class="formul-deger">
+            <span class="f">Ed = 0.942×H^0.679 + 11×e^((H−100)/10) + 0.18×(21.1−T)×(1−e^(−0.115H))</span>
+            <br><span class="f">Ew = 0.618×H^0.753 + 10×e^((H−100)/10) + 0.18×(21.1−T)×(1−e^(−0.115H))</span>
+            <br><small style="color:#556070">Ed: drying equilibrium · Ew: wetting equilibrium</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 4 — Drying or wetting</span>
+          <span class="formul-deger">
+            <strong style="color:#ffa040">If m₀ &gt; Ed (drying):</strong>
+            <span class="f">k = (0.424×(1−(H/100)^1.7) + 0.0694×√W×(1−(H/100)^8)) × 0.581 × e^(0.0365T)</span>
+            <span class="f">m = Ed + (m₀ − Ed) × 10^(−k)</span>
+            <br><strong style="color:var(--blue)">If m₀ &lt; Ew (wetting):</strong>
+            <span class="f">k = (0.424×(1−((100−H)/100)^1.7) + 0.0694×√W×(1−((100−H)/100)^8)) × 0.581 × e^(0.0365T)</span>
+            <span class="f">m = Ew − (Ew − m₀) × 10^(−k)</span>
+            <br><small style="color:#556070">k: drying/wetting rate coefficient · m: new moisture content</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 5 — Convert to code</span>
+          <span class="formul-deger">
+            <span class="f">FFMC = 59.5 × (250 − m) / (147.2 + m)</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum">
+    <h2>2. DMC — Duff Moisture Code</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">DMC</span>
+        <h3>Moisture status of the medium-depth organic layer · Range: 0–300+</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — temperature (°C)</span>
+        <span class="girdi-badge">RH — relative humidity (%)</span>
+        <span class="girdi-badge">r — precipitation (mm)</span>
+        <span class="girdi-badge">DMC₀ — previous day DMC value</span>
+        <span class="girdi-badge">Le — monthly day-length factor (by latitude)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 1 — Rainfall correction<br><small style="font-weight:400">(only if r &gt; 1.5 mm)</small></span>
+          <span class="formul-deger">
+            <span class="f">re = 0.92×r − 1.27</span> <span class="f-not">effective rainfall</span>
+            <br><span class="f">Mo = 20 + 280 / e^(0.023×DMC₀)</span> <span class="f-not">previous moisture content</span>
+            <br><span class="f">Mr = Mo + 1000×re / (48.77 + b×re)</span> <span class="f-not">wet moisture content</span>
+            <br><span class="f">Pr = 244.72 − 43.43×ln(Mr − 20)</span> <span class="f-not">post-rain DMC</span>
+            <br><small style="color:#556070">re: effective rainfall · Mo: previous moisture · b: coefficient dependent on DMC₀ (three ranges)</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 2 — Daily drying</span>
+          <span class="formul-deger">
+            <span class="f">K = 1.894 × (T + 1.1) × (100 − H) × Le × 0.0001</span>
+            <br><small style="color:#556070">T+1.1: heat effect onset · (100−H): dryness · Le: July ≥30°N = 12.4</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 3 — New DMC</span>
+          <span class="formul-deger"><span class="f">DMC = Pr + K</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum">
+    <h2>3. DC — Drought Code</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">DC</span>
+        <h3>Long-term moisture deficit of the deep soil layer · Range: 0–1000</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — temperature (°C)</span>
+        <span class="girdi-badge">r — precipitation (mm)</span>
+        <span class="girdi-badge">DC₀ — previous day DC value</span>
+        <span class="girdi-badge">Lf — monthly day-length factor (by latitude)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 1 — Rainfall correction<br><small style="font-weight:400">(only if r &gt; 2.8 mm)</small></span>
+          <span class="formul-deger">
+            <span class="f">rd = 0.83×r − 1.27</span> <span class="f-not">effective rainfall</span>
+            <br><span class="f">Q₀ = 800 × e^(−DC₀/400)</span> <span class="f-not">previous moisture equivalent</span>
+            <br><span class="f">Qr = Q₀ + 3.937×rd</span> <span class="f-not">wet moisture equivalent</span>
+            <br><span class="f">Dr = 400 × ln(800/Qr)</span> <span class="f-not">post-rain DC</span>
+            <br><small style="color:#556070">rd: rainfall above threshold · Q₀: moisture equivalent of DC</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 2 — Potential evapotranspiration</span>
+          <span class="formul-deger">
+            <span class="f">V = 0.36 × (T + 2.8) + Lf</span>
+            <br><small style="color:#556070">T+2.8: temperature threshold · Lf: July ≥20°N = 6.4, January = −1.6 (winter constraint)</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 3 — New DC</span>
+          <span class="formul-deger"><span class="f">DC = Dr + 0.5 × V</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum">
+    <h2>4. ISI — Initial Spread Index</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">ISI</span>
+        <h3>Rate of fire spread · Combines wind and FFMC · Range: 0–50+</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">FFMC — same day FFMC value (from step 1)</span>
+        <span class="girdi-badge">W — wind speed (km/h)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Wind function (fw)</span>
+          <span class="formul-deger">
+            <span class="f">fw = e^(0.05039 × W)</span>
+            <br><small style="color:#556070">Increases exponentially with W; 25 km/h → fw=3.5</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Moisture function (ff)</span>
+          <span class="formul-deger">
+            <span class="f">m = 147.2 × (101 − FFMC) / (59.5 + FFMC)</span> <span class="f-not">convert FFMC to moisture</span>
+            <br><span class="f">ff = 91.9 × e^(−0.1386×m) × (1 + m^5.31 / 49300000)</span>
+            <br><small style="color:#556070">m: moisture content · ff: higher when moisture is lower</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">ISI</span>
+          <span class="formul-deger"><span class="f">ISI = 0.208 × fw × ff</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum">
+    <h2>5. BUI — Buildup Index</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">BUI</span>
+        <h3>Total fuel available for combustion · Range: 0–200+</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">DMC — same day DMC value (from step 2)</span>
+        <span class="girdi-badge">DC — same day DC value (from step 3)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">If DMC ≤ 0.4 × DC<br><small style="font-weight:400">(DC-dominant regime)</small></span>
+          <span class="formul-deger">
+            <span class="f">BUI = 0.8 × DMC × DC / (DMC + 0.4×DC)</span>
+            <br><small style="color:#556070">A harmonic-mean-like combination of the two codes</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">If DMC &gt; 0.4 × DC<br><small style="font-weight:400">(DMC-dominant regime)</small></span>
+          <span class="formul-deger">
+            <span class="f">P = 1 − 0.8×DC / (DMC + 0.4×DC)</span>
+            <br><span class="f">BUI = DMC − P × (0.92 + (0.0114×DMC)^1.7)</span>
+            <br><small style="color:#556070">P: DC contribution ratio · When DMC is high, BUI ≈ DMC</small>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum">
+    <h2>6. FWI — Fire Weather Index</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">FWI</span>
+        <h3>Final index representing fire intensity · Combines ISI × BUI</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">ISI — same day ISI value (from step 4)</span>
+        <span class="girdi-badge">BUI — same day BUI value (from step 5)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 1 — Fuel effect (fd)</span>
+          <span class="formul-deger">
+            BUI ≤ 80: <span class="f">fd = 0.626 × BUI^0.809 + 2</span>
+            <br>BUI &gt; 80: <span class="f">fd = 1000 / (25 + 108.64 × e^(−0.023×BUI))</span>
+            <br><small style="color:#556070">fd: fuel availability factor amplifying spread</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 2 — Intermediate value (B)</span>
+          <span class="formul-deger">
+            <span class="f">B = 0.1 × ISI × fd</span>
+            <br><small style="color:#556070">Spread rate × fuel availability</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Step 3 — FWI</span>
+          <span class="formul-deger">
+            B ≤ 1: <span class="f">FWI = B</span>
+            <br>B &gt; 1: <span class="f">FWI = e^(2.72 × (0.434 × ln(B))^0.647)</span>
+            <br><small style="color:#556070">Linear at low values, exponential scaling at high values</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">DSR — Daily Severity Rating</span>
+          <span class="formul-deger">
+            <span class="f">DSR = 0.0272 × FWI^1.77</span>
+            <br><small style="color:#556070">Derived index relating FWI to fire suppression difficulty</small>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yon-kategori kat-sonuc" style="margin-top:28px"><span>Thresholds &amp; Danger Classes</span></div>
+
+  <div class="yontem-bolum" style="scroll-margin-top:80px">
+    <div class="formul-kart" style="margin-bottom:16px">
+      <div class="formul-kart-baslik"><span class="formul-badge">Precip</span><h3>Minimum rainfall thresholds for correction</h3></div>
+      <div class="esik-grid">
+        <div class="esik-kutu"><div class="ad">For FFMC</div><div class="dg">r > 0.5 mm</div><div class="alt">no effect below</div></div>
+        <div class="esik-kutu"><div class="ad">For DMC</div><div class="dg">r > 1.5 mm</div><div class="alt">no effect below</div></div>
+        <div class="esik-kutu"><div class="ad">For DC</div><div class="dg">r > 2.8 mm</div><div class="alt">no effect below</div></div>
+      </div>
+    </div>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik"><span class="formul-badge">Class</span><h3>FWI danger classes</h3></div>
+      <div class="tehlike-olcek">
+        <div class="tehlike-dilim td-dusuk"><span>Low</span><small>&lt; 5</small></div>
+        <div class="tehlike-dilim td-orta"><span>Moderate</span><small>5–10</small></div>
+        <div class="tehlike-dilim td-yuksek"><span>High</span><small>10–20</small></div>
+        <div class="tehlike-dilim td-cokyuksek"><span>Very High</span><small>20–30</small></div>
+        <div class="tehlike-dilim td-asiri"><span>Extreme</span><small>≥ 30</small></div>
+      </div>
+      <div class="tehlike-detay">
+        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#86efac">Low</div><div class="td-aralik">FWI &lt; 5</div><div class="td-aciklama">Normal conditions</div></div>
+        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fde047">Moderate</div><div class="td-aralik">5 ≤ FWI &lt; 10</div><div class="td-aciklama">Caution advised</div></div>
+        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fdba74">High</div><div class="td-aralik">10 ≤ FWI &lt; 20</div><div class="td-aciklama">High risk</div></div>
+        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#fca5a5">Very High</div><div class="td-aralik">20 ≤ FWI &lt; 30</div><div class="td-aciklama">Monitoring required</div></div>
+        <div class="tehlike-detay-kutu"><div class="td-sinif" style="color:#d8b4fe">Extreme</div><div class="td-aralik">FWI ≥ 30</div><div class="td-aciklama">Critical danger</div></div>
+      </div>
+      <div class="formul-not">Source: Van Wagner, C.E. (1987). Development and Structure of the Canadian Forest Fire Weather Index System. Canadian Forestry Service, Technical Report 35.</div>
+    </div>
+  </div>
+
+  </div><!-- lang-en -->
+
+</div><!-- sayfa-yontem -->
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SAYFA 5: 7 GÜNLÜK TAHMİN                  -->
+<!-- ══════════════════════════════════════════ -->
+<div class="sayfa" id="sayfa-tahmin">
+
+  <div class="hero">
+    <h1 data-i18n="forecast_title">7 Günlük FWI Tahmini</h1>
+    <p data-i18n="forecast_desc">Open-Meteo hava tahmin verisini kullanarak önümüzdeki 7 gün için yangın hava indeksi hesaplar. Haritadan konum seçin ve tahmini başlatın.</p>
+  </div>
+
+  <div class="harita-container" id="harita-tahmin" style="height:360px">
+    <div class="harita-ipucu" data-i18n="map_hint">Haritaya tıklayarak konum seçin</div>
+  </div>
+
+  <div class="form-grid" style="max-width:560px;margin:0 auto 16px">
+    <div class="form-grup">
+      <label data-i18n="label_lat">Enlem</label>
+      <input type="number" id="tahmin-lat" step="0.01" placeholder="39.92" />
+    </div>
+    <div class="form-grup">
+      <label data-i18n="label_lon">Boylam</label>
+      <input type="number" id="tahmin-lon" step="0.01" placeholder="32.85" />
+    </div>
+  </div>
+
+  <div class="tahmin-konum-bilgi" id="tahmin-konum-bilgi" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;flex-shrink:0;color:var(--accent)"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <span><span data-i18n="forecast_location">Seçilen konum:</span> <strong id="tahmin-konum-text">—</strong></span>
+  </div>
+
+  <button class="btn" id="tahmin-btn" onclick="tahminHesapla()" style="max-width:560px;margin:0 auto 24px;display:block">
+    <span data-i18n="btn_forecast_ready">Tahmini Hesapla</span>
+  </button>
+
+  <div id="tahmin-sonuc-alani" style="display:none">
+    <div class="sonuc-ust-grid" style="margin-bottom:20px">
+      <div class="istatistik-grid">
+        <div class="istat-kutu"><div class="etiket" data-i18n="stat_max">En Yüksek FWI</div><div class="deger" id="tahmin-stat-max">—</div><div class="alt" id="tahmin-stat-max-tarih">—</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="stat_avg">Ortalama FWI</div><div class="deger" id="tahmin-stat-ort">—</div><div class="alt" data-i18n="forecast_7day">7 günlük</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_max_class">En Yüksek Sınıf</div><div class="deger" id="tahmin-stat-sinif">—</div><div class="alt" id="tahmin-stat-sinif-tarih">—</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_risky_days">Riskli Gün</div><div class="deger" id="tahmin-stat-risk">—</div><div class="alt">FWI ≥ 10</div></div>
+      </div>
+      <div class="grafik-kutu">
+        <div class="grafik-baslik" data-i18n="forecast_chart_title">7 Günlük FWI Tahmini</div>
+        <canvas id="tahmin-grafik"></canvas>
+      </div>
+    </div>
+    <div class="tahmin-grid" id="tahmin-kartlar"></div>
+  </div>
+
+</div><!-- sayfa-tahmin -->
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SAYFA 4: DOĞRULAMA                        -->
+<!-- ══════════════════════════════════════════ -->
+<div class="sayfa" id="sayfa-dogrulama">
+
+  <div class="hero">
+    <h1 data-i18n="valid_title">Model Doğrulama</h1>
+    <p data-i18n="valid_desc">Türkiye'de gerçekleşen büyük orman yangını olaylarında FWI hesabı yapılır. Sonuçlar tehlike sınıfı açısından beklentilerle karşılaştırılır.</p>
+  </div>
+
+  <!-- BÖLÜM 1: Van Wagner Referans Testi -->
+  <div style="margin-bottom:32px">
+    <div class="yontem-bolum" style="margin-bottom:16px">
+      <h2 data-i18n="valid_ref_title">1. Van Wagner (1987) Referans Testi</h2>
+    </div>
+    <div class="bilgi-kart" style="margin-bottom:16px">
+      <h3 data-i18n="valid_formula_title">Formül Doğruluğu</h3>
+      <p data-i18n="valid_formula_desc" data-i18n-html="1">Van Wagner (1987) yayınında Tablo 1 olarak verilen referans girdi/çıktı değerleriyle karşılaştırma yapılır. Hesaplanan değerler beklenen değerlerden <strong>±0.1</strong> sapma içindeyse test geçer.</p>
+      <div style="margin-top:10px;font-size:0.82rem;color:var(--text-muted)">
+        Girdi: T=17°C, H=42%, W=25 km/h, r=0 mm, Ay=7 &nbsp;|&nbsp; FFMC₀=85, DMC₀=6, DC₀=15
+      </div>
+    </div>
+    <button class="basla-btn" id="ref-btn" onclick="referansCalistir()" data-i18n="btn_run_ref">Referans Testini Çalıştır</button>
+    <div id="ref-sonuc-alani" style="display:none; margin-top:20px">
+      <div id="ref-tablo"></div>
+    </div>
+  </div>
+
+  <!-- BÖLÜM 2: Gerçek Yangın Olayları -->
+  <div class="yontem-bolum" style="margin-bottom:16px">
+    <h2 data-i18n="valid_fire_title">2. Gerçek Yangın Olayları</h2>
+  </div>
+  <div class="bilgi-grid" style="margin-bottom:24px">
+    <div class="bilgi-kart">
+      <h3 data-i18n="valid_events_title">Test Olayları</h3>
+      <ul class="komponent-liste" style="gap:10px">
+        <li><span class="komponent-badge">1</span><span data-i18n="event_1">Manavgat Yangını — 28 Temmuz 2021, Antalya</span></li>
+        <li><span class="komponent-badge">2</span><span data-i18n="event_2">Marmaris Yangını — 30 Temmuz 2021, Muğla</span></li>
+        <li><span class="komponent-badge">3</span><span data-i18n="event_3">İzmir Yangını — 19 Ağustos 2019, İzmir</span></li>
+      </ul>
+    </div>
+    <div class="bilgi-kart">
+      <h3 data-i18n="valid_method_title">Yöntem</h3>
+      <p data-i18n="valid_method_desc" data-i18n-html="1">Her olay için Ocak 1'den yangın gününe kadar FWI durumu biriktirilir. Yangın günü öğlen 12:00 Open-Meteo verisi kullanılır. Beklenti: tüm olayların <strong>Çok Yüksek</strong> veya <strong>Aşırı</strong> sınıfına girmesi.</p>
+    </div>
+  </div>
+
+  <button class="basla-btn" id="test-btn" onclick="testCalistir()" data-i18n="btn_run_tests">Yangın Testlerini Çalıştır</button>
+
+  <div id="test-sonuc-alani" style="display:none; margin-top:24px">
+    <div id="test-kartlar"></div>
+  </div>
+
+</div>
+
+<footer>
+  Van Wagner (1987) · Canadian Forest Fire Weather Index System<br>
+  <span data-i18n="footer_text">Meteoroloji Mühendisliği Tasarım Projesi · Open-Meteo Saatlik Veri</span>
+</footer>
+
+</div><!-- main -->
+
+<script>
+  // ═══ GLOBAL STATE ═══
+  let fwiChart = null;
+  let sonManuelSonuc = null;
+  let sonManuelGirdi = null;
+  let sonCokluSatirlar = null;
+  let sonCokluMeta = null;
+  let currentLang = 'tr';
+
+  // ═══ SIDEBAR TOGGLE (NEW for v2) ═══
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('acik');
+    document.getElementById('overlay').classList.toggle('acik');
+  }
+
+  /* ═══════════ i18n TRANSLATIONS ═══════════ */
+  const I18N = {
+    tr: {
+      nav_subtitle: "Yangın Erken Uyarı Sistemi",
+      nav_about: "Proje Hakkında",
+      nav_calc: "Hesaplayıcı",
+      nav_method: "Hesaplama Yöntemi",
+      nav_valid: "Doğrulama",
+      hero_title: "🔥 Orman Yangını Erken Uyarı Sistemi",
+      hero_desc: "Meteorolojik verilerden gerçek zamanlı orman yangını tehlike seviyesi hesaplayan sistem. Van Wagner (1987) Kanada Orman Yangını Hava İndeksi yöntemini esas alır.",
+      card_about_title: "Proje Hakkında",
+      card_about_p1: "Bu sistem, Sayın <strong>Prof. Dr. Levent ŞAYLAN</strong> danışmanlığında <strong>İklim Bilimi ve Meteoroloji Mühendisliği Tasarım Projesi</strong> kapsamında geliştirilmiştir. Orman yangını erken uyarı sisteminin FWI hesaplama bileşenini oluşturmaktadır.",
+      card_about_p2: "Hesaplamalar tamamen <strong>Van Wagner (1987)</strong> referans formüllerine dayanmaktadır. Open-Meteo saatlik yeniden analiz verisiyle otomatik veri çekimi desteklenmektedir.",
+      card_components_title: "FWI Bileşenleri",
+      comp_ffmc: "İnce üst tabaka yanıcı madde nem kodu — yüzey tutuşması",
+      comp_dmc: "Döküntü nem kodu — orta derinlik yakıtı",
+      comp_dc: "Derin organik tabaka nem kodu — uzun süreli kuraklık",
+      comp_isi: "Başlangıç yayılma indeksi",
+      comp_bui: "Birikmiş yanıcı madde indeksi",
+      comp_fwi: "Yangın hava indeksi — nihai çıktı",
+      card_risk_title: "Tehlike Sınıfları",
+      risk_low: "Düşük", risk_moderate: "Orta", risk_high: "Yüksek",
+      risk_very_high: "Çok Yüksek", risk_extreme: "Aşırı",
+      card_datasrc_title: "Veri Kaynağı",
+      card_datasrc_desc: "Open-Meteo saatlik yeniden analiz verisi — <strong style=\"color:var(--text)\">öğlen 12:00 LST</strong> anlık değerler",
+      data_temp: "Sıcaklık", data_rh: "Bağıl Nem", data_wind: "Rüzgar", data_precip: "Yağış",
+      data_temp_desc: "12:00 LST anlık · °C", data_rh_desc: "12:00 LST anlık · %",
+      data_wind_desc: "12:00 LST anlık · km/h", data_precip_desc: "Günlük toplam · mm",
+      flow_title: "Hesaplama Akışı",
+      flow_input: "Girdi", flow_ffmc: "Üst tabaka", flow_dmc: "Döküntü", flow_dc: "Derin tabaka",
+      flow_isi: "Yayılma", flow_bui: "Birikim", flow_fwi: "Sonuç",
+      btn_goto_calc: "Hesaplayıcıya Geç →",
+      tab_manual: "Manuel Giriş", tab_auto: "Otomatik Veri Çekimi",
+      subtab_single: "Tek Gün", subtab_csv: "CSV Dosyası",
+      label_temp: "Sıcaklık (°C)", label_rh: "Bağıl Nem (%)",
+      label_wind: "Rüzgar (km/h)", label_precip: "Yağış (mm)", label_month: "Ay",
+      month_1: "Ocak", month_2: "Şubat", month_3: "Mart", month_4: "Nisan",
+      month_5: "Mayıs", month_6: "Haziran", month_7: "Temmuz", month_8: "Ağustos",
+      month_9: "Eylül", month_10: "Ekim", month_11: "Kasım", month_12: "Aralık",
+      prev_day_summary: "⚙ Önceki Gün Değerleri (Gelişmiş)",
+      label_lat_optional: "Enlem (isteğe bağlı — Le/Lf düzeltmesi için)",
+      placeholder_lat: "örn. 37.5 (Türkiye için boş bırakabilirsiniz)",
+      placeholder_lat_short: "örn. 37.5",
+      btn_calculate: "Hesapla",
+      csv_format_info: "CSV formatı: <code>tarih,temp,rh,wind,precip</code> — tarih YYYYMMDD, sıcaklık °C, bağıl nem %, rüzgar km/h, yağış mm.",
+      csv_download_sample: "Örnek indir",
+      csv_click: "CSV dosyası seçmek için tıkla",
+      csv_drag: "veya sürükle bırak",
+      csv_initial_values: "⚙ Başlangıç Değerleri",
+      btn_csv_calc: "CSV Yükle ve Hesapla",
+      auto_title: "Open-Meteo Otomatik Veri",
+      auto_info: "Open-Meteo saatlik veriden <strong>öğlen 12:00</strong> anlık sıcaklık, nem ve rüzgar değerleri alınır. Yağış günlük toplam olarak hesaplanır. Başlangıç değerleri Ocak 1'den ısıtılarak hesaplanır.",
+      label_lat: "Enlem", label_lon: "Boylam",
+      label_start: "Başlangıç", label_end: "Bitiş",
+      btn_fetch_calc: "Veri Çek ve Hesapla",
+      btn_download_pdf: "Rapor İndir (PDF)",
+      idx_ffmc: "İnce Üst Tabaka", idx_dmc: "Döküntü Nemi", idx_dc: "Derin Organik Tabaka",
+      idx_isi: "Başlangıç Yayılma", idx_bui: "Birikmiş Yanıcı Madde", idx_dsr: "Günlük Şiddet Oranı",
+      stat_max: "En Yüksek FWI", stat_avg: "Ortalama FWI", stat_avg_desc: "dönem ortalaması",
+      stat_extreme: "Aşırı Gün", stat_very_high: "Çok Yüksek +",
+      chart_title: "FWI Zaman Serisi",
+      th_date: "Tarih", th_temp: "Sıcaklık (°C)", th_rh: "Nem (%)", th_wind: "Rüzgar (km/h)", th_precip: "Yağış (mm)", th_class: "Sınıf",
+      method_title: "Hesaplama Yöntemi",
+      method_desc: "Van Wagner (1987) — Canadian Forest Fire Weather Index System. Her bileşen için kullanılan girdiler ve adım adım formüller.",
+      valid_title: "Model Doğrulama",
+      valid_desc: "Türkiye'de gerçekleşen büyük orman yangını olaylarında FWI hesabı yapılır. Sonuçlar tehlike sınıfı açısından beklentilerle karşılaştırılır.",
+      valid_ref_title: "1. Van Wagner (1987) Referans Testi",
+      valid_formula_title: "Formül Doğruluğu",
+      valid_formula_desc: "Van Wagner (1987) yayınında Tablo 1 olarak verilen referans girdi/çıktı değerleriyle karşılaştırma yapılır. Hesaplanan değerler beklenen değerlerden <strong>±0.1</strong> sapma içindeyse test geçer.",
+      btn_run_ref: "Referans Testini Çalıştır",
+      valid_fire_title: "2. Gerçek Yangın Olayları",
+      valid_events_title: "Test Olayları",
+      valid_method_title: "Yöntem",
+      valid_method_desc: "Her olay için Ocak 1'den yangın gününe kadar FWI durumu biriktirilir. Yangın günü öğlen 12:00 Open-Meteo verisi kullanılır. Beklenti: tüm olayların <strong>Çok Yüksek</strong> veya <strong>Aşırı</strong> sınıfına girmesi.",
+      btn_run_tests: "Yangın Testlerini Çalıştır",
+      event_1: "Manavgat Yangını — 28 Temmuz 2021, Antalya",
+      event_2: "Marmaris Yangını — 30 Temmuz 2021, Muğla",
+      event_3: "İzmir Yangını — 19 Ağustos 2019, İzmir",
+      footer_text: "Meteoroloji Mühendisliği Tasarım Projesi · Open-Meteo Saatlik Veri",
+      sinif_dusuk: "DÜŞÜK", sinif_orta: "ORTA", sinif_yuksek: "YÜKSEK",
+      sinif_cok_yuksek: "ÇOK YÜKSEK", sinif_asiri: "AŞIRI",
+      aciklama_dusuk: "Yangın riski düşük", aciklama_orta: "Dikkatli olunmalı",
+      aciklama_yuksek: "Yüksek yangın riski", aciklama_cok_yuksek: "Çok yüksek yangın riski",
+      aciklama_asiri: "Aşırı tehlike — kritik koşullar",
+      tablo_sinif_dusuk: "Düşük", tablo_sinif_orta: "Orta", tablo_sinif_yuksek: "Yüksek",
+      tablo_sinif_cok_yuksek: "Çok Y.", tablo_sinif_asiri: "Aşırı",
+      tooltip_classes: ["Düşük","Orta","Yüksek","Çok Yüksek","Aşırı"],
+      hata_bos: "Tüm alanları doldurun.",
+      hata_baglanti: "Sunucuya bağlanılamadı: ",
+      hata_genel: "Hata: ",
+      hata_pdf: "PDF oluşturulamadı",
+      hata_pdf_indir: "PDF indirme hatası: ",
+      btn_fetching: "Veri çekiliyor...",
+      btn_calculating: "Hesaplanıyor...",
+      btn_test_running: "Hesaplanıyor... (bu işlem ~1 dakika sürebilir)",
+      btn_test_rerun: "Testleri Yeniden Çalıştır",
+      btn_error: "Hata oluştu",
+      btn_conn_error: "Bağlantı hatası",
+      btn_server_error: "Sunucu hatası",
+      ref_all_pass: "✓ Tüm değerler referansla uyumlu",
+      ref_fail: "✗ Sapma tespit edildi",
+      ref_tolerance: "Van Wagner (1987) — tolerans: ±0.1",
+      ref_col_index: "İndeks", ref_col_expected: "Beklenen",
+      ref_col_computed: "Hesaplanan", ref_col_diff: "Fark", ref_col_status: "Durum",
+      ref_steps_title: "Ara Hesaplama Adımları",
+      beklenti_ok: "✓ Beklenti karşılandı",
+      beklenti_fail: "✗ Beklentinin altında",
+      csv_hata: "Hata: geçerli veri bulunamadı",
+      nav_forecast: "7 Günlük Tahmin",
+      forecast_title: "7 Günlük FWI Tahmini",
+      forecast_desc: "Open-Meteo hava tahmin verisini kullanarak önümüzdeki 7 gün için yangın hava indeksi hesaplar. Haritadan konum seçin ve tahmini başlatın.",
+      map_hint: "Haritaya tıklayarak konum seçin",
+      forecast_location: "Seçilen konum:",
+      btn_forecast: "Konum Seçin →",
+      btn_forecast_ready: "Tahmini Hesapla",
+      btn_forecast_loading: "Tahmin hesaplanıyor...",
+      forecast_7day: "7 günlük",
+      forecast_max_class: "En Yüksek Sınıf",
+      forecast_risky_days: "Riskli Gün",
+      forecast_chart_title: "7 Günlük FWI Tahmini",
+      forecast_today: "Bugün",
+      forecast_tomorrow: "Yarın",
+      forecast_days: ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"],
+    },
+    en: {
+      nav_subtitle: "Fire Early Warning System",
+      nav_about: "About",
+      nav_calc: "Calculator",
+      nav_method: "Methodology",
+      nav_valid: "Validation",
+      hero_title: "🔥 Forest Fire Early Warning System",
+      hero_desc: "A system that calculates real-time forest fire danger levels from meteorological data. Based on the Van Wagner (1987) Canadian Forest Fire Weather Index method.",
+      card_about_title: "About the Project",
+      card_about_p1: "This system was developed under the supervision of <strong>Prof. Dr. Levent ŞAYLAN</strong> as a <strong>Climate Science and Meteorological Engineering Design Project</strong>. It forms the FWI calculation component of a forest fire early warning system.",
+      card_about_p2: "All calculations are based on <strong>Van Wagner (1987)</strong> reference formulas. Automatic data retrieval is supported via Open-Meteo hourly reanalysis data.",
+      card_components_title: "FWI Components",
+      comp_ffmc: "Fine Fuel Moisture Code — affects surface ignition",
+      comp_dmc: "Duff Moisture Code — medium-depth fuel layer",
+      comp_dc: "Drought Code — deep soil moisture",
+      comp_isi: "Initial Spread Index",
+      comp_bui: "Buildup Index",
+      comp_fwi: "Fire Weather Index — final output",
+      card_risk_title: "Danger Classes",
+      risk_low: "Low", risk_moderate: "Moderate", risk_high: "High",
+      risk_very_high: "Very High", risk_extreme: "Extreme",
+      card_datasrc_title: "Data Source",
+      card_datasrc_desc: "Open-Meteo hourly reanalysis data — <strong style=\"color:var(--text)\">noon 12:00 LST</strong> instantaneous values",
+      data_temp: "Temperature", data_rh: "Relative Humidity", data_wind: "Wind", data_precip: "Precipitation",
+      data_temp_desc: "12:00 LST instant · °C", data_rh_desc: "12:00 LST instant · %",
+      data_wind_desc: "12:00 LST instant · km/h", data_precip_desc: "Daily total · mm",
+      flow_title: "Calculation Flow",
+      flow_input: "Input", flow_ffmc: "Fine fuel", flow_dmc: "Duff", flow_dc: "Drought",
+      flow_isi: "Spread", flow_bui: "Buildup", flow_fwi: "Result",
+      btn_goto_calc: "Go to Calculator →",
+      tab_manual: "Manual Input", tab_auto: "Automatic Data Fetch",
+      subtab_single: "Single Day", subtab_csv: "CSV File",
+      label_temp: "Temperature (°C)", label_rh: "Relative Humidity (%)",
+      label_wind: "Wind Speed (km/h)", label_precip: "Precipitation (mm)", label_month: "Month",
+      month_1: "January", month_2: "February", month_3: "March", month_4: "April",
+      month_5: "May", month_6: "June", month_7: "July", month_8: "August",
+      month_9: "September", month_10: "October", month_11: "November", month_12: "December",
+      prev_day_summary: "⚙ Previous Day Values (Advanced)",
+      label_lat_optional: "Latitude (optional — for Le/Lf correction)",
+      placeholder_lat: "e.g. 37.5 (leave empty for Turkey default)",
+      placeholder_lat_short: "e.g. 37.5",
+      btn_calculate: "Calculate",
+      csv_format_info: "CSV format: <code>tarih,temp,rh,wind,precip</code> — date YYYYMMDD, temp °C, RH %, wind km/h, precip mm.",
+      csv_download_sample: "Download sample",
+      csv_click: "Click to select a CSV file",
+      csv_drag: "or drag and drop",
+      csv_initial_values: "⚙ Initial Values",
+      btn_csv_calc: "Upload CSV & Calculate",
+      auto_title: "Open-Meteo Automatic Data",
+      auto_info: "From Open-Meteo hourly data, <strong>noon 12:00</strong> instantaneous temperature, humidity, and wind values are used. Precipitation is calculated as daily total. Initial values are warmed up from January 1st.",
+      label_lat: "Latitude", label_lon: "Longitude",
+      label_start: "Start Date", label_end: "End Date",
+      btn_fetch_calc: "Fetch Data & Calculate",
+      btn_download_pdf: "Download Report (PDF)",
+      idx_ffmc: "Fine Fuel Moisture", idx_dmc: "Duff Moisture", idx_dc: "Drought Code",
+      idx_isi: "Initial Spread", idx_bui: "Buildup Index", idx_dsr: "Daily Severity Rating",
+      stat_max: "Highest FWI", stat_avg: "Average FWI", stat_avg_desc: "period average",
+      stat_extreme: "Extreme Days", stat_very_high: "Very High +",
+      chart_title: "FWI Time Series",
+      th_date: "Date", th_temp: "Temp (°C)", th_rh: "RH (%)", th_wind: "Wind (km/h)", th_precip: "Precip (mm)", th_class: "Class",
+      method_title: "Calculation Methodology",
+      method_desc: "Van Wagner (1987) — Canadian Forest Fire Weather Index System. Inputs and step-by-step formulas for each component.",
+      valid_title: "Model Validation",
+      valid_desc: "FWI calculations are performed for major forest fire events in Turkey. Results are compared with expectations in terms of danger class.",
+      valid_ref_title: "1. Van Wagner (1987) Reference Test",
+      valid_formula_title: "Formula Accuracy",
+      valid_formula_desc: "Comparison against reference input/output values given as Table 1 in Van Wagner (1987). The test passes if computed values are within <strong>±0.1</strong> of expected values.",
+      btn_run_ref: "Run Reference Test",
+      valid_fire_title: "2. Real Fire Events",
+      valid_events_title: "Test Events",
+      valid_method_title: "Method",
+      valid_method_desc: "For each event, FWI state is accumulated from January 1st to the fire date. Noon 12:00 Open-Meteo data is used for the fire day. Expectation: all events should fall in <strong>Very High</strong> or <strong>Extreme</strong> class.",
+      btn_run_tests: "Run Fire Tests",
+      event_1: "Manavgat Fire — July 28, 2021, Antalya",
+      event_2: "Marmaris Fire — July 30, 2021, Muğla",
+      event_3: "İzmir Fire — August 19, 2019, İzmir",
+      footer_text: "Meteorological Engineering Design Project · Open-Meteo Hourly Data",
+      sinif_dusuk: "LOW", sinif_orta: "MODERATE", sinif_yuksek: "HIGH",
+      sinif_cok_yuksek: "VERY HIGH", sinif_asiri: "EXTREME",
+      aciklama_dusuk: "Low fire risk", aciklama_orta: "Caution advised",
+      aciklama_yuksek: "High fire risk", aciklama_cok_yuksek: "Very high fire risk",
+      aciklama_asiri: "Extreme danger — critical conditions",
+      tablo_sinif_dusuk: "Low", tablo_sinif_orta: "Moderate", tablo_sinif_yuksek: "High",
+      tablo_sinif_cok_yuksek: "V.High", tablo_sinif_asiri: "Extreme",
+      tooltip_classes: ["Low","Moderate","High","Very High","Extreme"],
+      hata_bos: "Please fill in all fields.",
+      hata_baglanti: "Could not connect to server: ",
+      hata_genel: "Error: ",
+      hata_pdf: "Could not generate PDF",
+      hata_pdf_indir: "PDF download error: ",
+      btn_fetching: "Fetching data...",
+      btn_calculating: "Calculating...",
+      btn_test_running: "Calculating... (this may take ~1 minute)",
+      btn_test_rerun: "Re-run Tests",
+      btn_error: "Error occurred",
+      btn_conn_error: "Connection error",
+      btn_server_error: "Server error",
+      ref_all_pass: "✓ All values match the reference",
+      ref_fail: "✗ Deviation detected",
+      ref_tolerance: "Van Wagner (1987) — tolerance: ±0.1",
+      ref_col_index: "Index", ref_col_expected: "Expected",
+      ref_col_computed: "Computed", ref_col_diff: "Diff", ref_col_status: "Status",
+      ref_steps_title: "Intermediate Calculation Steps",
+      beklenti_ok: "✓ Expectation met",
+      beklenti_fail: "✗ Below expectation",
+      csv_hata: "Error: no valid data found",
+      nav_forecast: "7-Day Forecast",
+      forecast_title: "7-Day FWI Forecast",
+      forecast_desc: "Calculates the Fire Weather Index for the next 7 days using Open-Meteo weather forecast data. Select a location on the map and start the forecast.",
+      map_hint: "Click on the map to select a location",
+      forecast_location: "Selected location:",
+      btn_forecast: "Select Location →",
+      btn_forecast_ready: "Calculate Forecast",
+      btn_forecast_loading: "Calculating forecast...",
+      forecast_7day: "7-day",
+      forecast_max_class: "Highest Class",
+      forecast_risky_days: "Risky Days",
+      forecast_chart_title: "7-Day FWI Forecast",
+      forecast_today: "Today",
+      forecast_tomorrow: "Tomorrow",
+      forecast_days: ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+    }
+  };
+
+  function t(key) { return I18N[currentLang][key] || I18N.tr[key] || key; }
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    document.getElementById("lang-opt-tr").classList.toggle("aktif", lang === "tr");
+    document.getElementById("lang-opt-en").classList.toggle("aktif", lang === "en");
+
+    // Update all elements with data-i18n
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      const val = I18N[lang][key];
+      if (!val) return;
+      if (el.hasAttribute("data-i18n-html")) {
+        el.innerHTML = val;
+      } else {
+        el.textContent = val;
+      }
+    });
+
+    // Update placeholders
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+      const key = el.getAttribute("data-i18n-placeholder");
+      const val = I18N[lang][key];
+      if (val) el.placeholder = val;
+    });
+
+    // Update page title
+    document.title = lang === "en"
+      ? "FWI - Forest Fire Early Warning System"
+      : "FWI - Orman Yangını Erken Uyarı Sistemi";
+
+    localStorage.setItem("fwi-lang", lang);
+  }
+
+  const SINIF_MAP = {
+    "Dusuk":      { tr: () => t("sinif_dusuk"),      renk: "Dusuk",     aciklama: () => t("aciklama_dusuk") },
+    "Orta":       { tr: () => t("sinif_orta"),        renk: "Orta",      aciklama: () => t("aciklama_orta") },
+    "Yuksek":     { tr: () => t("sinif_yuksek"),      renk: "Yuksek",    aciklama: () => t("aciklama_yuksek") },
+    "Cok Yuksek": { tr: () => t("sinif_cok_yuksek"),  renk: "CokYuksek", aciklama: () => t("aciklama_cok_yuksek") },
+    "Asiri":      { tr: () => t("sinif_asiri"),       renk: "Asiri",     aciklama: () => t("aciklama_asiri") },
+  };
+
+  function sayfaAc(id, el) {
+    document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("aktif"));
+    document.querySelectorAll(".sayfa").forEach(s => s.classList.remove("aktif"));
+    el.classList.add("aktif");
+    document.getElementById("sayfa-" + id).classList.add("aktif");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Close sidebar on mobile after navigation
+    document.getElementById('sidebar').classList.remove('acik');
+    document.getElementById('overlay').classList.remove('acik');
+  }
+
+  function sekmeAc(id, el) {
+    document.querySelectorAll(".sekme").forEach(s => s.classList.remove("aktif"));
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("aktif"));
+    el.classList.add("aktif");
+    document.getElementById("panel-" + id).classList.add("aktif");
+    document.getElementById("sonuc-alani").style.display = "none";
+    document.getElementById("nasa-sonuc-alani").style.display = "none";
+    document.getElementById("hata-mesaji").style.display = "none";
+  }
+
+  function altSekmeAc(id, el) {
+    document.querySelectorAll(".alt-sekme").forEach(s => s.classList.remove("aktif"));
+    document.querySelectorAll(".alt-panel").forEach(p => p.classList.remove("aktif"));
+    el.classList.add("aktif");
+    document.getElementById("alt-" + id).classList.add("aktif");
+    document.getElementById("sonuc-alani").style.display = "none";
+    document.getElementById("nasa-sonuc-alani").style.display = "none";
+  }
+
+  async function hesapla() {
+    document.getElementById("hata-mesaji").style.display = "none";
+    const payload = {
+      temp:   parseFloat(document.getElementById("temp").value),
+      rh:     parseFloat(document.getElementById("rh").value),
+      wind:   parseFloat(document.getElementById("wind").value),
+      precip: parseFloat(document.getElementById("precip").value),
+      month:  parseInt(document.getElementById("month").value),
+      ffmc0:  parseFloat(document.getElementById("ffmc0").value),
+      dmc0:   parseFloat(document.getElementById("dmc0").value),
+      dc0:    parseFloat(document.getElementById("dc0").value),
+    };
+    const latVal = document.getElementById("manuel-lat").value;
+    if (latVal !== "") payload.lat = parseFloat(latVal);
+    if (Object.values(payload).some(v => isNaN(v))) { gosterHata(t("hata_bos")); return; }
+    try {
+      const res  = await fetch("/hesapla", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const json = await res.json();
+      if (!json.ok) { gosterHata(json.hata); return; }
+      gosterSonuc(json.sonuc);
+    } catch (e) { gosterHata(t("hata_baglanti") + e.message); }
+  }
+
+  async function nasaHesapla() {
+    const btn = document.getElementById("nasa-btn");
+    btn.disabled = true;
+    btn.textContent = t("btn_fetching");
+    document.getElementById("hata-mesaji").style.display = "none";
+    document.getElementById("nasa-sonuc-alani").style.display = "none";
+
+    const payload = {
+      lat:       parseFloat(document.getElementById("lat").value),
+      lon:       parseFloat(document.getElementById("lon").value),
+      baslangic: document.getElementById("baslangic").value.replace(/-/g, ""),
+      bitis:     document.getElementById("bitis").value.replace(/-/g, ""),
+    };
+
+    try {
+      const res  = await fetch("/nasa", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const json = await res.json();
+      if (!json.ok) { gosterHata(json.hata); return; }
+      sonCokluMeta = {
+        lat: payload.lat, lon: payload.lon,
+        baslangic: document.getElementById("baslangic").value,
+        bitis: document.getElementById("bitis").value,
+      };
+      gosterNasaTablo(json.sonuclar);
+    } catch (e) {
+      gosterHata(t("hata_genel") + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = t("btn_fetch_calc");
+    }
+  }
+
+  function gosterNasaTablo(satirlar) {
+    sonCokluSatirlar = satirlar;
+    const tbody = document.getElementById("nasa-tablo-govde");
+    tbody.innerHTML = "";
+    const sinifRenk = { "Dusuk": "sc-Dusuk", "Orta": "sc-Orta", "Yuksek": "sc-Yuksek", "Cok Yuksek": "sc-CokYuksek", "Asiri": "sc-Asiri" };
+    const sinifTr   = {
+      "Dusuk": t("tablo_sinif_dusuk"), "Orta": t("tablo_sinif_orta"),
+      "Yuksek": t("tablo_sinif_yuksek"), "Cok Yuksek": t("tablo_sinif_cok_yuksek"),
+      "Asiri": t("tablo_sinif_asiri")
+    };
+
+    for (const r of satirlar) {
+      const tarih = r.tarih.slice(0,4) + "-" + r.tarih.slice(4,6) + "-" + r.tarih.slice(6,8);
+      const renk  = sinifRenk[r.sinif] || "";
+      const tr    = sinifTr[r.sinif] || r.sinif;
+      tbody.innerHTML += `<tr>
+        <td>${tarih}</td><td>${r.temp.toFixed(1)}</td><td>${r.rh.toFixed(0)}</td>
+        <td>${r.wind_kmh.toFixed(1)}</td><td>${r.precip.toFixed(1)}</td>
+        <td>${r.ffmc}</td><td>${r.dmc}</td><td>${r.dc}</td>
+        <td>${r.isi}</td><td>${r.bui}</td><td>${r.fwi}</td>
+        <td><span class="sinif-hucre ${renk}">${tr}</span></td>
+      </tr>`;
+    }
+    gosterIstatistik(satirlar);
+    cizGrafik(satirlar);
+    document.getElementById("nasa-sonuc-alani").style.display = "block";
+    document.getElementById("nasa-sonuc-alani").scrollIntoView({ behavior: "smooth" });
+  }
+
+  function gosterIstatistik(satirlar) {
+    const fwiDegerleri = satirlar.map(r => r.fwi);
+    const maxFwi = Math.max(...fwiDegerleri);
+    const maxGun = satirlar.find(r => r.fwi === maxFwi);
+    const maxTarih = maxGun ? maxGun.tarih.slice(0,4) + "-" + maxGun.tarih.slice(4,6) + "-" + maxGun.tarih.slice(6,8) : "—";
+    const ort = fwiDegerleri.reduce((a, b) => a + b, 0) / fwiDegerleri.length;
+    const asiriGun = fwiDegerleri.filter(v => v >= 30).length;
+    const cokYuksekGun = fwiDegerleri.filter(v => v >= 20).length;
+
+    document.getElementById("stat-max").textContent = maxFwi.toFixed(1);
+    document.getElementById("stat-max-tarih").textContent = maxTarih;
+    document.getElementById("stat-ort").textContent = ort.toFixed(1);
+    document.getElementById("stat-asiri").textContent = asiriGun;
+    document.getElementById("stat-cok").textContent = cokYuksekGun;
+  }
+
+  function noktaRenk(v) {
+    if (v < 5)  return "#4ade80";
+    if (v < 10) return "#fbbf24";
+    if (v < 20) return "#fb923c";
+    if (v < 30) return "#f87171";
+    return "#c084fc";
+  }
+
+  function cizGrafik(satirlar) {
+    const labels = satirlar.map(r => r.tarih.slice(0,4) + "-" + r.tarih.slice(4,6) + "-" + r.tarih.slice(6,8));
+    const fwiDeger = satirlar.map(r => r.fwi);
+    const noktaRenkler = fwiDeger.map(noktaRenk);
+    const n = satirlar.length;
+
+    if (fwiChart) fwiChart.destroy();
+
+    const ctx = document.getElementById("fwi-grafik").getContext("2d");
+    fwiChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "FWI",
+            data: fwiDeger,
+            borderColor: "#f97316",
+            backgroundColor: "rgba(249,115,22,0.08)",
+            pointBackgroundColor: noktaRenkler,
+            pointBorderColor: noktaRenkler,
+            pointRadius: n > 90 ? 2 : 4,
+            pointHoverRadius: 6,
+            tension: 0.3,
+            fill: true,
+            borderWidth: 2,
+          },
+          { label: "Orta eşiği",   data: Array(n).fill(5),  borderColor: "#166534", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+          { label: "Yüksek eşiği", data: Array(n).fill(10), borderColor: "#713f12", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+          { label: "Çok Y. eşiği", data: Array(n).fill(20), borderColor: "#7c2d12", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+          { label: "Aşırı eşiği",  data: Array(n).fill(30), borderColor: "#7f1d1d", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "#111827",
+            borderColor: "#374151",
+            borderWidth: 1,
+            callbacks: {
+              label: ctx2 => ctx2.datasetIndex === 0
+                ? `FWI: ${ctx2.parsed.y}  (${t("tooltip_classes")[[5,10,20,30,Infinity].findIndex(v => ctx2.parsed.y < v)]})`
+                : null
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: "#9ca3af", maxTicksLimit: 12, maxRotation: 30, font: { size: 10 } },
+            grid: { color: "#1f2937" }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { color: "#9ca3af", font: { size: 11 } },
+            grid: { color: "#1f2937" }
+          }
+        }
+      }
+    });
+  }
+
+  function gosterSonuc(s) {
+    sonManuelSonuc = s;
+    sonManuelGirdi = {
+      temp:   document.getElementById("temp").value,
+      rh:     document.getElementById("rh").value,
+      wind:   document.getElementById("wind").value,
+      precip: document.getElementById("precip").value,
+      month:  document.getElementById("month").value,
+      lat:    document.getElementById("manuel-lat").value || null,
+    };
+    const info = SINIF_MAP[s.sinif] || { tr: () => s.sinif, renk: "Orta", aciklama: () => "" };
+    const banner = document.getElementById("sinif-banner");
+    banner.className = "sinif-banner renk-" + info.renk;
+    document.getElementById("sinif-adi").textContent = info.tr();
+    document.getElementById("fwi-deger").textContent = "FWI " + s.fwi;
+    document.getElementById("sinif-aciklama").textContent = info.aciklama();
+    document.getElementById("val-ffmc").textContent = s.ffmc;
+    document.getElementById("val-dmc").textContent  = s.dmc;
+    document.getElementById("val-dc").textContent   = s.dc;
+    document.getElementById("val-isi").textContent  = s.isi;
+    document.getElementById("val-bui").textContent  = s.bui;
+    document.getElementById("val-dsr").textContent  = s.dsr;
+    document.getElementById("sonuc-alani").style.display = "block";
+    document.getElementById("sonuc-alani").scrollIntoView({ behavior: "smooth" });
+  }
+
+  let csvSatirlar = [];
+
+  function csvDosyaSecildi(input) {
+    const dosya = input.files[0];
+    if (!dosya) return;
+    const okuyucu = new FileReader();
+    okuyucu.onload = e => {
+      const satirlar = csvParse(e.target.result);
+      if (satirlar.length === 0) {
+        document.getElementById("csv-dosya-adi").textContent = t("csv_hata");
+        return;
+      }
+      csvSatirlar = satirlar;
+      const alan = document.getElementById("csv-yukle-alani");
+      alan.classList.add("dolu");
+      document.getElementById("csv-dosya-adi").textContent = `✓ ${dosya.name} — ${satirlar.length} satır yüklendi`;
+      document.getElementById("csv-btn").disabled = false;
+    };
+    okuyucu.readAsText(dosya);
+  }
+
+  function csvParse(metin) {
+    const satirlar = metin.trim().split(/\r?\n/).filter(s => s.trim());
+    if (satirlar.length < 2) return [];
+    const basliklar = satirlar[0].toLowerCase().split(",").map(h => h.trim());
+    const idx = {
+      tarih:  basliklar.indexOf("tarih"),
+      temp:   basliklar.indexOf("temp"),
+      rh:     basliklar.indexOf("rh"),
+      wind:   basliklar.indexOf("wind"),
+      precip: basliklar.indexOf("precip"),
+    };
+    if (idx.temp < 0 || idx.rh < 0 || idx.wind < 0 || idx.precip < 0) return [];
+    const sonuc = [];
+    for (let i = 1; i < satirlar.length; i++) {
+      const parcalar = satirlar[i].split(",").map(p => p.trim());
+      if (parcalar.length < 4) continue;
+      const satir = {
+        temp:   parseFloat(parcalar[idx.temp]),
+        rh:     parseFloat(parcalar[idx.rh]),
+        wind:   parseFloat(parcalar[idx.wind]),
+        precip: parseFloat(parcalar[idx.precip]),
+      };
+      if (idx.tarih >= 0) satir.tarih = parcalar[idx.tarih];
+      if (Object.values(satir).some(v => isNaN(v))) continue;
+      sonuc.push(satir);
+    }
+    return sonuc;
+  }
+
+  async function csvHesapla() {
+    if (!csvSatirlar.length) return;
+    document.getElementById("hata-mesaji").style.display = "none";
+    document.getElementById("nasa-sonuc-alani").style.display = "none";
+    const btn = document.getElementById("csv-btn");
+    btn.disabled = true; btn.textContent = t("btn_calculating");
+
+    const payload = {
+      satirlar: csvSatirlar,
+      ffmc0: parseFloat(document.getElementById("csv-ffmc0").value),
+      dmc0:  parseFloat(document.getElementById("csv-dmc0").value),
+      dc0:   parseFloat(document.getElementById("csv-dc0").value),
+    };
+    const csvLatVal = document.getElementById("csv-lat").value;
+    if (csvLatVal !== "") payload.lat = parseFloat(csvLatVal);
+
+    try {
+      const res  = await fetch("/csv", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const json = await res.json();
+      if (!json.ok) { gosterHata(json.hata); return; }
+      gosterNasaTablo(json.sonuclar);
+    } catch (e) {
+      gosterHata(t("hata_genel") + e.message);
+    } finally {
+      btn.disabled = false; btn.textContent = t("btn_csv_calc");
+    }
+  }
+
+  async function referansCalistir() {
+    const btn = document.getElementById("ref-btn");
+    btn.disabled = true;
+    btn.textContent = t("btn_calculating");
+    document.getElementById("ref-sonuc-alani").style.display = "none";
+    try {
+      const res  = await fetch("/referans");
+      const json = await res.json();
+      if (!json.ok) { btn.textContent = t("btn_error"); btn.disabled = false; return; }
+      gosterReferansSonucu(json.karsilastirma, json.adimlar);
+      document.getElementById("ref-sonuc-alani").style.display = "block";
+    } catch (e) {
+      btn.textContent = t("btn_server_error");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = t("btn_run_ref");
+    }
+  }
+
+  function gosterReferansSonucu(k, adimlar) {
+    const etiketler = {ffmc:"FFMC",dmc:"DMC",dc:"DC",isi:"ISI",bui:"BUI",fwi:"FWI"};
+    const tumGecti = Object.values(k).every(v => v.gecti);
+
+    let html = `<div style="margin-bottom:16px;padding:12px 16px;border-radius:8px;
+        background:${tumGecti?"#052e16":"#450a0a"};border:1px solid ${tumGecti?"#166534":"#7f1d1d"}">
+      <span style="font-size:1.05rem;font-weight:700;color:${tumGecti?"#4ade80":"#f87171"}">
+        ${tumGecti?t("ref_all_pass"):t("ref_fail")}
+      </span>
+      <span style="font-size:0.78rem;color:#9ca3af;margin-left:10px">${t("ref_tolerance")}</span>
+    </div>
+    <div style="overflow-x:auto;margin-bottom:24px">
+    <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+      <thead><tr style="border-bottom:1px solid #1f2937">
+        <th style="text-align:left;padding:8px 12px;color:#9ca3af">${t("ref_col_index")}</th>
+        <th style="text-align:right;padding:8px 12px;color:#9ca3af">${t("ref_col_expected")}</th>
+        <th style="text-align:right;padding:8px 12px;color:#9ca3af">${t("ref_col_computed")}</th>
+        <th style="text-align:right;padding:8px 12px;color:#9ca3af">${t("ref_col_diff")}</th>
+        <th style="text-align:center;padding:8px 12px;color:#9ca3af">${t("ref_col_status")}</th>
+      </tr></thead><tbody>`;
+    for (const [key, v] of Object.entries(k)) {
+      html += `<tr style="border-bottom:1px solid #1f2937">
+        <td style="padding:9px 12px;font-weight:700;color:#f97316">${etiketler[key]||key}</td>
+        <td style="padding:9px 12px;text-align:right;color:#9ca3af">${v.beklenen}</td>
+        <td style="padding:9px 12px;text-align:right;color:#e5e7eb;font-weight:600">${v.hesaplanan}</td>
+        <td style="padding:9px 12px;text-align:right;color:${v.gecti?"#4ade80":"#f87171"}">${v.fark}</td>
+        <td style="padding:9px 12px;text-align:center">${v.gecti?"✓":"✗"}</td>
+      </tr>`;
+    }
+    html += "</tbody></table></div>";
+
+    const adimAcikla = {
+      ffmc: [
+        ["m₀ = 147.2×(101−85)/(59.5+85)", adimlar.ffmc.mo],
+        ["Ed (kuruma denge nemi)",           adimlar.ffmc.ed],
+        ["Ew (ıslanma denge nemi)",          adimlar.ffmc.ew],
+        ["k₀d (hız katsayısı ham)",         adimlar.ffmc.k0d],
+        ["kd = k₀d × 0.581 × e^(0.0365×17)", adimlar.ffmc.kd],
+        ["m = Ed + (m₀−Ed) / 10^kd",        adimlar.ffmc.m],
+        ["FFMC = 59.5×(250−m)/(147.2+m)",   adimlar.ffmc.sonuc],
+      ],
+      dmc: [
+        ["Le (Temmuz, ≥30°N tablosu, index 6)", adimlar.dmc.Le],
+        ["K = 1.894×(17+1.1)×(100−42)×Le×0.0001", adimlar.dmc.K],
+        ["DMC = DMC₀ + K = 6 + K",           adimlar.dmc.sonuc],
+      ],
+      dc: [
+        ["Lf (Temmuz, ≥20°N tablosu, index 6)", adimlar.dc.Lf],
+        ["V = 0.36×(17+2.8) + Lf",           adimlar.dc.V],
+        ["DC = DC₀ + 0.5×V → " + adimlar.dc["DC_0+0.5V"], adimlar.dc.sonuc],
+      ],
+      isi: [
+        ["m (FFMC→nem)",   adimlar.isi.m],
+        ["fw = e^(0.05039×25)",  adimlar.isi.fw],
+        ["ff = 91.9×e^(−0.1386m)×(1+m⁵·³¹/49300000)", adimlar.isi.ff],
+        ["ISI = 0.208 × fw × ff", adimlar.isi.sonuc],
+      ],
+      bui: [
+        ["Kural: " + adimlar.bui.kural, ""],
+        ["BUI", adimlar.bui.sonuc],
+      ],
+      fwi: [
+        ["fd = 0.626×BUI^0.809 + 2", adimlar.fwi.fd],
+        ["B = 0.1 × ISI × fd",       adimlar.fwi.B],
+        ["FWI = e^(2.72×(0.434×ln(B))^0.647)", adimlar.fwi.sonuc],
+      ],
+    };
+
+    html += `<div style="font-size:0.75rem;color:#f97316;text-transform:uppercase;
+        letter-spacing:1px;margin-bottom:12px">${t("ref_steps_title")}</div>`;
+
+    for (const [idx, satirlar] of Object.entries(adimAcikla)) {
+      html += `<div style="background:#111827;border:1px solid #374151;border-radius:8px;
+          padding:12px 16px;margin-bottom:10px">
+        <div style="font-size:0.78rem;font-weight:700;color:#f97316;margin-bottom:10px">
+          ${etiketler[idx]}
+        </div>`;
+      for (const [aciklama, deger] of satirlar) {
+        html += `<div style="display:flex;justify-content:space-between;align-items:baseline;
+            padding:4px 0;border-bottom:1px solid #1f2937;gap:16px">
+          <span style="font-size:0.78rem;color:#9ca3af;font-family:monospace">${aciklama}</span>
+          <span style="font-size:0.85rem;font-weight:600;color:#e5e7eb;white-space:nowrap">
+            ${deger !== "" ? "= " + deger : ""}
+          </span>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+
+    document.getElementById("ref-tablo").innerHTML = html;
+  }
+
+  async function testCalistir() {
+    const btn = document.getElementById("test-btn");
+    btn.disabled = true;
+    btn.textContent = t("btn_test_running");
+    document.getElementById("test-sonuc-alani").style.display = "none";
+
+    try {
+      const res  = await fetch("/test");
+      const json = await res.json();
+      if (!json.ok) { btn.textContent = t("btn_error"); btn.disabled = false; return; }
+      gosterTestSonuclari(json.sonuclar);
+    } catch (e) {
+      btn.textContent = t("btn_conn_error");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = t("btn_test_rerun");
+    }
+  }
+
+  function gosterTestSonuclari(sonuclar) {
+    const kapsayici = document.getElementById("test-kartlar");
+    kapsayici.innerHTML = "";
+
+    const renkMap = {
+      "Dusuk":      { bg: "#052e16", renk: "#4ade80", tr: () => t("sinif_dusuk") },
+      "Orta":       { bg: "#422006", renk: "#fbbf24", tr: () => t("sinif_orta") },
+      "Yuksek":     { bg: "#431407", renk: "#fb923c", tr: () => t("sinif_yuksek") },
+      "Cok Yuksek": { bg: "#450a0a", renk: "#f87171", tr: () => t("sinif_cok_yuksek") },
+      "Asiri":      { bg: "#2e1065", renk: "#c084fc", tr: () => t("sinif_asiri") },
+    };
+
+    for (const s of sonuclar) {
+      const tarihGoster = s.tarih
+        ? s.tarih.slice(0,4) + "-" + s.tarih.slice(4,6) + "-" + s.tarih.slice(6,8)
+        : "—";
+
+      if (s.hata) {
+        kapsayici.innerHTML += `
+          <div class="test-kart">
+            <div class="test-kart-baslik">
+              <h3>${s.isim}</h3><span class="tarih">${tarihGoster} · ${s.yer || ""}</span>
+            </div>
+            <div class="test-hata">${t("hata_genel")}${s.hata}</div>
+          </div>`;
+        continue;
+      }
+
+      const info = renkMap[s.sinif] || { bg: "#111827", renk: "#e5e7eb", tr: () => s.sinif };
+      const beklenti = (s.sinif === "Asiri" || s.sinif === "Cok Yuksek")
+        ? t("beklenti_ok")
+        : t("beklenti_fail");
+
+      kapsayici.innerHTML += `
+        <div class="test-kart">
+          <div class="test-kart-baslik">
+            <h3>${s.isim}</h3>
+            <span class="tarih">${tarihGoster} · ${s.yer}</span>
+          </div>
+          <div class="test-meta">
+            <span>🌡 <strong>${s.temp}°C</strong></span>
+            <span>💧 <strong>${s.rh}%</strong></span>
+            <span>💨 <strong>${s.wind_kmh} km/h</strong></span>
+            <span>🌧 <strong>${s.precip} mm</strong></span>
+          </div>
+          <div class="test-indeksler">
+            <div class="test-idx"><div class="etiket">FFMC</div><div class="deger">${s.ffmc}</div></div>
+            <div class="test-idx"><div class="etiket">DMC</div><div class="deger">${s.dmc}</div></div>
+            <div class="test-idx"><div class="etiket">DC</div><div class="deger">${s.dc}</div></div>
+            <div class="test-idx"><div class="etiket">ISI</div><div class="deger">${s.isi}</div></div>
+            <div class="test-idx"><div class="etiket">BUI</div><div class="deger">${s.bui}</div></div>
+            <div class="test-idx"><div class="etiket">DSR</div><div class="deger">${s.dsr}</div></div>
+          </div>
+          <div class="test-sonuc" style="background:${info.bg};border:1px solid ${info.renk}40">
+            <div class="fwi-buyuk" style="color:${info.renk}">FWI ${s.fwi}</div>
+            <div class="sinif-adi" style="color:${info.renk}">${info.tr()}</div>
+            <div class="beklenti">${beklenti}</div>
+          </div>
+        </div>`;
+    }
+
+    document.getElementById("test-sonuc-alani").style.display = "block";
+    document.getElementById("test-sonuc-alani").scrollIntoView({ behavior: "smooth" });
+  }
+
+  function gosterHata(mesaj) {
+    const el = document.getElementById("hata-mesaji");
+    el.textContent = t("hata_genel") + mesaj;
+    el.style.display = "block";
+  }
+
+  async function manuelRaporIndir() {
+    if (!sonManuelSonuc) return;
+    const payload = { tip: "manuel", girdi: sonManuelGirdi, sonuc: sonManuelSonuc };
+    await pdfIndir(payload);
+  }
+
+  async function cokluRaporIndir() {
+    if (!sonCokluSatirlar || !sonCokluSatirlar.length) return;
+    const payload = { tip: "coklu", satirlar: sonCokluSatirlar, meta: sonCokluMeta || {} };
+    await pdfIndir(payload);
+  }
+
+  async function pdfIndir(payload) {
+    try {
+      const res = await fetch("/rapor-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) { gosterHata(t("hata_pdf")); return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "fwi_rapor.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      gosterHata(t("hata_pdf_indir") + e.message);
+    }
+  }
+
+  // ═══════════════════════════════════════════
+  //  LEAFLET MAP — Open-Meteo Panel
+  // ═══════════════════════════════════════════
+  let nasaMap = null, nasaMarker = null;
+  let tahminMap = null, tahminMarker = null;
+  let tahminChart = null;
+  let tahminLat = null, tahminLon = null;
+
+  function initNasaMap() {
+    if (nasaMap) return;
+    const container = document.getElementById("harita-nasa");
+    if (!container || container.offsetParent === null) return;
+    nasaMap = L.map(container, { scrollWheelZoom: true }).setView([36.62, 29.12], 6);
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+      attribution: '&copy; Esri', maxZoom: 18
+    }).addTo(nasaMap);
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 18
+    }).addTo(nasaMap);
+    nasaMarker = L.marker([36.62, 29.12], { draggable: true }).addTo(nasaMap);
+    nasaMarker.on("dragend", function() {
+      const pos = nasaMarker.getLatLng();
+      document.getElementById("lat").value = pos.lat.toFixed(4);
+      document.getElementById("lon").value = pos.lng.toFixed(4);
+    });
+    nasaMap.on("click", function(e) {
+      nasaMarker.setLatLng(e.latlng);
+      document.getElementById("lat").value = e.latlng.lat.toFixed(4);
+      document.getElementById("lon").value = e.latlng.lng.toFixed(4);
+    });
+    // Sync lat/lon inputs to map
+    ["lat","lon"].forEach(id => {
+      document.getElementById(id).addEventListener("change", function() {
+        const lat = parseFloat(document.getElementById("lat").value);
+        const lon = parseFloat(document.getElementById("lon").value);
+        if (!isNaN(lat) && !isNaN(lon)) {
+          nasaMarker.setLatLng([lat, lon]);
+          nasaMap.setView([lat, lon], nasaMap.getZoom());
+        }
+      });
+    });
+  }
+
+  // ═══════════════════════════════════════════
+  //  LEAFLET MAP — Tahmin (Forecast) Page
+  // ═══════════════════════════════════════════
+  function initTahminMap() {
+    if (tahminMap) return;
+    const container = document.getElementById("harita-tahmin");
+    if (!container || container.offsetParent === null) return;
+    tahminMap = L.map(container, { scrollWheelZoom: true }).setView([39.0, 35.0], 6);
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+      attribution: '&copy; Esri', maxZoom: 18
+    }).addTo(tahminMap);
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 18
+    }).addTo(tahminMap);
+    tahminMap.on("click", function(e) {
+      setTahminKonum(e.latlng.lat, e.latlng.lng, true);
+    });
+    // Sync manual inputs → map
+    ["tahmin-lat","tahmin-lon"].forEach(id => {
+      document.getElementById(id).addEventListener("change", function() {
+        const lat = parseFloat(document.getElementById("tahmin-lat").value);
+        const lon = parseFloat(document.getElementById("tahmin-lon").value);
+        if (!isNaN(lat) && !isNaN(lon)) {
+          setTahminKonum(lat, lon, true);
+        }
+      });
+    });
+  }
+
+  function setTahminKonum(lat, lon, panMap) {
+    tahminLat = lat;
+    tahminLon = lon;
+    // Update marker
+    if (tahminMarker) {
+      tahminMarker.setLatLng([lat, lon]);
+    } else if (tahminMap) {
+      tahminMarker = L.marker([lat, lon], { draggable: true }).addTo(tahminMap);
+      tahminMarker.on("dragend", function() {
+        const pos = tahminMarker.getLatLng();
+        setTahminKonum(pos.lat, pos.lng, false);
+      });
+    }
+    if (panMap && tahminMap) tahminMap.setView([lat, lon], Math.max(tahminMap.getZoom(), 8));
+    // Sync inputs
+    document.getElementById("tahmin-lat").value = lat.toFixed(4);
+    document.getElementById("tahmin-lon").value = lon.toFixed(4);
+    // Show info
+    document.getElementById("tahmin-konum-bilgi").style.display = "flex";
+    document.getElementById("tahmin-konum-text").textContent =
+      `${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E`;
+  }
+
+  async function tahminHesapla() {
+    // Read from inputs if map wasn't clicked
+    if (tahminLat === null || tahminLon === null) {
+      const latVal = parseFloat(document.getElementById("tahmin-lat").value);
+      const lonVal = parseFloat(document.getElementById("tahmin-lon").value);
+      if (isNaN(latVal) || isNaN(lonVal)) {
+        gosterHata(t("hata_bos"));
+        return;
+      }
+      setTahminKonum(latVal, lonVal, true);
+    }
+    const btn = document.getElementById("tahmin-btn");
+    btn.disabled = true;
+    btn.querySelector("span").textContent = t("btn_forecast_loading");
+    document.getElementById("tahmin-sonuc-alani").style.display = "none";
+
+    try {
+      const res = await fetch("/tahmin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lat: tahminLat, lon: tahminLon })
+      });
+      const json = await res.json();
+      if (!json.ok) { gosterHata(json.hata); return; }
+      gosterTahminSonuc(json.sonuclar);
+    } catch (e) {
+      gosterHata(t("hata_baglanti") + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.querySelector("span").textContent = t("btn_forecast_ready");
+    }
+  }
+
+  function gosterTahminSonuc(satirlar) {
+    // Stats
+    const fwiList = satirlar.map(r => r.fwi);
+    const maxFwi = Math.max(...fwiList);
+    const maxGun = satirlar.find(r => r.fwi === maxFwi);
+    const maxTarih = maxGun ? formatTarih(maxGun.tarih) : "—";
+    const ort = fwiList.reduce((a,b)=>a+b,0) / fwiList.length;
+    const riskli = fwiList.filter(v => v >= 10).length;
+
+    document.getElementById("tahmin-stat-max").textContent = maxFwi.toFixed(1);
+    document.getElementById("tahmin-stat-max-tarih").textContent = maxTarih;
+    document.getElementById("tahmin-stat-ort").textContent = ort.toFixed(1);
+    document.getElementById("tahmin-stat-risk").textContent = riskli;
+
+    // Max class
+    const sinifSiraMap = {"Dusuk":0,"Orta":1,"Yuksek":2,"Cok Yuksek":3,"Asiri":4};
+    let maxSinif = "Dusuk";
+    let maxSinifTarih = "";
+    for (const r of satirlar) {
+      if ((sinifSiraMap[r.sinif]||0) > (sinifSiraMap[maxSinif]||0)) {
+        maxSinif = r.sinif;
+        maxSinifTarih = formatTarih(r.tarih);
+      }
+    }
+    const sinifInfo = SINIF_MAP[maxSinif];
+    document.getElementById("tahmin-stat-sinif").textContent = sinifInfo ? sinifInfo.tr() : maxSinif;
+    document.getElementById("tahmin-stat-sinif-tarih").textContent = maxSinifTarih;
+
+    // Chart
+    tahminGrafikCiz(satirlar);
+
+    // Cards
+    const kapsayici = document.getElementById("tahmin-kartlar");
+    kapsayici.innerHTML = "";
+    const bugun = new Date();
+
+    const sinifRenkCSS = {
+      "Dusuk": { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+      "Orta": { bg: "#422006", renk: "#fbbf24", border: "#713f12" },
+      "Yuksek": { bg: "#431407", renk: "#fb923c", border: "#7c2d12" },
+      "Cok Yuksek": { bg: "#450a0a", renk: "#f87171", border: "#7f1d1d" },
+      "Asiri": { bg: "#2e1065", renk: "#c084fc", border: "#581c87" },
+    };
+
+    satirlar.forEach((r, i) => {
+      const tarih = formatTarih(r.tarih);
+      const renkler = sinifRenkCSS[r.sinif] || sinifRenkCSS["Orta"];
+      const sinifAdi = SINIF_MAP[r.sinif] ? SINIF_MAP[r.sinif].tr() : r.sinif;
+
+      let gunLabel;
+      if (i === 0) gunLabel = t("forecast_today");
+      else if (i === 1) gunLabel = t("forecast_tomorrow");
+      else {
+        const d = new Date(bugun);
+        d.setDate(d.getDate() + i);
+        gunLabel = t("forecast_days")[d.getDay()];
+      }
+
+      kapsayici.innerHTML += `
+        <div class="tahmin-kart">
+          <div class="tahmin-gun">${gunLabel}</div>
+          <div class="tahmin-tarih">${tarih}</div>
+          <div class="tahmin-meteo">
+            <div class="tahmin-meteo-item">${t("data_temp")}<strong>${r.temp}°C</strong></div>
+            <div class="tahmin-meteo-item">${t("data_rh")}<strong>${r.rh}%</strong></div>
+            <div class="tahmin-meteo-item">${t("data_wind")}<strong>${r.wind_kmh} km/h</strong></div>
+            <div class="tahmin-meteo-item">${t("data_precip")}<strong>${r.precip} mm</strong></div>
+          </div>
+          <div class="tahmin-fwi" style="background:${renkler.bg};border-color:${renkler.border}">
+            <span class="tahmin-fwi-deger" style="color:${renkler.renk}">FWI ${r.fwi}</span>
+            <span class="tahmin-fwi-sinif" style="color:${renkler.renk};background:${renkler.renk}20;border:1px solid ${renkler.renk}40">${sinifAdi}</span>
+          </div>
+          <div class="tahmin-indeksler">
+            <div class="tahmin-idx"><div class="etiket">FFMC</div><div class="deger">${r.ffmc}</div></div>
+            <div class="tahmin-idx"><div class="etiket">DMC</div><div class="deger">${r.dmc}</div></div>
+            <div class="tahmin-idx"><div class="etiket">DC</div><div class="deger">${r.dc}</div></div>
+            <div class="tahmin-idx"><div class="etiket">ISI</div><div class="deger">${r.isi}</div></div>
+            <div class="tahmin-idx"><div class="etiket">BUI</div><div class="deger">${r.bui}</div></div>
+            <div class="tahmin-idx"><div class="etiket">DSR</div><div class="deger">${r.dsr}</div></div>
+          </div>
+        </div>`;
+    });
+
+    document.getElementById("tahmin-sonuc-alani").style.display = "block";
+    document.getElementById("tahmin-sonuc-alani").scrollIntoView({ behavior: "smooth" });
+  }
+
+  function tahminGrafikCiz(satirlar) {
+    const labels = satirlar.map(r => formatTarih(r.tarih));
+    const fwiDeger = satirlar.map(r => r.fwi);
+    const noktaRenkler = fwiDeger.map(noktaRenk);
+    const n = satirlar.length;
+
+    if (tahminChart) tahminChart.destroy();
+    const ctx = document.getElementById("tahmin-grafik").getContext("2d");
+    tahminChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "FWI",
+            data: fwiDeger,
+            backgroundColor: noktaRenkler.map(c => c + "88"),
+            borderColor: noktaRenkler,
+            borderWidth: 2,
+            borderRadius: 6,
+          },
+          { label: "Orta", data: Array(n).fill(5),  type: "line", borderColor: "#166534", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+          { label: "Yüksek", data: Array(n).fill(10), type: "line", borderColor: "#713f12", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+          { label: "Çok Y.", data: Array(n).fill(20), type: "line", borderColor: "#7c2d12", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+          { label: "Aşırı", data: Array(n).fill(30), type: "line", borderColor: "#7f1d1d", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "#111827",
+            borderColor: "#374151",
+            borderWidth: 1,
+          }
+        },
+        scales: {
+          x: { ticks: { color: "#9ca3af", font: { size: 10 } }, grid: { color: "#1f2937" } },
+          y: { beginAtZero: true, ticks: { color: "#9ca3af", font: { size: 11 } }, grid: { color: "#1f2937" } }
+        }
+      }
+    });
+  }
+
+  function formatTarih(t) {
+    return t.slice(0,4) + "-" + t.slice(4,6) + "-" + t.slice(6,8);
+  }
+
+  // ═══ MAP INIT on page open ═══
+  const origSayfaAc = sayfaAc;
+  sayfaAc = function(id, el) {
+    origSayfaAc(id, el);
+    if (id === "hesap") {
+      setTimeout(() => {
+        // Only init nasa map if auto tab is active
+        const nasaPanel = document.getElementById("panel-nasa");
+        if (nasaPanel && nasaPanel.classList.contains("aktif")) {
+          initNasaMap();
+          if (nasaMap) nasaMap.invalidateSize();
+        }
+      }, 200);
+    }
+    if (id === "tahmin") {
+      setTimeout(() => {
+        initTahminMap();
+        if (tahminMap) tahminMap.invalidateSize();
+      }, 200);
+    }
+  };
+
+  // Also init nasa map when switching to auto tab
+  const origSekmeAc = sekmeAc;
+  sekmeAc = function(id, el) {
+    origSekmeAc(id, el);
+    if (id === "nasa") {
+      setTimeout(() => {
+        initNasaMap();
+        if (nasaMap) nasaMap.invalidateSize();
+      }, 200);
+    }
+  };
+
+  // ═══ FORMULA ANNOTATIONS: wrap (text) in styled spans ═══
+  function stilizeFormulNotlari() {
+    document.querySelectorAll('.formul-deger').forEach(el => {
+      el.innerHTML = el.innerHTML.replace(
+        /&nbsp;\s*\(([^)]+)\)/g,
+        '<span class="f-not">$1</span>'
+      );
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', stilizeFormulNotlari);
+  } else {
+    stilizeFormulNotlari();
+  }
+
+  // ═══ ACCORDION: Hesaplama Yöntemi modernization ═══
+  function toggleYontem(header) {
+    const acc = header.closest('.yon-accordion');
+    acc.classList.toggle('acik');
+  }
+
+  // Component metadata for accordion transformation
+  const YON_META = {
+    tr: [
+      { num: "1", h2Match: "FFMC", kat: "nem",    desc: "Ölü örtünün üst tabakasındaki ince yanıcı maddelerin nem içeriği · Aralık: 0–101" },
+      { num: "2", h2Match: "DMC",  kat: "nem",    desc: "Hafif sıkıştırılmış organik (döküntü) tabakanın nem durumu · Aralık: 0–300+" },
+      { num: "3", h2Match: "DC",   kat: "nem",    desc: "Derin sıkıştırılmış organik tabakanın nem durumu · Aralık: 0–1000" },
+      { num: "4", h2Match: "ISI",  kat: "indeks", desc: "Yangının ilk yayılma hızı · Rüzgar ve FFMC birleşimi · Aralık: 0–50+" },
+      { num: "5", h2Match: "BUI",  kat: "indeks", desc: "Yangının beslenebileceği birikmiş yanıcı madde miktarı · Aralık: 0–200+" },
+      { num: "6", h2Match: "FWI",  kat: "sonuc",  desc: "Yangın yoğunluğunu temsil eden nihai indeks · ISI × BUI birleşimi" },
+    ],
+    en: [
+      { num: "1", h2Match: "FFMC", kat: "nem",    desc: "Encodes moisture content of fine surface fuels · Range: 0–101" },
+      { num: "2", h2Match: "DMC",  kat: "nem",    desc: "Moisture status of medium-depth organic layer · Range: 0–300+" },
+      { num: "3", h2Match: "DC",   kat: "nem",    desc: "Long-term moisture deficit of deep soil layer · Range: 0–1000" },
+      { num: "4", h2Match: "ISI",  kat: "indeks", desc: "Rate of fire spread · Combines wind and FFMC · Range: 0–50+" },
+      { num: "5", h2Match: "BUI",  kat: "indeks", desc: "Total fuel available for combustion · Range: 0–200+" },
+      { num: "6", h2Match: "FWI",  kat: "sonuc",  desc: "Final fire intensity index · Combines ISI × BUI" },
+    ]
+  };
+
+  const CHEVRON_SVG = '<svg class="yon-accordion-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>';
+
+  function modernizeYontem() {
+    const yontemPage = document.getElementById('sayfa-yontem');
+    if (!yontemPage) return;
+
+    ['lang-tr', 'lang-en'].forEach(langClass => {
+      const langDiv = yontemPage.querySelector('.' + langClass);
+      if (!langDiv) return;
+      const lang = langClass === 'lang-tr' ? 'tr' : 'en';
+      const meta = YON_META[lang];
+      const bolumlar = langDiv.querySelectorAll('.yontem-bolum');
+      let prevKat = '';
+
+      bolumlar.forEach(bolum => {
+        const h2 = bolum.querySelector('h2');
+        if (!h2) return;
+        const h2Text = h2.textContent;
+
+        // Find matching metadata
+        const m = meta.find(x => h2Text.includes(x.h2Match + ' '));
+        if (!m) return; // skip threshold sections (already handled)
+
+        // Insert category separator if category changed
+        if (m.kat !== prevKat && m.kat !== 'nem') {
+          const sep = document.createElement('div');
+          sep.className = 'yon-kategori' + (m.kat === 'indeks' ? ' kat-indeks' : ' kat-sonuc');
+          const labels = {
+            'indeks': lang === 'tr' ? 'İndeksler (Fire Behavior Indices)' : 'Fire Behavior Indices',
+            'sonuc':  lang === 'tr' ? 'Nihai İndeks (Final Index)' : 'Final Index',
+          };
+          sep.innerHTML = '<span>' + labels[m.kat] + '</span>';
+          bolum.parentNode.insertBefore(sep, bolum);
+        }
+        prevKat = m.kat;
+
+        // Create accordion
+        const acc = document.createElement('div');
+        acc.className = 'yon-accordion kat-' + m.kat + (m.num === '1' ? ' acik' : '');
+        if (bolum.id) acc.id = bolum.id;
+
+        // Header
+        const header = document.createElement('div');
+        header.className = 'yon-accordion-header';
+        header.onclick = function() { toggleYontem(this); };
+
+        const numDiv = document.createElement('div');
+        numDiv.className = 'yon-accordion-num';
+        numDiv.textContent = m.num;
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'yon-accordion-info';
+        // Clean h2 text: remove leading number + dot
+        const cleanTitle = h2Text.replace(/^\d+\.\s*/, '');
+        infoDiv.innerHTML = '<h2>' + cleanTitle + '</h2><p>' + m.desc + '</p>';
+
+        header.appendChild(numDiv);
+        header.appendChild(infoDiv);
+        header.insertAdjacentHTML('beforeend', CHEVRON_SVG);
+
+        // Body
+        const body = document.createElement('div');
+        body.className = 'yon-accordion-body';
+        const inner = document.createElement('div');
+        inner.className = 'yon-accordion-body-inner';
+
+        // Remove the h2 and formul-kart-baslik (redundant with accordion header)
+        h2.remove();
+        const kartBaslik = bolum.querySelector('.formul-kart-baslik');
+        if (kartBaslik) kartBaslik.remove();
+
+        // Move remaining content
+        while (bolum.firstChild) inner.appendChild(bolum.firstChild);
+        body.appendChild(inner);
+
+        acc.appendChild(header);
+        acc.appendChild(body);
+
+        bolum.parentNode.replaceChild(acc, bolum);
+      });
+    });
+  }
+
+  // Run on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', modernizeYontem);
+  } else {
+    modernizeYontem();
+  }
+
+  // ═══ Nav active state tracking ═══
+  function initYontemNav() {
+    const yontemPage = document.getElementById('sayfa-yontem');
+    if (!yontemPage) return;
+    yontemPage.querySelectorAll('.yontem-nav a').forEach(a => {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        const href = this.getAttribute('href');
+        const target = yontemPage.querySelector(href) || yontemPage.querySelector('[id="' + href.slice(1) + '"]');
+        if (target) {
+          // If it's an accordion, open it
+          const acc = target.closest('.yon-accordion') || target;
+          if (acc.classList.contains('yon-accordion') && !acc.classList.contains('acik')) {
+            acc.classList.add('acik');
+          }
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        // Highlight active nav
+        this.closest('.yontem-nav').querySelectorAll('a').forEach(l => l.classList.remove('aktif'));
+        this.classList.add('aktif');
+      });
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initYontemNav);
+  } else {
+    initYontemNav();
+  }
+
+  // Restore saved language on DOMContentLoaded
+  const savedLang = localStorage.getItem("fwi-lang");
+  if (savedLang && savedLang !== "tr") {
+    document.addEventListener("DOMContentLoaded", () => setLang(savedLang));
+  }
+</script>
+</body>
+</html>
