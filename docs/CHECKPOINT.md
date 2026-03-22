@@ -206,11 +206,19 @@ Claude/
 17. Title, favicon güncellendi
 18. noindex/nofollow (arama motorlarından gizleme)
 19. Basic Auth şifre koruması (admin/fire2026)
-20. 4 ek yangın indeksi backend'i tamamlandı (indeksler.py)
+20. 4 ek yangın indeksi: Angström, Nesterov, KBDI, Carrega I87 (indeksler.py)
 21. Open-Meteo modüllerine dew_point ve temp_max verileri eklendi
 22. Tüm endpoint'ler ek indekslerle entegre edildi
-23. Frontend'de manuel hesaplama, tablo ve tahmin kartlarına ek indeksler eklendi
+23. Frontend: manuel hesaplama, tablo, tahmin kartları, doğrulama — 5 indeks eşit seviyede
 24. Türkçe karakter desteği (sinifCevir fonksiyonu)
+25. Hesaplama Yöntemi: sekme tabanlı yapı + her indekse özel eşik tablosu
+26. Doğrulama: 5 indeks renk kodlu karşılaştırmalı test kartları
+27. 35 birim testi (test_indeksler.py)
+28. Tablo sadeleştirildi (FWI alt bileşenleri kaldırıldı)
+29. Hakkında sayfası + akış diyagramı + footer güncellendi
+30. Nesterov K formatı (25188 → 25.2K)
+31. bilimsel_referanslar.md oluşturuldu
+32. Sidebar taşma düzeltildi, badge'ler kısaltıldı
 
 ## 10. Eklenen 4 Yeni İndeks
 
@@ -227,11 +235,29 @@ Claude/
 - Nesterov: sınıf isimleri Shetinsky (1994) referansına hizalandı
 - El hesabı doğrulaması: Angström T=25/RH=30 → 1.7 ✅
 
-### Kalan İşler (sonraki oturum)
-- [ ] **Hesaplama Yöntemi sayfasına** 4 yeni indeksin formül kartları eklenmeli
-- [ ] **Doğrulama sayfasına** yeni indekslerle test sonuçları eklenmeli
-- [ ] **test_indeksler.py** birim testleri yazılmalı
-- [ ] Görev dağılımı güncellenmeli (Seda: KBDI/DC/DMC, Zeynep: Nesterov/FFMC, Ahsen: Carrega/Angström)
+### Tamamlanan Ek İşler (aynı oturum)
+- [x] Hesaplama Yöntemi: sekme tabanlı yapı (FWI, Angström, Nesterov, KBDI, Carrega)
+- [x] Her indeksin kendi eşik tablosu kendi sekmesinde
+- [x] Doğrulama sayfası: 5 indeks renk kodlu karşılaştırmalı test kartları
+- [x] test_indeksler.py: 35 birim testi (tümü geçiyor)
+- [x] Tablo sadeleştirildi: FWI alt bileşenleri kaldırıldı, 5 indeks renk kodlu
+- [x] Tahmin kartları: 5 indeks eşit seviyede renk kodlu
+- [x] Hakkında sayfası güncellendi (5 indeks, özellikler kartı)
+- [x] Akış diyagramı güncellendi (5 indeks birlikte)
+- [x] İndeks badge'leri kısaltıldı (ANG, NES, CAR)
+- [x] Sidebar taşma düzeltildi (iki satır)
+- [x] Nesterov büyük değerler K formatında (25188 → 25.2K)
+- [x] Footer güncellendi (Fire-EWS + 5 indeks)
+- [x] bilimsel_referanslar.md oluşturuldu
+
+### Bilinen Sınırlamalar
+- **Nesterov:** Akdeniz ikliminde on binlere çıkması normal (Rusya için tasarlanmış, uzun kurak dönemde kümülatif birikim). K formatıyla gösteriliyor.
+- **Carrega I87:** Güney Fransa kalibrasyonlu, Türkiye yaz sıcaklıkları daha yüksek olduğu için büyük yangın günlerinde bile "Orta" çıkabiliyor. Eşikler yerel kalibrasyon gerektirebilir.
+
+### Kalan İşler
+- [ ] Mobil görünüm test edilmeli (telefonda kontrol)
+- [ ] Daha fazla yangın olayı eklenmeli (3'ten 8-10'a çıkarılmalı)
+- [ ] İngilizce çeviriler güncellenecek (yeni eklenen metinler)
 
 ## 11. Görev Dağılımı (Takım)
 
