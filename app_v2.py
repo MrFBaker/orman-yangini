@@ -5,7 +5,8 @@ sentry_sdk.init(
     send_default_pii=True,
 )
 
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, Response
+from functools import wraps
 from datetime import datetime, timedelta
 import sys, os, io
 sys.path.insert(0, os.path.dirname(__file__))
@@ -14,6 +15,20 @@ import openmeteo as om
 import forecast as fc
 
 app = Flask(__name__)
+
+AUTH_USER = "admin"
+AUTH_PASS = "fire2026"
+
+def check_auth(username, password):
+    return username == AUTH_USER and password == AUTH_PASS
+
+@app.before_request
+def require_auth():
+    if request.path.startswith("/deploy"):
+        return
+    auth = request.authorization
+    if not auth or not check_auth(auth.username, auth.password):
+        return Response("Giriş gerekli", 401, {"WWW-Authenticate": 'Basic realm="Fire-EWS"'})
 
 
 def warmup_fwi(lat, lon, baslangic):
