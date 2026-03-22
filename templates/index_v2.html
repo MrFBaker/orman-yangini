@@ -388,6 +388,15 @@
     .indeks-kutu .etiket { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
     .indeks-kutu .deger  { font-size: 1.4rem; font-weight: 700; color: var(--text); }
     .indeks-kutu .birim  { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ana-indeksler .indeks-kutu { border-width: 2px; }
+    .fwi-detay { margin-bottom: 14px; }
+    .fwi-detay summary {
+      cursor: pointer; font-size: 0.75rem; color: var(--text-muted);
+      padding: 8px 12px; background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 8px; letter-spacing: 0.3px;
+    }
+    .fwi-detay summary:hover { color: var(--accent); border-color: var(--border-light); }
+    .fwi-detay[open] summary { border-radius: 8px 8px 0 0; margin-bottom: 0; }
 
     /* NASA / MULTI-DAY SONUÇ */
     #nasa-sonuc-alani { display: none; width: 100%; max-width: 1100px; margin: 0 auto 8px; }
@@ -776,6 +785,7 @@
       .onceki-grid { grid-template-columns: 1fr; }
       .veri-grid { grid-template-columns: 1fr; }
       .indeksler { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .ana-indeksler { grid-template-columns: repeat(3, 1fr) !important; }
       .sonuc-ust-grid { grid-template-columns: 1fr; }
       .istatistik-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
       .alt-sekme { padding: 10px 14px; min-height: 44px; }
@@ -809,6 +819,7 @@
 
     @media (max-width: 480px) {
       .indeksler { grid-template-columns: 1fr 1fr; }
+      .ana-indeksler { grid-template-columns: repeat(2, 1fr) !important; }
       .istatistik-grid { grid-template-columns: 1fr; }
       .test-indeksler { grid-template-columns: repeat(2, 1fr); }
       .hero h1 { font-size: 1.1rem; }
@@ -1258,21 +1269,29 @@
   <div id="sonuc-alani">
     <div class="sinif-banner" id="sinif-banner">
       <div class="sinif-adi" id="sinif-adi"></div>
-      <div class="fwi-deger" id="fwi-deger"></div>
+      <div class="fwi-deger" id="genel-tehlike-text"></div>
       <div class="sinif-aciklama" id="sinif-aciklama"></div>
     </div>
-    <div class="indeksler">
-      <div class="indeks-kutu"><div class="etiket">FFMC</div><div class="deger" id="val-ffmc">—</div><div class="birim" data-i18n="idx_ffmc">İnce Üst Tabaka</div></div>
-      <div class="indeks-kutu"><div class="etiket">DMC</div><div class="deger" id="val-dmc">—</div><div class="birim" data-i18n="idx_dmc">Döküntü Nemi</div></div>
-      <div class="indeks-kutu"><div class="etiket">DC</div><div class="deger" id="val-dc">—</div><div class="birim" data-i18n="idx_dc">Derin Organik Tabaka</div></div>
-      <div class="indeks-kutu"><div class="etiket">ISI</div><div class="deger" id="val-isi">—</div><div class="birim" data-i18n="idx_isi">Başlangıç Yayılma</div></div>
-      <div class="indeks-kutu"><div class="etiket">BUI</div><div class="deger" id="val-bui">—</div><div class="birim" data-i18n="idx_bui">Birikmiş Yanıcı Madde</div></div>
-      <div class="indeks-kutu"><div class="etiket">DSR</div><div class="deger" id="val-dsr">—</div><div class="birim" data-i18n="idx_dsr">Günlük Şiddet Oranı</div></div>
-      <div class="indeks-kutu"><div class="etiket">Angström</div><div class="deger" id="val-angstrom">—</div><div class="birim" id="val-angstrom-sinif">—</div></div>
-      <div class="indeks-kutu"><div class="etiket">Nesterov</div><div class="deger" id="val-nesterov">—</div><div class="birim" id="val-nesterov-sinif">—</div></div>
-      <div class="indeks-kutu"><div class="etiket">KBDI</div><div class="deger" id="val-kbdi">—</div><div class="birim" id="val-kbdi-sinif">—</div></div>
-      <div class="indeks-kutu"><div class="etiket">Carrega</div><div class="deger" id="val-carrega">—</div><div class="birim" id="val-carrega-sinif">—</div></div>
+    <!-- 5 Ana İndeks — eşit seviyede -->
+    <div class="indeksler ana-indeksler" style="grid-template-columns:repeat(5,1fr);margin-bottom:14px">
+      <div class="indeks-kutu" id="box-fwi"><div class="etiket">FWI</div><div class="deger" id="val-fwi-ana">—</div><div class="birim" id="val-fwi-sinif">—</div></div>
+      <div class="indeks-kutu" id="box-ang"><div class="etiket">Angström</div><div class="deger" id="val-angstrom">—</div><div class="birim" id="val-angstrom-sinif">—</div></div>
+      <div class="indeks-kutu" id="box-nes"><div class="etiket">Nesterov</div><div class="deger" id="val-nesterov">—</div><div class="birim" id="val-nesterov-sinif">—</div></div>
+      <div class="indeks-kutu" id="box-kbdi"><div class="etiket">KBDI</div><div class="deger" id="val-kbdi">—</div><div class="birim" id="val-kbdi-sinif">—</div></div>
+      <div class="indeks-kutu" id="box-car"><div class="etiket">Carrega</div><div class="deger" id="val-carrega">—</div><div class="birim" id="val-carrega-sinif">—</div></div>
     </div>
+    <!-- FWI Alt Bileşenleri — detay -->
+    <details class="fwi-detay">
+      <summary>FWI Alt Bileşenleri</summary>
+      <div class="indeksler" style="grid-template-columns:repeat(3,1fr);margin-top:10px">
+        <div class="indeks-kutu"><div class="etiket">FFMC</div><div class="deger" id="val-ffmc">—</div><div class="birim" data-i18n="idx_ffmc">İnce Üst Tabaka</div></div>
+        <div class="indeks-kutu"><div class="etiket">DMC</div><div class="deger" id="val-dmc">—</div><div class="birim" data-i18n="idx_dmc">Döküntü Nemi</div></div>
+        <div class="indeks-kutu"><div class="etiket">DC</div><div class="deger" id="val-dc">—</div><div class="birim" data-i18n="idx_dc">Derin Organik Tabaka</div></div>
+        <div class="indeks-kutu"><div class="etiket">ISI</div><div class="deger" id="val-isi">—</div><div class="birim" data-i18n="idx_isi">Başlangıç Yayılma</div></div>
+        <div class="indeks-kutu"><div class="etiket">BUI</div><div class="deger" id="val-bui">—</div><div class="birim" data-i18n="idx_bui">Birikmiş Yanıcı Madde</div></div>
+        <div class="indeks-kutu"><div class="etiket">DSR</div><div class="deger" id="val-dsr">—</div><div class="birim" data-i18n="idx_dsr">Günlük Şiddet Oranı</div></div>
+      </div>
+    </details>
     <button class="btn rapor-btn" onclick="manuelRaporIndir()" data-i18n="btn_download_pdf">Rapor İndir (PDF)</button>
   </div>
 
@@ -2407,6 +2426,7 @@
       btn_forecast_loading: "Tahmin hesaplanıyor...",
       forecast_7day: "7 günlük",
       forecast_general_danger: "Genel Tehlike",
+      forecast_general_danger_label: "Genel Yangın Tehlikesi",
       forecast_risky_days: "Riskli Gün",
       forecast_risky_desc: "indeks ≥ Yüksek",
       forecast_critical_idx: "En Kritik İndeks",
@@ -2534,6 +2554,7 @@
       btn_forecast_loading: "Calculating forecast...",
       forecast_7day: "7-day",
       forecast_general_danger: "Overall Danger",
+      forecast_general_danger_label: "Overall Fire Danger",
       forecast_risky_days: "Risky Days",
       forecast_risky_desc: "index ≥ High",
       forecast_critical_idx: "Most Critical Index",
@@ -2857,26 +2878,62 @@
       month:  document.getElementById("month").value,
       lat:    document.getElementById("manuel-lat").value || null,
     };
-    const info = SINIF_MAP[s.sinif] || { tr: () => s.sinif, renk: "Orta", aciklama: () => "" };
+    // Tüm indekslerde en yüksek tehlike sınıfını bul
+    const sinifSira = {"Tehlike Yok":0,"Dusuk":1,"Orta":2,"Yuksek":3,"Cok Yuksek":4,"Asiri":5};
+    const tumSiniflar = [s.sinif, s.angstrom_sinif, s.nesterov_sinif, s.kbdi_sinif, s.carrega_sinif].filter(Boolean);
+    let genelMax = "Dusuk";
+    for (const sn of tumSiniflar) {
+      if ((sinifSira[sn]||0) > (sinifSira[genelMax]||0)) genelMax = sn;
+    }
+    const info = SINIF_MAP[genelMax] || { tr: () => genelMax, renk: "Orta", aciklama: () => "" };
     const banner = document.getElementById("sinif-banner");
     banner.className = "sinif-banner renk-" + info.renk;
     document.getElementById("sinif-adi").textContent = info.tr();
-    document.getElementById("fwi-deger").textContent = "FWI " + s.fwi;
+    document.getElementById("genel-tehlike-text").textContent = t("forecast_general_danger_label") || "Genel Yangın Tehlikesi";
     document.getElementById("sinif-aciklama").textContent = info.aciklama();
+
+    // 5 ana indeks — değer + sınıf + renk
+    const renkCSS = {
+      "Tehlike Yok": { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+      "Dusuk":       { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+      "Orta":        { bg: "#422006", renk: "#fbbf24", border: "#713f12" },
+      "Yuksek":      { bg: "#431407", renk: "#fb923c", border: "#7c2d12" },
+      "Cok Yuksek":  { bg: "#450a0a", renk: "#f87171", border: "#7f1d1d" },
+      "Asiri":       { bg: "#2e1065", renk: "#c084fc", border: "#581c87" },
+    };
+    function kutuRenkle(boxId, sinif) {
+      const c = renkCSS[sinif] || renkCSS["Orta"];
+      const el = document.getElementById(boxId);
+      if (el) { el.style.background = c.bg; el.style.borderColor = c.border; el.querySelector(".deger").style.color = c.renk; }
+    }
+    document.getElementById("val-fwi-ana").textContent = s.fwi;
+    document.getElementById("val-fwi-sinif").textContent = sinifCevir(s.sinif);
+    kutuRenkle("box-fwi", s.sinif);
+
+    document.getElementById("val-angstrom").textContent = s.angstrom != null ? s.angstrom : "—";
+    document.getElementById("val-angstrom-sinif").textContent = s.angstrom_sinif ? sinifCevir(s.angstrom_sinif) : "—";
+    kutuRenkle("box-ang", s.angstrom_sinif || "Dusuk");
+
+    document.getElementById("val-nesterov").textContent = fmtK(s.nesterov);
+    document.getElementById("val-nesterov-sinif").textContent = s.nesterov_sinif ? sinifCevir(s.nesterov_sinif) : "—";
+    kutuRenkle("box-nes", s.nesterov_sinif || "Dusuk");
+
+    document.getElementById("val-kbdi").textContent = s.kbdi != null ? s.kbdi : "—";
+    document.getElementById("val-kbdi-sinif").textContent = s.kbdi_sinif ? sinifCevir(s.kbdi_sinif) : "—";
+    kutuRenkle("box-kbdi", s.kbdi_sinif || "Dusuk");
+
+    document.getElementById("val-carrega").textContent = s.carrega != null ? s.carrega : "—";
+    document.getElementById("val-carrega-sinif").textContent = s.carrega_sinif ? sinifCevir(s.carrega_sinif) : "—";
+    kutuRenkle("box-car", s.carrega_sinif || "Dusuk");
+
+    // FWI alt bileşenleri
     document.getElementById("val-ffmc").textContent = s.ffmc;
     document.getElementById("val-dmc").textContent  = s.dmc;
     document.getElementById("val-dc").textContent   = s.dc;
     document.getElementById("val-isi").textContent  = s.isi;
     document.getElementById("val-bui").textContent  = s.bui;
     document.getElementById("val-dsr").textContent  = s.dsr;
-    document.getElementById("val-angstrom").textContent = s.angstrom != null ? s.angstrom : "—";
-    document.getElementById("val-angstrom-sinif").textContent = s.angstrom_sinif ? sinifCevir(s.angstrom_sinif) : "—";
-    document.getElementById("val-nesterov").textContent = fmtK(s.nesterov);
-    document.getElementById("val-nesterov-sinif").textContent = s.nesterov_sinif ? sinifCevir(s.nesterov_sinif) : "—";
-    document.getElementById("val-kbdi").textContent = s.kbdi != null ? s.kbdi : "—";
-    document.getElementById("val-kbdi-sinif").textContent = s.kbdi_sinif ? sinifCevir(s.kbdi_sinif) : "—";
-    document.getElementById("val-carrega").textContent = s.carrega != null ? s.carrega : "—";
-    document.getElementById("val-carrega-sinif").textContent = s.carrega_sinif ? sinifCevir(s.carrega_sinif) : "—";
+
     document.getElementById("sonuc-alani").style.display = "block";
     document.getElementById("sonuc-alani").scrollIntoView({ behavior: "smooth" });
   }
