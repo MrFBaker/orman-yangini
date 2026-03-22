@@ -6,7 +6,6 @@ sentry_sdk.init(
 )
 
 from flask import Flask, render_template, request, jsonify, send_file, Response
-from functools import wraps
 from datetime import datetime, timedelta
 import sys, os, io
 sys.path.insert(0, os.path.dirname(__file__))
@@ -211,9 +210,9 @@ def referans_test():
 @app.route("/test", methods=["GET"])
 def test_yangin():
     olaylar = [
-        {"isim": "Manavgat Yangini", "yer": "Antalya",  "tarih": "20210728", "lat": 36.78, "lon": 31.44},
-        {"isim": "Marmaris Yangini", "yer": "Mugla",    "tarih": "20210730", "lat": 36.85, "lon": 28.27},
-        {"isim": "Izmir Yangini",    "yer": "Izmir",    "tarih": "20190819", "lat": 38.42, "lon": 27.14},
+        {"isim": "Manavgat Yangını", "yer": "Antalya",  "tarih": "20210728", "lat": 36.78, "lon": 31.44},
+        {"isim": "Marmaris Yangını", "yer": "Muğla",    "tarih": "20210730", "lat": 36.85, "lon": 28.27},
+        {"isim": "İzmir Yangını",    "yer": "İzmir",    "tarih": "20190819", "lat": 38.42, "lon": 27.14},
     ]
     sonuclar = []
     for o in olaylar:
