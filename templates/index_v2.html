@@ -1141,15 +1141,16 @@
           </div>
         </div>
         <details>
-          <summary data-i18n="prev_day_summary">&#9881; Önceki Gün Değerleri (Gelişmiş)</summary>
+          <summary data-i18n="prev_day_summary">&#9881; Gelişmiş Ayarlar</summary>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin:10px 0 8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">FWI Başlangıç</div>
           <div class="onceki-grid">
             <div class="form-grup"><label>FFMC₀</label><input type="number" id="ffmc0" step="0.1" value="85" /></div>
             <div class="form-grup"><label>DMC₀</label><input type="number" id="dmc0" step="0.1" value="6" /></div>
             <div class="form-grup"><label>DC₀</label><input type="number" id="dc0" step="0.1" value="15" /></div>
           </div>
           <div class="form-grup" style="margin-top:12px">
-            <label data-i18n="label_lat_optional">Enlem (isteğe bağlı — Le/Lf düzeltmesi için)</label>
-            <input type="number" id="manuel-lat" step="0.01" data-i18n-placeholder="placeholder_lat" placeholder="örn. 37.5 (Türkiye için boş bırakabilirsiniz)" />
+            <label>Enlem (opsiyonel)</label>
+            <input type="number" id="manuel-lat" step="0.01" placeholder="örn. 37.5" />
           </div>
         </details>
         <button class="btn" onclick="hesapla()" data-i18n="btn_calculate">Hesapla</button>
@@ -1158,8 +1159,14 @@
       <!-- Alt panel: CSV -->
       <div class="alt-panel" id="alt-csv">
         <div class="info-notu" style="margin-top:16px">
-          <span data-i18n="csv_format_info" data-i18n-html="1">CSV formatı: <code>tarih,temp,rh,wind,precip,dew_point,temp_max</code> — tarih YYYYMMDD, sıcaklık °C, nem %, rüzgar km/h, yağış mm, çiy noktası °C, maks sıcaklık °C. Son iki sütun opsiyoneldir.</span>
-          <a href="/static/ornek.csv" download style="color:var(--accent);margin-left:8px" data-i18n="csv_download_sample">Örnek indir</a>
+          <div style="margin-bottom:8px"><strong style="color:var(--text)">CSV Sütunları:</strong></div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+            <code>tarih</code><code>temp</code><code>rh</code><code>wind</code><code>precip</code><code style="opacity:0.6">dew_point*</code><code style="opacity:0.6">temp_max*</code>
+          </div>
+          <div style="font-size:0.75rem;color:var(--text-muted)">
+            tarih: YYYYMMDD · temp: °C · rh: % · wind: km/h · precip: mm<br>
+            <span style="opacity:0.7">* dew_point ve temp_max opsiyoneldir</span>
+          </div>
         </div>
         <div class="csv-yukle-alani" id="csv-yukle-alani" onclick="document.getElementById('csv-input').click()">
           <div class="csv-ikon">📂</div>
