@@ -1022,42 +1022,42 @@
 <!-- ══════════════════════════════════════════ -->
 <div class="sayfa aktif" id="sayfa-hakkinda">
 
+  <!-- Hero -->
   <div class="hero">
     <h1 data-i18n="hero_title">&#x1F525; Fire-EWS — Orman Yangını Erken Uyarı Sistemi</h1>
     <p data-i18n="hero_desc">Meteorolojik veri tabanlı, çoklu indeks destekli orman yangını erken uyarı sistemi. 5 farklı bilimsel yöntemle yangın tehlike seviyesi hesaplar.</p>
   </div>
 
-  <div class="bilgi-grid">
-    <div class="bilgi-kart">
-      <h3 data-i18n="card_about_title">Proje Hakkında</h3>
-      <p data-i18n="card_about_p1" data-i18n-html="1">Bu sistem, Sayın <strong>Prof. Dr. Levent ŞAYLAN</strong> danışmanlığında <strong>İklim Bilimi ve Meteoroloji Mühendisliği Tasarım Projesi</strong> kapsamında geliştirilmiştir.</p>
-      <p style="margin-top:10px" data-i18n="card_about_p2" data-i18n-html="1">Sistem, <strong>5 farklı yangın tehlike indeksini</strong> (FWI, Angström, Nesterov, KBDI, Carrega I87) birlikte hesaplayarak kapsamlı bir risk değerlendirmesi sunar. Open-Meteo API ile otomatik veri çekimi ve 7 günlük tahmin desteklenmektedir.</p>
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
-        <div style="font-size:0.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;font-weight:600" data-i18n="card_team_title">Geliştirici Ekip</div>
-        <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.9">
-          Ahmet Emre EKMEKCİ<br>
-          Ahsen REYHAN<br>
-          Doğukan TOPAL<br>
-          Sedanur BAYAZTAŞ<br>
-          Zeynep Selma OTLUOĞLU
-        </div>
+  <!-- Proje + Ekip -->
+  <div class="bilgi-kart" style="margin-bottom:16px">
+    <h3 data-i18n="card_about_title">Proje Hakkında</h3>
+    <p data-i18n="card_about_p1" data-i18n-html="1">Bu sistem, Sayın <strong>Prof. Dr. Levent ŞAYLAN</strong> danışmanlığında <strong>İklim Bilimi ve Meteoroloji Mühendisliği Tasarım Projesi</strong> kapsamında geliştirilmiştir.</p>
+    <p style="margin-top:10px" data-i18n="card_about_p2" data-i18n-html="1">Sistem, <strong>5 farklı yangın tehlike indeksini</strong> (FWI, Angström, Nesterov, KBDI, Carrega I87) birlikte hesaplayarak kapsamlı bir risk değerlendirmesi sunar. Open-Meteo API ile otomatik veri çekimi ve 7 günlük tahmin desteklenmektedir.</p>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="font-size:0.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;font-weight:600" data-i18n="card_team_title">Geliştirici Ekip</div>
+      <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.8">
+        Ahmet Emre EKMEKCİ · Ahsen REYHAN · Doğukan TOPAL · Sedanur BAYAZTAŞ · Zeynep Selma OTLUOĞLU
       </div>
     </div>
+  </div>
 
-    <div class="bilgi-kart">
-      <h3 data-i18n="card_components_title">Kullanılan İndeksler</h3>
-      <ul class="komponent-liste">
-        <li><span class="komponent-badge">FWI</span><span data-i18n="comp_fwi_full">6 bileşenli Kanada sistemi — Van Wagner (1987)</span></li>
-        <li><span class="komponent-badge">ANG</span><span data-i18n="comp_ang">Anlık yangın tehlike değerlendirmesi — Angström (1942)</span></li>
-        <li><span class="komponent-badge">NES</span><span data-i18n="comp_nes">Kümülatif kuraklık takibi — Nesterov (1949)</span></li>
-        <li><span class="komponent-badge">KBDI</span><span data-i18n="comp_kbdi">Toprak nem eksikliği indeksi — Keetch-Byram (1968)</span></li>
-        <li><span class="komponent-badge">CAR</span><span data-i18n="comp_car">Akdeniz iklimi için özel — Carrega I87 (1991)</span></li>
-      </ul>
-    </div>
+  <!-- İndeksler — tek satır -->
+  <div class="bilgi-kart" style="margin-bottom:16px">
+    <h3 data-i18n="card_components_title">Kullanılan İndeksler</h3>
+    <ul class="komponent-liste">
+      <li><span class="komponent-badge">FWI</span><span data-i18n="comp_fwi_full">6 bileşenli Kanada sistemi — Van Wagner (1987)</span></li>
+      <li><span class="komponent-badge">ANG</span><span data-i18n="comp_ang">Anlık yangın tehlike değerlendirmesi — Angström (1942)</span></li>
+      <li><span class="komponent-badge">NES</span><span data-i18n="comp_nes">Kümülatif kuraklık takibi — Nesterov (1949)</span></li>
+      <li><span class="komponent-badge">KBDI</span><span data-i18n="comp_kbdi">Toprak nem eksikliği indeksi — Keetch-Byram (1968)</span></li>
+      <li><span class="komponent-badge">CAR</span><span data-i18n="comp_car">Akdeniz iklimi için özel — Carrega I87 (1991)</span></li>
+    </ul>
+  </div>
 
+  <!-- Özellikler + Veri Kaynağı — yan yana -->
+  <div class="bilgi-grid" style="margin-bottom:16px">
     <div class="bilgi-kart">
       <h3 data-i18n="card_features_title">Özellikler</h3>
-      <ul class="komponent-liste">
+      <ul class="komponent-liste" style="flex:1">
         <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)" data-i18n="feat_map_badge">Harita</span><span data-i18n="feat_map">İnteraktif uydu haritasıyla konum seçimi</span></li>
         <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)" data-i18n="feat_forecast_badge">Tahmin</span><span data-i18n="feat_forecast">7 günlük yangın riski tahmini</span></li>
         <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)" data-i18n="feat_auto_badge">Oto Veri</span><span data-i18n="feat_auto">Open-Meteo API ile geçmiş/gelecek veri çekimi</span></li>
@@ -1065,60 +1065,40 @@
         <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)">TR/EN</span><span data-i18n="feat_lang">Türkçe ve İngilizce dil desteği</span></li>
       </ul>
     </div>
-
     <div class="bilgi-kart">
       <h3 data-i18n="card_datasrc_title">Veri Kaynağı</h3>
       <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px" data-i18n="card_datasrc_desc" data-i18n-html="1">Open-Meteo saatlik yeniden analiz + tahmin verisi — <strong style="color:var(--text)">öğlen 12:00 LST</strong> anlık değerler</p>
       <div class="veri-grid">
-        <div class="veri-chip">
-          <div class="v-etiket" data-i18n="data_temp">Sıcaklık</div>
-          <div class="v-acik" data-i18n="data_temp_desc">12:00 LST anlık · °C</div>
-        </div>
-        <div class="veri-chip">
-          <div class="v-etiket" data-i18n="data_rh">Bağıl Nem</div>
-          <div class="v-acik" data-i18n="data_rh_desc">12:00 LST anlık · %</div>
-        </div>
-        <div class="veri-chip">
-          <div class="v-etiket" data-i18n="data_wind">Rüzgar</div>
-          <div class="v-acik" data-i18n="data_wind_desc">12:00 LST anlık · km/h</div>
-        </div>
-        <div class="veri-chip">
-          <div class="v-etiket" data-i18n="data_precip">Yağış</div>
-          <div class="v-acik" data-i18n="data_precip_desc">Günlük toplam · mm</div>
-        </div>
-        <div class="veri-chip">
-          <div class="v-etiket" data-i18n="data_dewpoint">Çiy Noktası</div>
-          <div class="v-acik" data-i18n="data_dewpoint_desc">12:00 LST anlık · °C</div>
-        </div>
-        <div class="veri-chip">
-          <div class="v-etiket" data-i18n="data_tmax">T_max</div>
-          <div class="v-acik" data-i18n="data_tmax_desc">Günlük maksimum · °C</div>
-        </div>
+        <div class="veri-chip"><div class="v-etiket" data-i18n="data_temp">Sıcaklık</div><div class="v-acik" data-i18n="data_temp_desc">12:00 LST anlık · °C</div></div>
+        <div class="veri-chip"><div class="v-etiket" data-i18n="data_rh">Bağıl Nem</div><div class="v-acik" data-i18n="data_rh_desc">12:00 LST anlık · %</div></div>
+        <div class="veri-chip"><div class="v-etiket" data-i18n="data_wind">Rüzgar</div><div class="v-acik" data-i18n="data_wind_desc">12:00 LST anlık · km/h</div></div>
+        <div class="veri-chip"><div class="v-etiket" data-i18n="data_precip">Yağış</div><div class="v-acik" data-i18n="data_precip_desc">Günlük toplam · mm</div></div>
+        <div class="veri-chip"><div class="v-etiket" data-i18n="data_dewpoint">Çiy Noktası</div><div class="v-acik" data-i18n="data_dewpoint_desc">12:00 LST anlık · °C</div></div>
+        <div class="veri-chip"><div class="v-etiket" data-i18n="data_tmax">T_max</div><div class="v-acik" data-i18n="data_tmax_desc">Günlük maksimum · °C</div></div>
       </div>
     </div>
   </div>
 
+  <!-- Sistem Mimarisi -->
   <div class="akis-kart">
     <h3 data-i18n="flow_title">Sistem Mimarisi</h3>
-    <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-top:16px;">
-      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <div class="akis-kutu girdi" style="min-width:120px">
-          <strong data-i18n="flow_meteo_data">Meteorolojik Veri</strong>
-          T · RH · W · P · Td · T_max
-        </div>
-        <div class="akis-ok-sutun">→</div>
-        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:8px; flex:1; min-width:0;">
-          <div class="akis-kutu cikti"><strong>FWI</strong><span style="font-size:0.65rem">Van Wagner 1987</span></div>
-          <div class="akis-kutu cikti"><strong>Angström</strong><span style="font-size:0.65rem">1942</span></div>
-          <div class="akis-kutu cikti"><strong>Nesterov</strong><span style="font-size:0.65rem">1949</span></div>
-          <div class="akis-kutu cikti"><strong>KBDI</strong><span style="font-size:0.65rem">Keetch-Byram 1968</span></div>
-          <div class="akis-kutu cikti"><strong>Carrega</strong><span style="font-size:0.65rem">I87 — 1991</span></div>
-        </div>
-        <div class="akis-ok-sutun">→</div>
-        <div class="akis-kutu girdi" style="min-width:100px; border-color:var(--accent)">
-          <strong style="color:var(--accent)" data-i18n="flow_danger_level">Tehlike Seviyesi</strong>
-          <span style="font-size:0.7rem" data-i18n="flow_5_indices">5 indeks birlikte</span>
-        </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px">
+      <div class="akis-kutu girdi" style="min-width:120px">
+        <strong data-i18n="flow_meteo_data">Meteorolojik Veri</strong>
+        T · RH · W · P · Td · T_max
+      </div>
+      <div class="akis-ok-sutun">→</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;flex:1;min-width:0">
+        <div class="akis-kutu cikti"><strong>FWI</strong><span style="font-size:0.65rem">Van Wagner 1987</span></div>
+        <div class="akis-kutu cikti"><strong>Angström</strong><span style="font-size:0.65rem">1942</span></div>
+        <div class="akis-kutu cikti"><strong>Nesterov</strong><span style="font-size:0.65rem">1949</span></div>
+        <div class="akis-kutu cikti"><strong>KBDI</strong><span style="font-size:0.65rem">Keetch-Byram 1968</span></div>
+        <div class="akis-kutu cikti"><strong>Carrega</strong><span style="font-size:0.65rem">I87 — 1991</span></div>
+      </div>
+      <div class="akis-ok-sutun">→</div>
+      <div class="akis-kutu girdi" style="min-width:100px;border-color:var(--accent)">
+        <strong style="color:var(--accent)" data-i18n="flow_danger_level">Tehlike Seviyesi</strong>
+        <span style="font-size:0.7rem" data-i18n="flow_5_indices">5 indeks birlikte</span>
       </div>
     </div>
   </div>
