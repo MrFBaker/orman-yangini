@@ -1,4 +1,4 @@
-# Proje Checkpoint — 22 Mart 2026 (Son güncelleme: 22 Mart 2026 akşam)
+# Proje Checkpoint — 22 Mart 2026 (Son güncelleme: 22 Mart 2026 gece)
 
 ## Proje Adı
 **Fire-EWS — Meteorolojik Veri Tabanlı Orman Yangını Erken Uyarı Sistemi**
@@ -7,170 +7,139 @@
 - **URL:** https://fire-ews.tech
 - **IP:** 165.22.92.106
 - **Giriş:** admin / fire2026 (Basic Auth)
+- **noindex/nofollow:** Arama motorlarından gizli
 
 ---
 
-## 1. Ne Yaptık?
+## 1. Hesaplama Sistemi — 5 İndeks
 
-### Hesaplama Motoru
-- Van Wagner (1987) FWI formüllerinin tam uygulaması
+### FWI — Van Wagner (1987)
 - 6 alt bileşen: FFMC, DMC, DC, ISI, BUI, FWI + DSR
-- Enleme göre dinamik Le/Lf tablo seçimi (Türkiye: 36-42°N)
-- Warmup sistemi: 1 Ocak'tan itibaren başlangıç değerleri biriktirme
-- Kanada standart tehlike sınıfı eşikleri (Düşük/Orta/Yüksek/Çok Yüksek/Aşırı)
+- Enleme göre dinamik Le/Lf tablo seçimi
+- Warmup: 1 Ocak'tan itibaren state biriktirme
+- Dosya: `fwi_hesap.py`
 
-### Web Arayüzü (5 Sayfa — Tek Sayfa Uygulama)
-1. **Hakkında** — Proje tanıtımı
-2. **Hesaplayıcı** — Manuel giriş, Open-Meteo otomatik veri çekimi, CSV toplu hesaplama
-3. **7 Günlük Tahmin** — Open-Meteo Forecast API ile gelecek 7 gün FWI tahmini
-4. **Hesaplama Yöntemi** — Formüller, akış diyagramı, eşik tabloları
-5. **Doğrulama** — Van Wagner referans testi + gerçek yangın olayları (Manavgat, Marmaris, İzmir)
+### Angström (1942)
+- Formül: `I = RH/20 + (27-T)/10`
+- Anlık, state yok. Ters skala (düşük=tehlikeli)
+- Dosya: `indeksler.py`
 
-### Özellikler
-- Leaflet.js interaktif haritalar (Esri uydu görüntüsü + sınır etiketleri)
-- Haritaya tıklayarak veya koordinat girerek konum seçimi (çift yönlü senkronizasyon)
-- Chart.js grafikleri (zaman serisi çizgi grafik + tahmin bar grafik)
-- PDF rapor indirme (manuel ve çoklu hesaplama sonuçları)
-- TR/EN dil desteği (~260+ çeviri anahtarı)
-- Dark tema arayüz
-- Formül açıklamaları şık badge'lerle (f-not CSS sınıfı)
+### Nesterov (1949)
+- Formül: `G = G₀ + T×(T-Td)`, yağış ≥ 3mm → reset
+- Kümülatif, çiy noktası tabanlı
+- Akdeniz'de on binlere çıkması normal → K formatıyla gösteriliyor
+- Dosya: `indeksler.py`
 
-### API Endpointleri
-| Endpoint | Yöntem | Açıklama |
-|---|---|---|
-| `/` | GET | Ana sayfa |
-| `/hesapla` | POST | Tek günlük manuel FWI hesaplama |
-| `/nasa` | POST | Open-Meteo Archive API ile çoklu gün hesaplama |
-| `/csv` | POST | CSV dosyasından toplu hesaplama |
-| `/tahmin` | POST | 7 günlük FWI tahmini |
-| `/referans` | GET | Van Wagner referans testi |
-| `/test` | GET | Gerçek yangın olaylarıyla doğrulama |
-| `/rapor-pdf` | POST | PDF rapor oluşturma |
+### KBDI — Keetch-Byram (1968)
+- Toprak nem eksikliği 0-800
+- Yağış eşiği 5.08mm, sıcaklık eşiği 10°C
+- Dosya: `indeksler.py`
+
+### Carrega I87 (1991)
+- Akdeniz regresyon modeli: `I87 = -4.51 + 0.236T + 0.095δ - 0.038RH`
+- **Sınırlama:** Güney Fransa kalibrasyonlu, Türkiye'de yangın günlerinde bile "Orta" çıkabiliyor
+- Dosya: `indeksler.py`
 
 ---
 
-## 2. Dosya Yapısı
+## 2. Web Arayüzü (5 Sayfa)
+
+| Sayfa | İçerik | Durum |
+|---|---|---|
+| Hakkında | 5 indeks tanıtımı, özellikler, veri kaynağı, sistem mimarisi | ✅ Güncel |
+| Hesaplayıcı | Manuel giriş (T, RH, W, P, Td, T_max), Open-Meteo otomatik, CSV | ✅ 5 indeks |
+| 7 Günlük Tahmin | Harita + koordinat, bar grafik, günlük kartlar | ⚠️ Grafik/istatistik hala FWI odaklı |
+| Hesaplama Yöntemi | Sekme tabanlı (FWI, Angström, Nesterov, KBDI, Carrega), her biri eşik tablolu | ✅ Güncel |
+| Doğrulama | FWI referans testi + 3 yangın olayı (5 indeks renk kodlu) | ✅ Güncel |
+
+---
+
+## 3. Dosya Yapısı
 
 ```
 Claude/
-├── app_v2.py           — Flask sunucu + tüm API endpointleri + Sentry
-├── fwi_hesap.py        — FWI hesaplama motoru (Van Wagner formülleri)
-├── openmeteo.py        — Open-Meteo Archive API (geçmiş veri + retry)
-├── forecast.py         — Open-Meteo Forecast API (7 günlük tahmin + retry)
-├── test_fwi.py         — Birim testleri
-├── requirements.txt    — Python bağımlılıkları
-├── Procfile            — Deploy yapılandırması (gunicorn app_v2:app)
-├── vercel.json         — Vercel yapılandırması (yedek)
+├── app_v2.py            — Flask sunucu, tüm endpoint'ler, Sentry, Basic Auth
+├── fwi_hesap.py         — FWI hesaplama motoru (Van Wagner 1987)
+├── indeksler.py         — 4 ek indeks: Angström, Nesterov, KBDI, Carrega I87
+├── openmeteo.py         — Open-Meteo Archive API (geçmiş veri + retry + dew_point + temp_max)
+├── forecast.py          — Open-Meteo Forecast API (7 günlük tahmin + retry + dew_point + temp_max)
+├── test_fwi.py          — FWI birim testleri
+├── test_indeksler.py    — Ek indeks birim testleri (35 test)
+├── requirements.txt     — Python bağımlılıkları
+├── Procfile             — gunicorn app_v2:app
 ├── templates/
-│   ├── index_v2.html   — Web arayüzü (SPA, ~3000+ satır)
-│   └── index.html      — Eski arayüz (arşiv)
+│   ├── index_v2.html    — Web arayüzü (SPA, ~3500+ satır)
+│   └── index.html       — Eski arayüz (arşiv)
 ├── docs/
-│   ├── CHECKPOINT.md   — Bu doküman
-│   ├── FWI_PLAN_DRAFT.md   — Proje planı (güncel)
-│   └── teknik_referans.md  — Formül referans dokümanı
+│   ├── CHECKPOINT.md         — Bu doküman
+│   ├── FWI_PLAN_DRAFT.md     — Proje planı
+│   ├── teknik_referans.md    — FWI formül referansı
+│   └── bilimsel_referanslar.md — 5 indeks bilimsel doğrulama raporu
 ```
 
 ---
 
-## 3. Altyapı
+## 4. Altyapı
 
 ### Sunucu (DigitalOcean)
-- **Droplet:** ormanyangini-server
-- **IP:** 165.22.92.106
-- **Region:** Frankfurt (FRA1)
+- **Droplet:** ormanyangini-server — Frankfurt (FRA1)
 - **Plan:** Regular $6/ay (1 GB RAM, 1 CPU, 25 GB SSD)
 - **OS:** Ubuntu 24.04 LTS
-- **Kredi:** $200 GitHub Student Pack (Mart 2027'ye kadar, ~33 ay yeter)
+- **Kredi:** $200 GitHub Student Pack (Mart 2027'ye kadar)
 
 ### Domain & SSL
-- **Domain:** fire-ews.tech (get.tech, 1 yıl ücretsiz → Mart 2027)
+- **Domain:** fire-ews.tech (get.tech, ücretsiz 1 yıl → Mart 2027)
 - **DNS:** A record → 165.22.92.106 (@ ve www)
-- **SSL:** Let's Encrypt (certbot + nginx, otomatik yenileme)
+- **SSL:** Let's Encrypt (certbot + nginx)
 
 ### Sunucu Yapısı
-- **Uygulama:** /opt/app (git clone)
-- **Virtual env:** /opt/app/venv
-- **Web stack:** Nginx → reverse proxy → Gunicorn (127.0.0.1:5002, 2 worker)
-- **Systemd:** fwi.service (otomatik başlatma + crash recovery)
-- **Nginx config:** /etc/nginx/sites-available/fwi
+- Uygulama: /opt/app — Nginx → Gunicorn (127.0.0.1:5002, 2 worker)
+- Systemd: fwi.service + webhook.service
+- Firewall (ufw): 22, 80, 443, 9000
 
 ### Otomatik Deploy
-- GitHub'a push → webhook tetiklenir → sunucu otomatik güncellenir
-- **Webhook:** /opt/webhook.py (Flask, port 9000)
-- **Deploy script:** /opt/deploy.sh (git pull → pip install → restart fwi)
-- **GitHub webhook URL:** http://165.22.92.106:9000/deploy
-- **Systemd:** webhook.service
-
-### Güvenlik
-- **Firewall (ufw):** Sadece 22, 80, 443, 9000 portları açık
-- **Sentry:** Hata izleme aktif (sentry.io, fire-ews projesi)
-- **Basic Auth:** admin / fire2026 (deploy endpoint hariç)
-- **noindex/nofollow:** Arama motorlarından gizli
-
-### Eski Altyapı (silindi)
-- Railway → silindi (paylaşımlı IP Open-Meteo rate limit sorununa neden oluyordu)
+- GitHub push → webhook (port 9000) → /opt/deploy.sh → git pull + restart
 
 ---
 
-## 4. Teknoloji Yığını
+## 5. API Endpointleri
 
-| Katman | Teknoloji |
-|---|---|
-| Backend | Python, Flask |
-| Hesaplama | fwi_hesap.py (Van Wagner 1987) |
-| Hava verisi (geçmiş) | Open-Meteo Archive API |
-| Hava verisi (tahmin) | Open-Meteo Forecast API |
-| Frontend | HTML, CSS, JavaScript (SPA) |
-| Harita | Leaflet.js + Esri World Imagery |
-| Grafik | Chart.js |
-| PDF | ReportLab |
-| Web sunucu | Nginx + Gunicorn |
-| Hosting | DigitalOcean |
-| Domain | fire-ews.tech (get.tech) |
-| SSL | Let's Encrypt (certbot) |
-| Hata izleme | Sentry |
-| Versiyon kontrolü | Git + GitHub (MrFBaker/orman-yangini) |
-| Deploy | Otomatik (GitHub webhook) |
+| Endpoint | Yöntem | Açıklama |
+|---|---|---|
+| `/` | GET | Ana sayfa |
+| `/hesapla` | POST | Tek gün hesaplama (FWI + 4 ek indeks) |
+| `/nasa` | POST | Open-Meteo çoklu gün (tüm indeksler) |
+| `/csv` | POST | CSV toplu hesaplama |
+| `/tahmin` | POST | 7 günlük tahmin (tüm indeksler) |
+| `/referans` | GET | Van Wagner referans testi |
+| `/test` | GET | Gerçek yangın olayları (tüm indeksler) |
+| `/rapor-pdf` | POST | PDF rapor (tüm indeksler dahil) |
 
 ---
 
-## 5. Kaynaklar & Referanslar
+## 6. Bilimsel Referanslar
 
-| Kaynak | Ne İçin |
-|---|---|
-| Van Wagner (1987) — Forestry Technical Report 35 | FWI formülleri |
-| cffdrs R paketi (bcgov/cffdrs) | Formül doğrulama |
-| EFFIS (Avrupa Komisyonu) | Akdeniz tehlike eşikleri |
-| Open-Meteo / ERA5 (ECMWF) | Hava verisi |
+| İndeks | Kaynak | Doğrulama |
+|---|---|---|
+| FWI | Van Wagner (1987) Forestry Technical Report 35 | ✅ Referans testi + cffdrs R paketi |
+| Angström | Angström (1942) Svenska Brandförsvarsföreningen | ✅ El hesabı + WikiFire (WSL) |
+| Nesterov | Nesterov (1949) / Shetinsky (1994) eşikleri | ✅ ClimInd R paketi |
+| KBDI | Keetch & Byram (1968) USDA Research Paper SE-38 | ✅ Katsayı doğrulaması |
+| Carrega | Carrega (1991) Int. J. Wildland Fire 1(2), 79-86 | ✅ Katsayı tutarlılığı |
 
----
-
-## 6. Bilinen Sorunlar
-
-- Open-Meteo Forecast API zaman zaman 429 (rate limit) verebilir — retry mekanizması ekli (üstel bekleme, 3 deneme). DigitalOcean'a taşındıktan sonra sorun çözüldü.
-- Doğrulama sayfasında sadece 3 yangın olayı var — daha fazla eklenmeli
-- Mobil uyumluluk iyileştirmeleri yapıldı (dokunma alanları, grid'ler, font boyutları) — telefonda test edilmeli
+Detaylı doğrulama: `docs/bilimsel_referanslar.md`
 
 ---
 
-## 7. Gelecek Planları
+## 7. Bilinen Sınırlamalar & Sorunlar
 
-### Kısa Vadeli
-- Daha fazla yangın olayı ile doğrulama
-- Yükleme animasyonları
-- Favori konumlar (localStorage)
-
-### Orta Vadeli
-- Tarihsel trend analizi
-- Çoklu konum karşılaştırması
-- Takvim heatmap
-- PWA (Progressive Web App)
-
-### Uzun Vadeli
-- Türkiye tehlike haritası (heatmap)
-- Otomatik bildirim sistemi (email)
-- Uydu verisi entegrasyonu (MODIS/VIIRS)
-- ~~Ek yangın indeksleri~~ → 4 tanesi eklendi (aşağıya bak), frontend entegrasyonu kısmen tamamlandı
+- **Nesterov Akdeniz sorunu:** Rusya için tasarlanmış, Akdeniz'de on binlere çıkıyor → K formatıyla gösteriliyor
+- **Carrega Türkiye uyumu:** Güney Fransa kalibrasyonlu, Türkiye'de yangın günlerinde "Orta" çıkabiliyor
+- **7 Günlük Tahmin:** Grafik ve istatistikler hala sadece FWI odaklı — 5 indeks eşit gösterilmeli
+- **CSV hesaplama:** Backend'de ek indeks entegrasyonu eksik (sadece FWI hesaplıyor)
+- **Doğrulama:** Sadece 3 yangın olayı var — 8-10'a çıkarılmalı
+- **Mobil:** Test edilmeli
+- **İngilizce çeviriler:** Yeni eklenen metinler çevrilmedi
 
 ---
 
@@ -180,84 +149,85 @@ Claude/
 |---|---|
 | GitHub | MrFBaker (repo: orman-yangini) |
 | DigitalOcean | GitHub ile giriş ($200 kredi aktif) |
-| get.tech | ahmetemreekmekci@gmail.com (fire-ews.tech domain) |
+| get.tech | ahmetemreekmekci@gmail.com (fire-ews.tech) |
 | Sentry | GitHub ile giriş (fire-ews projesi) |
 | Sunucu SSH | root@165.22.92.106 |
 | Site girişi | admin / fire2026 |
 
+---
+
 ## 9. Bu Oturumda Yapılanlar (22 Mart 2026)
 
-1. Sidebar sırası düzeltildi (7 Günlük Tahmin → Hesaplayıcı'dan sonra)
-2. Formüllerdeki parantez açıklamaları şık badge'lere dönüştürüldü (.f-not)
-3. FWI_PLAN_DRAFT.md güncellendi (tamamlanan özellikler, Türkçe karakterler)
-4. Eski planlama dosyaları temizlendi (faz1, faz2, plan.md)
-5. Railway'e push + deploy (Procfile app_v2 olarak güncellendi)
-6. API retry mekanizması eklendi (429 rate limit çözümü)
-7. DigitalOcean Droplet oluşturuldu ($6/ay, Frankfurt)
-8. Sunucu kurulumu (Python, Gunicorn, Nginx, systemd)
-9. fire-ews.tech domain alındı (get.tech, ücretsiz 1 yıl)
-10. SSL sertifikası (Let's Encrypt + certbot)
-11. Otomatik deploy (GitHub webhook + deploy script)
-12. Firewall ayarı (ufw)
-13. Sentry hata izleme entegrasyonu
-14. Railway silindi
-15. Mobil uyumluluk iyileştirmeleri (dokunma alanları, grid'ler, breakpoint'ler)
-16. FWI System → Fire-EWS isim değişikliği
-17. Title, favicon güncellendi
-18. noindex/nofollow (arama motorlarından gizleme)
-19. Basic Auth şifre koruması (admin/fire2026)
-20. 4 ek yangın indeksi: Angström, Nesterov, KBDI, Carrega I87 (indeksler.py)
-21. Open-Meteo modüllerine dew_point ve temp_max verileri eklendi
-22. Tüm endpoint'ler ek indekslerle entegre edildi
-23. Frontend: manuel hesaplama, tablo, tahmin kartları, doğrulama — 5 indeks eşit seviyede
-24. Türkçe karakter desteği (sinifCevir fonksiyonu)
-25. Hesaplama Yöntemi: sekme tabanlı yapı + her indekse özel eşik tablosu
-26. Doğrulama: 5 indeks renk kodlu karşılaştırmalı test kartları
-27. 35 birim testi (test_indeksler.py)
-28. Tablo sadeleştirildi (FWI alt bileşenleri kaldırıldı)
-29. Hakkında sayfası + akış diyagramı + footer güncellendi
-30. Nesterov K formatı (25188 → 25.2K)
-31. bilimsel_referanslar.md oluşturuldu
-32. Sidebar taşma düzeltildi, badge'ler kısaltıldı
+### Altyapı (sıfırdan kuruldu)
+1. DigitalOcean Droplet ($6/ay, Frankfurt, $200 kredi)
+2. Python + Gunicorn + Nginx + systemd kurulumu
+3. fire-ews.tech domain (get.tech, ücretsiz 1 yıl)
+4. SSL sertifikası (Let's Encrypt + certbot)
+5. Otomatik deploy (GitHub webhook + deploy script)
+6. Firewall (ufw — 22, 80, 443, 9000)
+7. Sentry hata izleme entegrasyonu
+8. Basic Auth şifre koruması
+9. noindex/nofollow (arama motorlarından gizleme)
+10. Railway silindi (eski altyapı)
 
-## 10. Eklenen 4 Yeni İndeks
+### 4 Ek İndeks (sıfırdan eklendi)
+11. indeksler.py oluşturuldu (Angström, Nesterov, KBDI, Carrega I87)
+12. Bilimsel doğrulama yapıldı (orijinal makalelerle katsayı karşılaştırması)
+13. KBDI düzeltmeleri (yağış eşiği 5.08mm, sıcaklık eşiği 10°C)
+14. Nesterov sınıf isimleri Shetinsky (1994) referansına hizalandı
+15. Open-Meteo modüllerine dew_point ve temp_max verileri eklendi
+16. Tüm endpoint'ler ek indekslerle entegre edildi
+17. Warmup fonksiyonu genişletildi (KBDI + Nesterov state biriktirme)
+18. 35 birim testi yazıldı (test_indeksler.py)
+19. bilimsel_referanslar.md oluşturuldu
 
-| İndeks | Kaynak | Dosya | Durum |
-|---|---|---|---|
-| Angström | Angström (1942) | indeksler.py | ✅ Backend + Frontend tamam |
-| Nesterov | Nesterov (1949) / Shetinsky (1994) | indeksler.py | ✅ Backend + Frontend tamam |
-| KBDI | Keetch & Byram (1968) USDA SE-38 | indeksler.py | ✅ Backend + Frontend tamam |
-| Carrega I87 | Carrega (1991) Int. J. Wildland Fire | indeksler.py | ✅ Backend + Frontend tamam |
+### Frontend Güncellemeleri
+20. Hakkında sayfası: 5 indeks, özellikler kartı, sistem mimarisi diyagramı
+21. Hesaplayıcı: manuel formda çiy noktası + T_max alanları
+22. Hesaplayıcı: tablo sadeleştirildi (FWI alt bileşenleri kaldırıldı, 5 indeks renk kodlu)
+23. Hesaplayıcı: sonuç alanında tüm indeksler eşit seviyede
+24. 7 Günlük Tahmin: kartlarda 5 indeks eşit seviyede renk kodlu
+25. Hesaplama Yöntemi: sekme tabanlı yapı (FWI, Angström, Nesterov, KBDI, Carrega)
+26. Hesaplama Yöntemi: her indekse özel formül kartları + eşik tabloları
+27. Doğrulama: test kartlarında 5 indeks renk kodlu
+28. Doğrulama: backend ek indeksler döndürüyor
+29. PDF rapor: manuel ve çoklu gün raporlarında 4 ek indeks
+30. CSV format açıklaması güncellendi (badge'li gösterim)
+31. Nesterov büyük değerler K formatında (25188 → 25.2K)
+32. Türkçe karakter desteği (sinifCevir, Yangını, Muğla, İzmir)
 
-### Bilimsel Doğrulama Yapıldı
-- Tüm formüller orijinal makalelerle karşılaştırıldı
-- KBDI: yağış eşiği 5.08mm (0.20 inç), sıcaklık eşiği 10°C eklendi
-- Nesterov: sınıf isimleri Shetinsky (1994) referansına hizalandı
-- El hesabı doğrulaması: Angström T=25/RH=30 → 1.7 ✅
+### UI/UX Düzeltmeleri
+33. FWI System → Fire-EWS isim değişikliği
+34. Sidebar taşma düzeltildi (iki satır)
+35. İndeks badge'leri kısaltıldı (ANG, NES, CAR)
+36. Title, favicon güncellendi
+37. Footer: Fire-EWS + 5 indeks
+38. Formüllerdeki parantez açıklamaları şık badge'lere dönüştürüldü
+39. Mobil uyumluluk iyileştirmeleri (dokunma alanları, grid'ler, breakpoint'ler)
+40. Özellikler kartı düzenlendi (badge hizalama, boşluk)
+41. Referans testi başlığı güncellendi + ek indeks doğrulama notu
+42. API retry mekanizması (429 rate limit)
 
-### Tamamlanan Ek İşler (aynı oturum)
-- [x] Hesaplama Yöntemi: sekme tabanlı yapı (FWI, Angström, Nesterov, KBDI, Carrega)
-- [x] Her indeksin kendi eşik tablosu kendi sekmesinde
-- [x] Doğrulama sayfası: 5 indeks renk kodlu karşılaştırmalı test kartları
-- [x] test_indeksler.py: 35 birim testi (tümü geçiyor)
-- [x] Tablo sadeleştirildi: FWI alt bileşenleri kaldırıldı, 5 indeks renk kodlu
-- [x] Tahmin kartları: 5 indeks eşit seviyede renk kodlu
-- [x] Hakkında sayfası güncellendi (5 indeks, özellikler kartı)
-- [x] Akış diyagramı güncellendi (5 indeks birlikte)
-- [x] İndeks badge'leri kısaltıldı (ANG, NES, CAR)
-- [x] Sidebar taşma düzeltildi (iki satır)
-- [x] Nesterov büyük değerler K formatında (25188 → 25.2K)
-- [x] Footer güncellendi (Fire-EWS + 5 indeks)
-- [x] bilimsel_referanslar.md oluşturuldu
+---
 
-### Bilinen Sınırlamalar
-- **Nesterov:** Akdeniz ikliminde on binlere çıkması normal (Rusya için tasarlanmış, uzun kurak dönemde kümülatif birikim). K formatıyla gösteriliyor.
-- **Carrega I87:** Güney Fransa kalibrasyonlu, Türkiye yaz sıcaklıkları daha yüksek olduğu için büyük yangın günlerinde bile "Orta" çıkabiliyor. Eşikler yerel kalibrasyon gerektirebilir.
+## 10. Sonraki Oturum İçin Yapılacaklar
 
-### Kalan İşler
-- [ ] Mobil görünüm test edilmeli (telefonda kontrol)
-- [ ] Daha fazla yangın olayı eklenmeli (3'ten 8-10'a çıkarılmalı)
-- [ ] İngilizce çeviriler güncellenecek (yeni eklenen metinler)
+### Öncelikli
+- [ ] **7 Günlük Tahmin** grafik ve istatistikleri 5 indeks eşit gösterecek şekilde güncelle
+- [ ] **CSV hesaplama** backend'de ek indeks entegrasyonu
+- [ ] **Mobil test** — telefonda kontrol, sorunları düzelt
+
+### Orta Öncelik
+- [ ] Daha fazla yangın olayı (3 → 8-10)
+- [ ] İngilizce çeviriler güncelleme
+- [ ] Loading animasyonları
+
+### Düşük Öncelik
+- [ ] Tarihsel trend analizi
+- [ ] Favori konumlar (localStorage)
+- [ ] Türkiye tehlike haritası
+
+---
 
 ## 11. Görev Dağılımı (Takım)
 
