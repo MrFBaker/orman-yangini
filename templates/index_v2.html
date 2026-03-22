@@ -1675,6 +1675,7 @@
     </div>
   </div>
   </div><!-- yon-fwi -->
+  </div><!-- lang-tr -->
 
   <div class="yontem-panel" id="yon-angstrom">
   <div class="yontem-bolum" id="bolum-angstrom">
@@ -1842,8 +1843,6 @@
     </div>
   </div>
   </div><!-- yon-carrega -->
-
-  </div><!-- lang-tr -->
 
   <!-- ═══ ENGLISH METHODOLOGY ═══ -->
   <div class="lang-en">
@@ -2411,8 +2410,11 @@
       valid_method_desc: "Her olay için Ocak 1'den yangın gününe kadar FWI durumu biriktirilir. Yangın günü öğlen 12:00 Open-Meteo verisi kullanılır. Beklenti: tüm olayların <strong>Çok Yüksek</strong> veya <strong>Aşırı</strong> sınıfına girmesi.",
       btn_run_tests: "Yangın Testlerini Çalıştır",
       event_1: "Manavgat Yangını — 28 Temmuz 2021, Antalya",
+      event_1_name: "Manavgat Yangını",
       event_2: "Marmaris Yangını — 30 Temmuz 2021, Muğla",
+      event_2_name: "Marmaris Yangını",
       event_3: "İzmir Yangını — 19 Ağustos 2019, İzmir",
+      event_3_name: "İzmir Yangını",
       valid_input_info: "Girdi: T=17°C, H=42%, W=25 km/h, r=0 mm, Ay=7 &nbsp;|&nbsp; FFMC₀=85, DMC₀=6, DC₀=15",
       valid_extra_note: "<strong style=\"color:var(--text)\">Ek indeks doğrulaması:</strong> Angström, Nesterov, KBDI ve Carrega I87 formülleri <code>test_indeksler.py</code> birim testleriyle (35 test) doğrulanmıştır. Detaylar için <strong>bilimsel_referanslar.md</strong> dosyasına bakınız.",
       tab_fwi: "FWI Sistemi",
@@ -2571,8 +2573,11 @@
       valid_method_desc: "For each event, FWI state is accumulated from January 1st to the fire date. Noon 12:00 Open-Meteo data is used for the fire day. Expectation: all events should fall in <strong>Very High</strong> or <strong>Extreme</strong> class.",
       btn_run_tests: "Run Fire Tests",
       event_1: "Manavgat Fire — July 28, 2021, Antalya",
+      event_1_name: "Manavgat Fire",
       event_2: "Marmaris Fire — July 30, 2021, Muğla",
+      event_2_name: "Marmaris Fire",
       event_3: "İzmir Fire — August 19, 2019, İzmir",
+      event_3_name: "İzmir Fire",
       valid_input_info: "Input: T=17°C, H=42%, W=25 km/h, r=0 mm, Month=7 &nbsp;|&nbsp; FFMC₀=85, DMC₀=6, DC₀=15",
       valid_extra_note: "<strong style=\"color:var(--text)\">Additional index validation:</strong> Angström, Nesterov, KBDI and Carrega I87 formulas are validated with <code>test_indeksler.py</code> unit tests (35 tests). See <strong>bilimsel_referanslar.md</strong> for details.",
       tab_fwi: "FWI System",
@@ -3168,11 +3173,13 @@
         ? s.tarih.slice(0,4) + "-" + s.tarih.slice(4,6) + "-" + s.tarih.slice(6,8)
         : "—";
 
+      const isimGoster = s.isim_key ? t(s.isim_key) : s.isim;
+
       if (s.hata) {
         kapsayici.innerHTML += `
           <div class="test-kart">
             <div class="test-kart-baslik">
-              <h3>${s.isim}</h3><span class="tarih">${tarihGoster} · ${s.yer || ""}</span>
+              <h3>${isimGoster}</h3><span class="tarih">${tarihGoster} · ${s.yer || ""}</span>
             </div>
             <div class="test-hata">${t("hata_genel")}${s.hata}</div>
           </div>`;
@@ -3188,7 +3195,7 @@
       kapsayici.innerHTML += `
         <div class="test-kart">
           <div class="test-kart-baslik">
-            <h3>${s.isim}</h3>
+            <h3>${isimGoster}</h3>
             <span class="tarih">${tarihGoster} · ${s.yer}</span>
           </div>
           <div class="test-meta">
