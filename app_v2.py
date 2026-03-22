@@ -227,9 +227,13 @@ def test_yangin():
             r   = f.hesapla(temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
                             precip=gun["precip"], month=ay,
                             ffmc0=st["ffmc0"], dmc0=st["dmc0"], dc0=st["dc0"], lat=o["lat"])
+            ek  = idx.hesapla_ek(temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
+                                precip=gun["precip"], temp_max=gun.get("temp_max", gun["temp"]),
+                                dew_point=gun.get("dew_point", 10.0),
+                                kbdi0=st["kbdi0"], nesterov0=st["nesterov0"])
             sonuclar.append({"isim": o["isim"], "yer": o["yer"], "tarih": o["tarih"],
                              "temp": gun["temp"], "rh": gun["rh"],
-                             "wind_kmh": gun["wind_kmh"], "precip": gun["precip"], **r})
+                             "wind_kmh": gun["wind_kmh"], "precip": gun["precip"], **r, **ek})
         except Exception as e:
             sonuclar.append({"isim": o["isim"], "yer": o["yer"], "tarih": o["tarih"], "hata": str(e)})
     return jsonify({"ok": True, "sonuclar": sonuclar})

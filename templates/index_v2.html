@@ -2174,7 +2174,7 @@
 
   <div class="hero">
     <h1 data-i18n="valid_title">Model Doğrulama</h1>
-    <p data-i18n="valid_desc">Türkiye'de gerçekleşen büyük orman yangını olaylarında FWI hesabı yapılır. Sonuçlar tehlike sınıfı açısından beklentilerle karşılaştırılır.</p>
+    <p data-i18n="valid_desc">Türkiye'de gerçekleşen büyük orman yangını olaylarında tüm indeksler hesaplanır. Sonuçlar tehlike sınıfı açısından beklentilerle karşılaştırılır.</p>
   </div>
 
   <!-- BÖLÜM 1: Van Wagner Referans Testi -->
@@ -2210,7 +2210,7 @@
     </div>
     <div class="bilgi-kart">
       <h3 data-i18n="valid_method_title">Yöntem</h3>
-      <p data-i18n="valid_method_desc" data-i18n-html="1">Her olay için Ocak 1'den yangın gününe kadar FWI durumu biriktirilir. Yangın günü öğlen 12:00 Open-Meteo verisi kullanılır. Beklenti: tüm olayların <strong>Çok Yüksek</strong> veya <strong>Aşırı</strong> sınıfına girmesi.</p>
+      <p data-i18n="valid_method_desc" data-i18n-html="1">Her olay için Ocak 1'den yangın gününe kadar tüm indeks durumları biriktirilir. Yangın günü öğlen 12:00 Open-Meteo verisi kullanılır. Beklenti: tüm olayların <strong>yüksek tehlike</strong> sınıflarına girmesi.</p>
     </div>
   </div>
 
@@ -2223,8 +2223,8 @@
 </div>
 
 <footer>
-  Van Wagner (1987) · Canadian Forest Fire Weather Index System<br>
-  <span data-i18n="footer_text">Meteoroloji Mühendisliği Tasarım Projesi · Open-Meteo Saatlik Veri</span>
+  Fire-EWS · FWI · Angström · Nesterov · KBDI · Carrega I87<br>
+  <span data-i18n="footer_text">İklim Bilimi ve Meteoroloji Mühendisliği Tasarım Projesi · Open-Meteo Veri</span>
 </footer>
 
 </div><!-- main -->
@@ -3003,11 +3003,12 @@
     kapsayici.innerHTML = "";
 
     const renkMap = {
-      "Dusuk":      { bg: "#052e16", renk: "#4ade80", tr: () => t("sinif_dusuk") },
-      "Orta":       { bg: "#422006", renk: "#fbbf24", tr: () => t("sinif_orta") },
-      "Yuksek":     { bg: "#431407", renk: "#fb923c", tr: () => t("sinif_yuksek") },
-      "Cok Yuksek": { bg: "#450a0a", renk: "#f87171", tr: () => t("sinif_cok_yuksek") },
-      "Asiri":      { bg: "#2e1065", renk: "#c084fc", tr: () => t("sinif_asiri") },
+      "Dusuk":       { bg: "#052e16", renk: "#4ade80", tr: () => t("sinif_dusuk") },
+      "Orta":        { bg: "#422006", renk: "#fbbf24", tr: () => t("sinif_orta") },
+      "Yuksek":      { bg: "#431407", renk: "#fb923c", tr: () => t("sinif_yuksek") },
+      "Cok Yuksek":  { bg: "#450a0a", renk: "#f87171", tr: () => t("sinif_cok_yuksek") },
+      "Asiri":       { bg: "#2e1065", renk: "#c084fc", tr: () => t("sinif_asiri") },
+      "Tehlike Yok": { bg: "#052e16", renk: "#4ade80", tr: () => t("sinif_tehlike_yok") },
     };
 
     for (const s of sonuclar) {
@@ -3027,9 +3028,10 @@
       }
 
       const info = renkMap[s.sinif] || { bg: "#111827", renk: "#e5e7eb", tr: () => s.sinif };
-      const beklenti = (s.sinif === "Asiri" || s.sinif === "Cok Yuksek")
-        ? t("beklenti_ok")
-        : t("beklenti_fail");
+      const angInfo = renkMap[s.angstrom_sinif] || renkMap["Dusuk"];
+      const nesInfo = renkMap[s.nesterov_sinif] || renkMap["Dusuk"];
+      const kbdInfo = renkMap[s.kbdi_sinif] || renkMap["Dusuk"];
+      const carInfo = renkMap[s.carrega_sinif] || renkMap["Dusuk"];
 
       kapsayici.innerHTML += `
         <div class="test-kart">
@@ -3038,23 +3040,17 @@
             <span class="tarih">${tarihGoster} · ${s.yer}</span>
           </div>
           <div class="test-meta">
-            <span>🌡 <strong>${s.temp}°C</strong></span>
-            <span>💧 <strong>${s.rh}%</strong></span>
-            <span>💨 <strong>${s.wind_kmh} km/h</strong></span>
-            <span>🌧 <strong>${s.precip} mm</strong></span>
+            <span>T: <strong>${s.temp}°C</strong></span>
+            <span>RH: <strong>${s.rh}%</strong></span>
+            <span>W: <strong>${s.wind_kmh} km/h</strong></span>
+            <span>P: <strong>${s.precip} mm</strong></span>
           </div>
-          <div class="test-indeksler">
-            <div class="test-idx"><div class="etiket">FFMC</div><div class="deger">${s.ffmc}</div></div>
-            <div class="test-idx"><div class="etiket">DMC</div><div class="deger">${s.dmc}</div></div>
-            <div class="test-idx"><div class="etiket">DC</div><div class="deger">${s.dc}</div></div>
-            <div class="test-idx"><div class="etiket">ISI</div><div class="deger">${s.isi}</div></div>
-            <div class="test-idx"><div class="etiket">BUI</div><div class="deger">${s.bui}</div></div>
-            <div class="test-idx"><div class="etiket">DSR</div><div class="deger">${s.dsr}</div></div>
-          </div>
-          <div class="test-sonuc" style="background:${info.bg};border:1px solid ${info.renk}40">
-            <div class="fwi-buyuk" style="color:${info.renk}">FWI ${s.fwi}</div>
-            <div class="sinif-adi" style="color:${info.renk}">${info.tr()}</div>
-            <div class="beklenti">${beklenti}</div>
+          <div class="test-indeksler" style="grid-template-columns:repeat(5,1fr)">
+            <div class="test-idx" style="background:${info.bg};border-color:${info.renk}40"><div class="etiket" style="color:${info.renk}">FWI</div><div class="deger" style="color:${info.renk}">${s.fwi}</div></div>
+            <div class="test-idx" style="background:${angInfo.bg};border-color:${angInfo.renk}40"><div class="etiket" style="color:${angInfo.renk}">Ang.</div><div class="deger" style="color:${angInfo.renk}">${s.angstrom != null ? s.angstrom : "—"}</div></div>
+            <div class="test-idx" style="background:${nesInfo.bg};border-color:${nesInfo.renk}40"><div class="etiket" style="color:${nesInfo.renk}">Nes.</div><div class="deger" style="color:${nesInfo.renk}">${s.nesterov != null ? s.nesterov : "—"}</div></div>
+            <div class="test-idx" style="background:${kbdInfo.bg};border-color:${kbdInfo.renk}40"><div class="etiket" style="color:${kbdInfo.renk}">KBDI</div><div class="deger" style="color:${kbdInfo.renk}">${s.kbdi != null ? s.kbdi : "—"}</div></div>
+            <div class="test-idx" style="background:${carInfo.bg};border-color:${carInfo.renk}40"><div class="etiket" style="color:${carInfo.renk}">Car.</div><div class="deger" style="color:${carInfo.renk}">${s.carrega != null ? s.carrega : "—"}</div></div>
           </div>
         </div>`;
     }
