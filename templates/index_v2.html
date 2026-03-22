@@ -207,9 +207,9 @@
     .komponent-badge {
       font-size: 0.68rem; font-weight: 700;
       background: var(--main-bg); border: 1px solid var(--border-light);
-      border-radius: 4px; padding: 3px 10px; text-align: center;
+      border-radius: 4px; padding: 3px 0; text-align: center;
       color: var(--accent); white-space: nowrap; flex-shrink: 0;
-      display: inline-block;
+      display: inline-block; width: 56px;
     }
 
     /* TEHLİKE SINIFI SATIRI */
@@ -989,7 +989,6 @@
   <button class="hamburger" onclick="toggleSidebar()" aria-label="Menü">&#9776;</button>
   <div class="sidebar-logo">&#x1F525;</div>
   <span class="mob-title">Fire-EWS</span>
-  <button class="mob-lang" onclick="setLang(currentLang==='tr'?'en':'tr')" id="mob-lang-btn">EN</button>
 </div>
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
@@ -1026,14 +1025,11 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       Doğrulama
     </button>
-  </nav>
-
-  <div class="sidebar-footer">
-    <div class="lang-toggle">
+    <div class="lang-toggle" style="margin-top:12px">
       <button class="lang-btn aktif" id="lang-opt-tr" onclick="setLang('tr')">TR</button>
       <button class="lang-btn" id="lang-opt-en" onclick="setLang('en')">EN</button>
     </div>
-  </div>
+  </nav>
 </aside>
 
 <!-- ═══════════════════════════════════════════ -->
