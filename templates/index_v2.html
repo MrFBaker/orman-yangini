@@ -1280,14 +1280,14 @@
   <div id="nasa-sonuc-alani">
     <div class="sonuc-ust-grid">
       <div class="istatistik-grid">
-        <div class="istat-kutu"><div class="etiket" data-i18n="stat_max">En Yüksek FWI</div><div class="deger" id="stat-max">—</div><div class="alt" id="stat-max-tarih">—</div></div>
-        <div class="istat-kutu"><div class="etiket" data-i18n="stat_avg">Ortalama FWI</div><div class="deger" id="stat-ort">—</div><div class="alt" data-i18n="stat_avg_desc">dönem ortalaması</div></div>
-        <div class="istat-kutu"><div class="etiket" data-i18n="stat_extreme">Aşırı Gün</div><div class="deger" id="stat-asiri">—</div><div class="alt">FWI ≥ 30</div></div>
-        <div class="istat-kutu"><div class="etiket" data-i18n="stat_very_high">Çok Yüksek +</div><div class="deger" id="stat-cok">—</div><div class="alt">FWI ≥ 20</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_general_danger">Genel Tehlike</div><div class="deger" id="stat-genel">—</div><div class="alt" id="stat-genel-tarih">—</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_risky_days">Riskli Gün</div><div class="deger" id="stat-risk">—</div><div class="alt" data-i18n="forecast_risky_desc">indeks ≥ Yüksek</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_critical_idx">En Kritik İndeks</div><div class="deger" id="stat-kritik">—</div><div class="alt" id="stat-kritik-neden">—</div></div>
+        <div class="istat-kutu"><div class="etiket" data-i18n="forecast_total_warn">Toplam Uyarı</div><div class="deger" id="stat-uyari">—</div><div class="alt" data-i18n="forecast_warn_desc">Yüksek+ okuma</div></div>
       </div>
       <div class="grafik-kutu">
-        <div class="grafik-baslik" data-i18n="chart_title">FWI Zaman Serisi</div>
-        <canvas id="fwi-grafik"></canvas>
+        <div class="grafik-baslik" data-i18n="chart_title">Yangın Tehlike Zaman Serisi</div>
+        <div id="nasa-heatmap" class="tahmin-heatmap"></div>
       </div>
     </div>
     <div class="tablo-wrapper" style="margin-top:16px;">
@@ -2277,7 +2277,6 @@
 
 <script>
   // ═══ GLOBAL STATE ═══
-  let fwiChart = null;
   let sonManuelSonuc = null;
   let sonManuelGirdi = null;
   let sonCokluSatirlar = null;
@@ -2349,9 +2348,7 @@
       idx_ffmc: "İnce Üst Tabaka", idx_dmc: "Döküntü Nemi", idx_dc: "Derin Organik Tabaka",
       idx_isi: "Başlangıç Yayılma", idx_bui: "Birikmiş Yanıcı Madde", idx_dsr: "Günlük Şiddet Oranı",
       idx_extra_title: "Ek İndeksler",
-      stat_max: "En Yüksek FWI", stat_avg: "Ortalama FWI", stat_avg_desc: "dönem ortalaması",
-      stat_extreme: "Aşırı Gün", stat_very_high: "Çok Yüksek +",
-      chart_title: "FWI Zaman Serisi",
+      chart_title: "Yangın Tehlike Zaman Serisi",
       th_date: "Tarih", th_temp: "Sıcaklık (°C)", th_rh: "Nem (%)", th_wind: "Rüzgar (km/h)", th_precip: "Yağış (mm)", th_class: "Sınıf",
       method_title: "Hesaplama Yöntemi",
       method_desc: "Van Wagner (1987) — Canadian Forest Fire Weather Index System. Her bileşen için kullanılan girdiler ve adım adım formüller.",
@@ -2478,9 +2475,7 @@
       idx_ffmc: "Fine Fuel Moisture", idx_dmc: "Duff Moisture", idx_dc: "Drought Code",
       idx_isi: "Initial Spread", idx_bui: "Buildup Index", idx_dsr: "Daily Severity Rating",
       idx_extra_title: "Additional Indices",
-      stat_max: "Highest FWI", stat_avg: "Average FWI", stat_avg_desc: "period average",
-      stat_extreme: "Extreme Days", stat_very_high: "Very High +",
-      chart_title: "FWI Time Series",
+      chart_title: "Fire Danger Time Series",
       th_date: "Date", th_temp: "Temp (°C)", th_rh: "RH (%)", th_wind: "Wind (km/h)", th_precip: "Precip (mm)", th_class: "Class",
       method_title: "Calculation Methodology",
       method_desc: "Van Wagner (1987) — Canadian Forest Fire Weather Index System. Inputs and step-by-step formulas for each component.",
@@ -2729,19 +2724,59 @@
   }
 
   function gosterIstatistik(satirlar) {
-    const fwiDegerleri = satirlar.map(r => r.fwi);
-    const maxFwi = Math.max(...fwiDegerleri);
-    const maxGun = satirlar.find(r => r.fwi === maxFwi);
-    const maxTarih = maxGun ? maxGun.tarih.slice(0,4) + "-" + maxGun.tarih.slice(4,6) + "-" + maxGun.tarih.slice(6,8) : "—";
-    const ort = fwiDegerleri.reduce((a, b) => a + b, 0) / fwiDegerleri.length;
-    const asiriGun = fwiDegerleri.filter(v => v >= 30).length;
-    const cokYuksekGun = fwiDegerleri.filter(v => v >= 20).length;
+    const sinifSira = {"Tehlike Yok":0,"Dusuk":1,"Orta":2,"Yuksek":3,"Cok Yuksek":4,"Asiri":5};
+    const idxList = [
+      { key: "sinif",           ad: "FWI" },
+      { key: "angstrom_sinif",  ad: "Angström" },
+      { key: "nesterov_sinif",  ad: "Nesterov" },
+      { key: "kbdi_sinif",      ad: "KBDI" },
+      { key: "carrega_sinif",   ad: "Carrega" },
+    ];
 
-    document.getElementById("stat-max").textContent = maxFwi.toFixed(1);
-    document.getElementById("stat-max-tarih").textContent = maxTarih;
-    document.getElementById("stat-ort").textContent = ort.toFixed(1);
-    document.getElementById("stat-asiri").textContent = asiriGun;
-    document.getElementById("stat-cok").textContent = cokYuksekGun;
+    // Genel tehlike
+    let genelMax = "Dusuk", genelTarih = "";
+    for (const r of satirlar) {
+      for (const idx of idxList) {
+        const s = r[idx.key];
+        if (s && (sinifSira[s]||0) > (sinifSira[genelMax]||0)) {
+          genelMax = s;
+          genelTarih = r.tarih.slice(0,4)+"-"+r.tarih.slice(4,6)+"-"+r.tarih.slice(6,8);
+        }
+      }
+    }
+    const genelInfo = SINIF_MAP[genelMax];
+    document.getElementById("stat-genel").textContent = genelInfo ? genelInfo.tr() : genelMax;
+    document.getElementById("stat-genel-tarih").textContent = genelTarih;
+
+    // Riskli gün
+    const riskli = satirlar.filter(r =>
+      idxList.some(idx => (sinifSira[r[idx.key]]||0) >= 3)
+    ).length;
+    document.getElementById("stat-risk").textContent = riskli;
+
+    // En kritik indeks
+    const kritikSay = {};
+    for (const idx of idxList) kritikSay[idx.ad] = 0;
+    for (const r of satirlar) {
+      for (const idx of idxList) {
+        if ((sinifSira[r[idx.key]]||0) >= 3) kritikSay[idx.ad]++;
+      }
+    }
+    let kritikAd = "—", kritikMax = 0;
+    for (const [ad, say] of Object.entries(kritikSay)) {
+      if (say > kritikMax) { kritikMax = say; kritikAd = ad; }
+    }
+    document.getElementById("stat-kritik").textContent = kritikMax > 0 ? kritikAd : "—";
+    document.getElementById("stat-kritik-neden").textContent = kritikMax > 0 ? (kritikMax + " " + t("forecast_days_risky")) : t("forecast_no_risk");
+
+    // Toplam uyarı
+    let toplamUyari = 0;
+    for (const r of satirlar) {
+      for (const idx of idxList) {
+        if ((sinifSira[r[idx.key]]||0) >= 3) toplamUyari++;
+      }
+    }
+    document.getElementById("stat-uyari").textContent = toplamUyari;
   }
 
   function noktaRenk(v) {
@@ -2753,67 +2788,50 @@
   }
 
   function cizGrafik(satirlar) {
-    const labels = satirlar.map(r => r.tarih.slice(0,4) + "-" + r.tarih.slice(4,6) + "-" + r.tarih.slice(6,8));
-    const fwiDeger = satirlar.map(r => r.fwi);
-    const noktaRenkler = fwiDeger.map(noktaRenk);
+    const hmRenk = {
+      "Tehlike Yok": { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+      "Dusuk":       { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+      "Orta":        { bg: "#422006", renk: "#fbbf24", border: "#713f12" },
+      "Yuksek":      { bg: "#431407", renk: "#fb923c", border: "#7c2d12" },
+      "Cok Yuksek":  { bg: "#450a0a", renk: "#f87171", border: "#7f1d1d" },
+      "Asiri":       { bg: "#2e1065", renk: "#c084fc", border: "#581c87" },
+    };
+    const idxList = [
+      { key: "sinif",          valKey: "fwi",      ad: "FWI",  fmt: v => v != null ? v : "—" },
+      { key: "angstrom_sinif", valKey: "angstrom",  ad: "Ang.", fmt: v => v != null ? v : "—" },
+      { key: "nesterov_sinif", valKey: "nesterov",  ad: "Nes.", fmt: v => fmtK(v) },
+      { key: "kbdi_sinif",     valKey: "kbdi",      ad: "KBDI", fmt: v => v != null ? v : "—" },
+      { key: "carrega_sinif",  valKey: "carrega",   ad: "Car.", fmt: v => v != null ? v : "—" },
+    ];
+
     const n = satirlar.length;
+    const colW = n <= 7 ? "1fr" : (n <= 14 ? "minmax(52px,1fr)" : "minmax(38px,1fr)");
+    let html = `<div class="tahmin-hm-grid" style="grid-template-columns:72px repeat(${n},${colW});min-width:${Math.max(480, n*46+72)}px">`;
 
-    if (fwiChart) fwiChart.destroy();
-
-    const ctx = document.getElementById("fwi-grafik").getContext("2d");
-    fwiChart = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels,
-        datasets: [
-          {
-            label: "FWI",
-            data: fwiDeger,
-            borderColor: "#f97316",
-            backgroundColor: "rgba(249,115,22,0.08)",
-            pointBackgroundColor: noktaRenkler,
-            pointBorderColor: noktaRenkler,
-            pointRadius: n > 90 ? 2 : 4,
-            pointHoverRadius: 6,
-            tension: 0.3,
-            fill: true,
-            borderWidth: 2,
-          },
-          { label: "Orta eşiği",   data: Array(n).fill(5),  borderColor: "#166534", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
-          { label: "Yüksek eşiği", data: Array(n).fill(10), borderColor: "#713f12", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
-          { label: "Çok Y. eşiği", data: Array(n).fill(20), borderColor: "#7c2d12", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
-          { label: "Aşırı eşiği",  data: Array(n).fill(30), borderColor: "#7f1d1d", borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
-        ]
-      },
-      options: {
-        responsive: true,
-        interaction: { mode: "index", intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: "#111827",
-            borderColor: "#374151",
-            borderWidth: 1,
-            callbacks: {
-              label: ctx2 => ctx2.datasetIndex === 0
-                ? `FWI: ${ctx2.parsed.y}  (${t("tooltip_classes")[[5,10,20,30,Infinity].findIndex(v => ctx2.parsed.y < v)]})`
-                : null
-            }
-          }
-        },
-        scales: {
-          x: {
-            ticks: { color: "#9ca3af", maxTicksLimit: 12, maxRotation: 30, font: { size: 10 } },
-            grid: { color: "#1f2937" }
-          },
-          y: {
-            beginAtZero: true,
-            ticks: { color: "#9ca3af", font: { size: 11 } },
-            grid: { color: "#1f2937" }
-          }
-        }
-      }
+    // Header
+    html += '<div class="tahmin-hm-header"></div>';
+    satirlar.forEach(r => {
+      const t2 = r.tarih;
+      const lbl = t2.slice(4,6)+"-"+t2.slice(6,8);
+      html += `<div class="tahmin-hm-header">${lbl}</div>`;
     });
+
+    // İndeks satırları
+    for (const idx of idxList) {
+      html += `<div class="tahmin-hm-label">${idx.ad}</div>`;
+      for (const r of satirlar) {
+        const sinif = r[idx.key] || "Dusuk";
+        const c = hmRenk[sinif] || hmRenk["Orta"];
+        const val = idx.fmt(r[idx.valKey]);
+        const sinifAd = sinifCevir(sinif);
+        html += `<div class="tahmin-hm-cell" style="background:${c.bg};color:${c.renk};border-color:${c.border}" title="${idx.ad}: ${val} (${sinifAd})">
+          <span class="hm-val">${n <= 14 ? val : ""}</span>
+          <span class="hm-sinif">${n <= 14 ? sinifAd : ""}</span>
+        </div>`;
+      }
+    }
+    html += '</div>';
+    document.getElementById("nasa-heatmap").innerHTML = html;
   }
 
   function gosterSonuc(s) {
