@@ -1121,6 +1121,14 @@
             <input type="number" id="precip" step="0.1" min="0" value="0" />
           </div>
           <div class="form-grup">
+            <label>Çiy Noktası (°C)</label>
+            <input type="number" id="dew_point" step="0.1" value="10" />
+          </div>
+          <div class="form-grup">
+            <label>T_max (°C)</label>
+            <input type="number" id="temp_max" step="0.1" value="20" />
+          </div>
+          <div class="form-grup">
             <label data-i18n="label_month">Ay</label>
             <select id="month">
               <option value="1" data-i18n="month_1">Ocak</option><option value="2" data-i18n="month_2">Şubat</option>
@@ -1150,7 +1158,7 @@
       <!-- Alt panel: CSV -->
       <div class="alt-panel" id="alt-csv">
         <div class="info-notu" style="margin-top:16px">
-          <span data-i18n="csv_format_info" data-i18n-html="1">CSV formatı: <code>tarih,temp,rh,wind,precip</code> — tarih YYYYMMDD, sıcaklık °C, bağıl nem %, rüzgar km/h, yağış mm.</span>
+          <span data-i18n="csv_format_info" data-i18n-html="1">CSV formatı: <code>tarih,temp,rh,wind,precip,dew_point,temp_max</code> — tarih YYYYMMDD, sıcaklık °C, nem %, rüzgar km/h, yağış mm, çiy noktası °C, maks sıcaklık °C. Son iki sütun opsiyoneldir.</span>
           <a href="/static/ornek.csv" download style="color:var(--accent);margin-left:8px" data-i18n="csv_download_sample">Örnek indir</a>
         </div>
         <div class="csv-yukle-alani" id="csv-yukle-alani" onclick="document.getElementById('csv-input').click()">
@@ -2580,14 +2588,16 @@
   async function hesapla() {
     document.getElementById("hata-mesaji").style.display = "none";
     const payload = {
-      temp:   parseFloat(document.getElementById("temp").value),
-      rh:     parseFloat(document.getElementById("rh").value),
-      wind:   parseFloat(document.getElementById("wind").value),
-      precip: parseFloat(document.getElementById("precip").value),
-      month:  parseInt(document.getElementById("month").value),
-      ffmc0:  parseFloat(document.getElementById("ffmc0").value),
-      dmc0:   parseFloat(document.getElementById("dmc0").value),
-      dc0:    parseFloat(document.getElementById("dc0").value),
+      temp:      parseFloat(document.getElementById("temp").value),
+      rh:        parseFloat(document.getElementById("rh").value),
+      wind:      parseFloat(document.getElementById("wind").value),
+      precip:    parseFloat(document.getElementById("precip").value),
+      dew_point: parseFloat(document.getElementById("dew_point").value),
+      temp_max:  parseFloat(document.getElementById("temp_max").value),
+      month:     parseInt(document.getElementById("month").value),
+      ffmc0:     parseFloat(document.getElementById("ffmc0").value),
+      dmc0:      parseFloat(document.getElementById("dmc0").value),
+      dc0:       parseFloat(document.getElementById("dc0").value),
     };
     const latVal = document.getElementById("manuel-lat").value;
     if (latVal !== "") payload.lat = parseFloat(latVal);

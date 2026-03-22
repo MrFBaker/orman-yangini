@@ -80,7 +80,8 @@ def hesapla():
             lat=lat_v,
         )
         ek = idx.hesapla_ek(temp=temp, rh=rh, wind=wind, precip=precip,
-                            temp_max=temp, dew_point=float(data.get("dew_point", 10.0)))
+                            temp_max=float(data.get("temp_max", temp)),
+                            dew_point=float(data.get("dew_point", 10.0)))
         sonuc.update(ek)
         return jsonify({"ok": True, "sonuc": sonuc})
     except Exception as e:
