@@ -1187,6 +1187,11 @@
             <div class="form-grup"><label>DMC₀</label><input type="number" id="dmc0" step="0.1" value="6" /></div>
             <div class="form-grup"><label>DC₀</label><input type="number" id="dc0" step="0.1" value="15" /></div>
           </div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin:14px 0 8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Kümülatif İndeks Başlangıç</div>
+          <div class="onceki-grid" style="grid-template-columns:repeat(2,1fr)">
+            <div class="form-grup"><label>KBDI₀</label><input type="number" id="kbdi0" step="1" value="0" /></div>
+            <div class="form-grup"><label>Nesterov₀</label><input type="number" id="nesterov0" step="1" value="0" /></div>
+          </div>
           <div class="form-grup" style="margin-top:12px">
             <label>Enlem (opsiyonel)</label>
             <input type="number" id="manuel-lat" step="0.01" placeholder="örn. 37.5" />
@@ -1215,10 +1220,16 @@
         <input type="file" id="csv-input" accept=".csv,.txt" style="display:none" onchange="csvDosyaSecildi(this)" />
         <details style="margin-top:12px">
           <summary data-i18n="csv_initial_values">&#9881; Başlangıç Değerleri</summary>
-          <div class="onceki-grid" style="margin-top:12px">
+          <div style="font-size:0.72rem;color:var(--text-muted);margin:10px 0 8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">FWI Başlangıç</div>
+          <div class="onceki-grid" style="margin-top:8px">
             <div class="form-grup"><label>FFMC₀</label><input type="number" id="csv-ffmc0" step="0.1" value="85" /></div>
             <div class="form-grup"><label>DMC₀</label><input type="number" id="csv-dmc0" step="0.1" value="6" /></div>
             <div class="form-grup"><label>DC₀</label><input type="number" id="csv-dc0" step="0.1" value="15" /></div>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin:14px 0 8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Kümülatif İndeks Başlangıç</div>
+          <div class="onceki-grid" style="grid-template-columns:repeat(2,1fr)">
+            <div class="form-grup"><label>KBDI₀</label><input type="number" id="csv-kbdi0" step="1" value="0" /></div>
+            <div class="form-grup"><label>Nesterov₀</label><input type="number" id="csv-nesterov0" step="1" value="0" /></div>
           </div>
           <div class="form-grup" style="margin-top:12px">
             <label data-i18n="label_lat_optional">Enlem (isteğe bağlı — Le/Lf düzeltmesi için)</label>
@@ -2665,6 +2676,8 @@
       ffmc0:     parseFloat(document.getElementById("ffmc0").value),
       dmc0:      parseFloat(document.getElementById("dmc0").value),
       dc0:       parseFloat(document.getElementById("dc0").value),
+      kbdi0:     parseFloat(document.getElementById("kbdi0").value) || 0,
+      nesterov0: parseFloat(document.getElementById("nesterov0").value) || 0,
     };
     const latVal = document.getElementById("manuel-lat").value;
     if (latVal !== "") payload.lat = parseFloat(latVal);
@@ -2814,21 +2827,25 @@
     const labels = satirlar.map(r => r.tarih.slice(0,4)+"-"+r.tarih.slice(4,6)+"-"+r.tarih.slice(6,8));
     const n = satirlar.length;
 
-    const datasets = [
-      { label: "FWI",      key: "sinif",          color: "#f97316" },
-      { label: "Angström",  key: "angstrom_sinif",  color: "#38bdf8" },
-      { label: "Nesterov",  key: "nesterov_sinif",  color: "#a78bfa" },
-      { label: "KBDI",      key: "kbdi_sinif",      color: "#fb7185" },
-      { label: "Carrega",   key: "carrega_sinif",   color: "#34d399" },
-    ].map(ds => ({
+    const ofsetler = [-0.12, -0.06, 0, 0.06, 0.12];
+    const stiller = [
+      { label: "FWI",       key: "sinif",          color: "#f97316", dash: [],      point: "circle" },
+      { label: "Angström",  key: "angstrom_sinif",  color: "#38bdf8", dash: [8,4],   point: "rectRot" },
+      { label: "Nesterov",  key: "nesterov_sinif",  color: "#a78bfa", dash: [4,4],   point: "triangle" },
+      { label: "KBDI",      key: "kbdi_sinif",      color: "#fb7185", dash: [12,4,4,4], point: "rect" },
+      { label: "Carrega",   key: "carrega_sinif",   color: "#34d399", dash: [2,3],   point: "star" },
+    ];
+    const datasets = stiller.map((ds, i) => ({
       label: ds.label,
-      data: satirlar.map(r => sinifSeviye[r[ds.key]] || 0),
+      data: satirlar.map(r => (sinifSeviye[r[ds.key]] || 0) + ofsetler[i]),
       borderColor: ds.color,
-      backgroundColor: ds.color + "18",
-      pointRadius: n > 30 ? 1 : 3,
-      pointHoverRadius: 5,
+      backgroundColor: ds.color + "30",
+      pointRadius: n > 30 ? 3 : 5,
+      pointHoverRadius: n > 30 ? 5 : 8,
+      pointStyle: ds.point,
+      borderDash: ds.dash,
       tension: 0.3,
-      borderWidth: 2,
+      borderWidth: 2.5,
       fill: false,
     }));
 
@@ -2842,11 +2859,11 @@
         responsive: true,
         interaction: { mode: "index", intersect: false },
         plugins: {
-          legend: { labels: { color: "#9ca3af", font: { size: 11 }, usePointStyle: true, pointStyle: "line" } },
+          legend: { labels: { color: "#9ca3af", font: { size: 11 }, usePointStyle: true } },
           tooltip: {
             backgroundColor: "#111827", borderColor: "#374151", borderWidth: 1,
             callbacks: {
-              label: ctx2 => ctx2.dataset.label + ": " + (seviyeLabels[ctx2.parsed.y] || "—")
+              label: ctx2 => ctx2.dataset.label + ": " + (seviyeLabels[Math.round(ctx2.parsed.y)] || "—")
             }
           }
         },
@@ -2856,7 +2873,7 @@
             grid: { color: "#1f2937" }
           },
           y: {
-            min: 0, max: 5,
+            min: -0.3, max: 5.3,
             ticks: {
               color: "#9ca3af", font: { size: 10 }, stepSize: 1,
               callback: v => seviyeLabels[v] || ""
@@ -2997,9 +3014,11 @@
 
     const payload = {
       satirlar: csvSatirlar,
-      ffmc0: parseFloat(document.getElementById("csv-ffmc0").value),
-      dmc0:  parseFloat(document.getElementById("csv-dmc0").value),
-      dc0:   parseFloat(document.getElementById("csv-dc0").value),
+      ffmc0:     parseFloat(document.getElementById("csv-ffmc0").value),
+      dmc0:      parseFloat(document.getElementById("csv-dmc0").value),
+      dc0:       parseFloat(document.getElementById("csv-dc0").value),
+      kbdi0:     parseFloat(document.getElementById("csv-kbdi0").value) || 0,
+      nesterov0: parseFloat(document.getElementById("csv-nesterov0").value) || 0,
     };
     const csvLatVal = document.getElementById("csv-lat").value;
     if (csvLatVal !== "") payload.lat = parseFloat(csvLatVal);
@@ -3500,21 +3519,26 @@
       return t("forecast_days")[d.getDay()];
     });
 
-    const datasets = [
-      { label: "FWI",      key: "sinif",          color: "#f97316" },
-      { label: "Angström",  key: "angstrom_sinif",  color: "#38bdf8" },
-      { label: "Nesterov",  key: "nesterov_sinif",  color: "#a78bfa" },
-      { label: "KBDI",      key: "kbdi_sinif",      color: "#fb7185" },
-      { label: "Carrega",   key: "carrega_sinif",   color: "#34d399" },
-    ].map(ds => ({
+    // Çakışma önleme: aynı seviyedeki indekslere küçük ofset
+    const ofsetler = [-0.12, -0.06, 0, 0.06, 0.12];
+    const stiller = [
+      { label: "FWI",       key: "sinif",          color: "#f97316", dash: [],      point: "circle" },
+      { label: "Angström",  key: "angstrom_sinif",  color: "#38bdf8", dash: [8,4],   point: "rectRot" },
+      { label: "Nesterov",  key: "nesterov_sinif",  color: "#a78bfa", dash: [4,4],   point: "triangle" },
+      { label: "KBDI",      key: "kbdi_sinif",      color: "#fb7185", dash: [12,4,4,4], point: "rect" },
+      { label: "Carrega",   key: "carrega_sinif",   color: "#34d399", dash: [2,3],   point: "star" },
+    ];
+    const datasets = stiller.map((ds, i) => ({
       label: ds.label,
-      data: satirlar.map(r => sinifSeviye[r[ds.key]] || 0),
+      data: satirlar.map(r => (sinifSeviye[r[ds.key]] || 0) + ofsetler[i]),
       borderColor: ds.color,
-      backgroundColor: ds.color + "18",
-      pointRadius: 4,
-      pointHoverRadius: 6,
+      backgroundColor: ds.color + "30",
+      pointRadius: 6,
+      pointHoverRadius: 9,
+      pointStyle: ds.point,
+      borderDash: ds.dash,
       tension: 0.3,
-      borderWidth: 2,
+      borderWidth: 2.5,
       fill: false,
     }));
 
@@ -3528,18 +3552,18 @@
         responsive: true,
         interaction: { mode: "index", intersect: false },
         plugins: {
-          legend: { labels: { color: "#9ca3af", font: { size: 11 }, usePointStyle: true, pointStyle: "line" } },
+          legend: { labels: { color: "#9ca3af", font: { size: 11 }, usePointStyle: true } },
           tooltip: {
             backgroundColor: "#111827", borderColor: "#374151", borderWidth: 1,
             callbacks: {
-              label: ctx2 => ctx2.dataset.label + ": " + (seviyeLabels[ctx2.parsed.y] || "—")
+              label: ctx2 => ctx2.dataset.label + ": " + (seviyeLabels[Math.round(ctx2.parsed.y)] || "—")
             }
           }
         },
         scales: {
           x: { ticks: { color: "#9ca3af", font: { size: 10 } }, grid: { color: "#1f2937" } },
           y: {
-            min: 0, max: 5,
+            min: -0.3, max: 5.3,
             ticks: {
               color: "#9ca3af", font: { size: 10 }, stepSize: 1,
               callback: v => seviyeLabels[v] || ""
