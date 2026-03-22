@@ -1049,35 +1049,27 @@
   </div>
 
   <div class="akis-kart">
-    <h3 data-i18n="flow_title">Hesaplama Akışı</h3>
-    <div class="akis-diagram">
-
-      <!-- Sütun 1: Girdi -->
-      <div class="akis-kutu girdi">
-        <strong data-i18n="flow_input">Girdi</strong>
-        T · RH · W · P
+    <h3 data-i18n="flow_title">Sistem Mimarisi</h3>
+    <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-top:16px;">
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <div class="akis-kutu girdi" style="min-width:120px">
+          <strong>Meteorolojik Veri</strong>
+          T · RH · W · P · Td · T_max
+        </div>
+        <div class="akis-ok-sutun">→</div>
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:8px; flex:1; min-width:0;">
+          <div class="akis-kutu cikti"><strong>FWI</strong><span style="font-size:0.65rem">Van Wagner 1987</span></div>
+          <div class="akis-kutu cikti"><strong>Angström</strong><span style="font-size:0.65rem">1942</span></div>
+          <div class="akis-kutu cikti"><strong>Nesterov</strong><span style="font-size:0.65rem">1949</span></div>
+          <div class="akis-kutu cikti"><strong>KBDI</strong><span style="font-size:0.65rem">Keetch-Byram 1968</span></div>
+          <div class="akis-kutu cikti"><strong>Carrega</strong><span style="font-size:0.65rem">I87 — 1991</span></div>
+        </div>
+        <div class="akis-ok-sutun">→</div>
+        <div class="akis-kutu girdi" style="min-width:100px; border-color:var(--accent)">
+          <strong style="color:var(--accent)">Tehlike Seviyesi</strong>
+          <span style="font-size:0.7rem">5 indeks birlikte</span>
+        </div>
       </div>
-
-      <!-- Ok 1 -->
-      <div class="akis-ok-sutun">→</div>
-
-      <!-- Sütun 3: Nem Kodları -->
-      <div class="akis-nem-kodlari">
-        <div class="akis-kutu"><strong>FFMC</strong><span data-i18n="flow_ffmc">Üst tabaka</span></div>
-        <div class="akis-kutu"><strong>DMC</strong><span data-i18n="flow_dmc">Döküntü</span></div>
-        <div class="akis-kutu"><strong>DC</strong><span data-i18n="flow_dc">Derin tabaka</span></div>
-      </div>
-
-      <!-- Ok 2 -->
-      <div class="akis-ok-sutun">→</div>
-
-      <!-- Sütun 5: ISI, BUI, FWI -->
-      <div class="akis-indeksler">
-        <div class="akis-kutu"><strong>ISI</strong><span data-i18n="flow_isi">Yayılma</span></div>
-        <div class="akis-kutu"><strong>BUI</strong><span data-i18n="flow_bui">Birikim</span></div>
-        <div class="akis-kutu cikti"><strong>FWI</strong><span data-i18n="flow_fwi">Sonuç</span></div>
-      </div>
-
     </div>
   </div>
 
