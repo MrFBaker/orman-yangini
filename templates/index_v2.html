@@ -1251,9 +1251,8 @@
       <table>
         <thead>
           <tr>
-            <th data-i18n="th_date">Tarih</th><th data-i18n="th_temp">Sıcaklık (°C)</th><th data-i18n="th_rh">Nem (%)</th><th data-i18n="th_wind">Rüzgar (km/h)</th><th data-i18n="th_precip">Yağış (mm)</th>
-            <th>FFMC</th><th>DMC</th><th>DC</th><th>ISI</th><th>BUI</th><th>FWI</th><th data-i18n="th_class">Sınıf</th>
-            <th>Ang.</th><th>Nes.</th><th>KBDI</th><th>Car.</th>
+            <th data-i18n="th_date">Tarih</th><th data-i18n="th_temp">T (°C)</th><th data-i18n="th_rh">RH (%)</th><th data-i18n="th_wind">W (km/h)</th><th data-i18n="th_precip">P (mm)</th>
+            <th>FWI</th><th>Ang.</th><th>Nes.</th><th>KBDI</th><th>Car.</th>
           </tr>
         </thead>
         <tbody id="nasa-tablo-govde"></tbody>
@@ -2637,7 +2636,7 @@
     sonCokluSatirlar = satirlar;
     const tbody = document.getElementById("nasa-tablo-govde");
     tbody.innerHTML = "";
-    const sinifRenk = { "Dusuk": "sc-Dusuk", "Orta": "sc-Orta", "Yuksek": "sc-Yuksek", "Cok Yuksek": "sc-CokYuksek", "Asiri": "sc-Asiri" };
+    const sinifRenk = { "Dusuk": "sc-Dusuk", "Orta": "sc-Orta", "Yuksek": "sc-Yuksek", "Cok Yuksek": "sc-CokYuksek", "Asiri": "sc-Asiri", "Tehlike Yok": "sc-Dusuk" };
     const sinifTr   = {
       "Dusuk": t("tablo_sinif_dusuk"), "Orta": t("tablo_sinif_orta"),
       "Yuksek": t("tablo_sinif_yuksek"), "Cok Yuksek": t("tablo_sinif_cok_yuksek"),
@@ -2648,16 +2647,19 @@
       const tarih = r.tarih.slice(0,4) + "-" + r.tarih.slice(4,6) + "-" + r.tarih.slice(6,8);
       const renk  = sinifRenk[r.sinif] || "";
       const tr    = sinifTr[r.sinif] || r.sinif;
+      const fwiR = sinifRenk[r.sinif] || "";
+      const angR = sinifRenk[r.angstrom_sinif] || "";
+      const nesR = sinifRenk[r.nesterov_sinif] || "";
+      const kbdR = sinifRenk[r.kbdi_sinif] || "";
+      const carR = sinifRenk[r.carrega_sinif] || "";
       tbody.innerHTML += `<tr>
         <td>${tarih}</td><td>${r.temp.toFixed(1)}</td><td>${r.rh.toFixed(0)}</td>
         <td>${r.wind_kmh.toFixed(1)}</td><td>${r.precip.toFixed(1)}</td>
-        <td>${r.ffmc}</td><td>${r.dmc}</td><td>${r.dc}</td>
-        <td>${r.isi}</td><td>${r.bui}</td><td>${r.fwi}</td>
-        <td><span class="sinif-hucre ${renk}">${tr}</span></td>
-        <td>${r.angstrom != null ? r.angstrom : "—"}</td>
-        <td>${r.nesterov != null ? r.nesterov : "—"}</td>
-        <td>${r.kbdi != null ? r.kbdi : "—"}</td>
-        <td>${r.carrega != null ? r.carrega : "—"}</td>
+        <td><span class="sinif-hucre ${fwiR}">${r.fwi}</span></td>
+        <td><span class="sinif-hucre ${angR}">${r.angstrom != null ? r.angstrom : "—"}</span></td>
+        <td><span class="sinif-hucre ${nesR}">${r.nesterov != null ? r.nesterov : "—"}</span></td>
+        <td><span class="sinif-hucre ${kbdR}">${r.kbdi != null ? r.kbdi : "—"}</span></td>
+        <td><span class="sinif-hucre ${carR}">${r.carrega != null ? r.carrega : "—"}</span></td>
       </tr>`;
     }
     gosterIstatistik(satirlar);
