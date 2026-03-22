@@ -71,12 +71,12 @@
       font-size: 18px; flex-shrink: 0;
     }
     .sidebar-title {
-      font-size: 16px; font-weight: 800; color: #fff;
-      white-space: nowrap; overflow: hidden;
+      font-size: 15px; font-weight: 800; color: #fff;
+      line-height: 1.3;
     }
     .sidebar-title span {
-      display: block; font-size: 11px; font-weight: 400;
-      color: var(--text-muted); margin-top: 2px;
+      display: block; font-size: 10px; font-weight: 400;
+      color: var(--text-muted); margin-top: 3px; line-height: 1.4;
     }
 
     .sidebar-nav {
@@ -937,7 +937,7 @@
     <div class="sidebar-logo">&#x1F525;</div>
     <div class="sidebar-title">
       Fire-EWS
-      <span data-i18n="nav_subtitle">Orman Yangını Erken Uyarı Sistemi</span>
+      <span data-i18n="nav_subtitle">Orman Yangını<br>Erken Uyarı Sistemi</span>
     </div>
   </div>
 
@@ -3273,6 +3273,7 @@
       "Yuksek": { bg: "#431407", renk: "#fb923c", border: "#7c2d12" },
       "Cok Yuksek": { bg: "#450a0a", renk: "#f87171", border: "#7f1d1d" },
       "Asiri": { bg: "#2e1065", renk: "#c084fc", border: "#581c87" },
+      "Tehlike Yok": { bg: "#052e16", renk: "#4ade80", border: "#166534" },
     };
 
     satirlar.forEach((r, i) => {
@@ -3289,6 +3290,10 @@
         gunLabel = t("forecast_days")[d.getDay()];
       }
 
+      const angRenk = sinifRenkCSS[r.angstrom_sinif] || sinifRenkCSS["Orta"];
+      const nesRenk = sinifRenkCSS[r.nesterov_sinif] || sinifRenkCSS["Orta"];
+      const kbdRenk = sinifRenkCSS[r.kbdi_sinif] || sinifRenkCSS["Orta"];
+      const carRenk = sinifRenkCSS[r.carrega_sinif] || sinifRenkCSS["Orta"];
       kapsayici.innerHTML += `
         <div class="tahmin-kart">
           <div class="tahmin-gun">${gunLabel}</div>
@@ -3299,21 +3304,12 @@
             <div class="tahmin-meteo-item">${t("data_wind")}<strong>${r.wind_kmh} km/h</strong></div>
             <div class="tahmin-meteo-item">${t("data_precip")}<strong>${r.precip} mm</strong></div>
           </div>
-          <div class="tahmin-fwi" style="background:${renkler.bg};border-color:${renkler.border}">
-            <span class="tahmin-fwi-deger" style="color:${renkler.renk}">FWI ${r.fwi}</span>
-            <span class="tahmin-fwi-sinif" style="color:${renkler.renk};background:${renkler.renk}20;border:1px solid ${renkler.renk}40">${sinifAdi}</span>
-          </div>
-          <div class="tahmin-indeksler">
-            <div class="tahmin-idx"><div class="etiket">FFMC</div><div class="deger">${r.ffmc}</div></div>
-            <div class="tahmin-idx"><div class="etiket">DMC</div><div class="deger">${r.dmc}</div></div>
-            <div class="tahmin-idx"><div class="etiket">DC</div><div class="deger">${r.dc}</div></div>
-            <div class="tahmin-idx"><div class="etiket">ISI</div><div class="deger">${r.isi}</div></div>
-            <div class="tahmin-idx"><div class="etiket">BUI</div><div class="deger">${r.bui}</div></div>
-            <div class="tahmin-idx"><div class="etiket">DSR</div><div class="deger">${r.dsr}</div></div>
-            <div class="tahmin-idx"><div class="etiket">Ang.</div><div class="deger">${r.angstrom != null ? r.angstrom : "—"}</div></div>
-            <div class="tahmin-idx"><div class="etiket">Nes.</div><div class="deger">${r.nesterov != null ? r.nesterov : "—"}</div></div>
-            <div class="tahmin-idx"><div class="etiket">KBDI</div><div class="deger">${r.kbdi != null ? r.kbdi : "—"}</div></div>
-            <div class="tahmin-idx"><div class="etiket">Car.</div><div class="deger">${r.carrega != null ? r.carrega : "—"}</div></div>
+          <div class="tahmin-indeksler" style="grid-template-columns:repeat(5,1fr);margin-top:12px">
+            <div class="tahmin-idx" style="background:${renkler.bg};border-color:${renkler.border}"><div class="etiket" style="color:${renkler.renk}">FWI</div><div class="deger" style="color:${renkler.renk}">${r.fwi}</div></div>
+            <div class="tahmin-idx" style="background:${angRenk.bg};border-color:${angRenk.border}"><div class="etiket" style="color:${angRenk.renk}">Ang.</div><div class="deger" style="color:${angRenk.renk}">${r.angstrom != null ? r.angstrom : "—"}</div></div>
+            <div class="tahmin-idx" style="background:${nesRenk.bg};border-color:${nesRenk.border}"><div class="etiket" style="color:${nesRenk.renk}">Nes.</div><div class="deger" style="color:${nesRenk.renk}">${r.nesterov != null ? r.nesterov : "—"}</div></div>
+            <div class="tahmin-idx" style="background:${kbdRenk.bg};border-color:${kbdRenk.border}"><div class="etiket" style="color:${kbdRenk.renk}">KBDI</div><div class="deger" style="color:${kbdRenk.renk}">${r.kbdi != null ? r.kbdi : "—"}</div></div>
+            <div class="tahmin-idx" style="background:${carRenk.bg};border-color:${carRenk.border}"><div class="etiket" style="color:${carRenk.renk}">Car.</div><div class="deger" style="color:${carRenk.renk}">${r.carrega != null ? r.carrega : "—"}</div></div>
           </div>
         </div>`;
     });
