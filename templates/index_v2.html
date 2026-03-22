@@ -193,16 +193,16 @@
       font-size: 0.84rem; color: var(--text-muted); line-height: 1.65;
     }
 
-    .komponent-liste { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .komponent-liste { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-bottom: 0; }
     .komponent-liste li {
-      display: flex; align-items: flex-start; gap: 10px;
-      font-size: 0.82rem; color: var(--text); line-height: 1.5;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.82rem; color: var(--text); line-height: 1.4;
     }
     .komponent-badge {
       font-size: 0.68rem; font-weight: 700;
       background: var(--main-bg); border: 1px solid var(--border-light);
-      border-radius: 4px; padding: 2px 0;
-      color: var(--accent); white-space: nowrap; flex-shrink: 0; margin-top: 1px;
+      border-radius: 4px; padding: 3px 8px; min-width: 42px; text-align: center;
+      color: var(--accent); white-space: nowrap; flex-shrink: 0;
       width: 48px; text-align: center; display: inline-block;
     }
 
@@ -2195,13 +2195,16 @@
   <!-- BÖLÜM 1: Van Wagner Referans Testi -->
   <div style="margin-bottom:32px">
     <div class="yontem-bolum" style="margin-bottom:16px">
-      <h2 data-i18n="valid_ref_title">1. Van Wagner (1987) Referans Testi</h2>
+      <h2 data-i18n="valid_ref_title">1. FWI — Van Wagner (1987) Referans Testi</h2>
     </div>
     <div class="bilgi-kart" style="margin-bottom:16px">
-      <h3 data-i18n="valid_formula_title">Formül Doğruluğu</h3>
+      <h3 data-i18n="valid_formula_title">FWI Formül Doğruluğu</h3>
       <p data-i18n="valid_formula_desc" data-i18n-html="1">Van Wagner (1987) yayınında Tablo 1 olarak verilen referans girdi/çıktı değerleriyle karşılaştırma yapılır. Hesaplanan değerler beklenen değerlerden <strong>±0.1</strong> sapma içindeyse test geçer.</p>
       <div style="margin-top:10px;font-size:0.82rem;color:var(--text-muted)">
         Girdi: T=17°C, H=42%, W=25 km/h, r=0 mm, Ay=7 &nbsp;|&nbsp; FFMC₀=85, DMC₀=6, DC₀=15
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:0.78rem;color:var(--text-muted)">
+        <strong style="color:var(--text)">Ek indeks doğrulaması:</strong> Angström, Nesterov, KBDI ve Carrega I87 formülleri <code>test_indeksler.py</code> birim testleriyle (35 test) doğrulanmıştır. Detaylar için <strong>bilimsel_referanslar.md</strong> dosyasına bakınız.
       </div>
     </div>
     <button class="basla-btn" id="ref-btn" onclick="referansCalistir()" data-i18n="btn_run_ref">Referans Testini Çalıştır</button>

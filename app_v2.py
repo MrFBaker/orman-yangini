@@ -368,8 +368,12 @@ def rapor_pdf():
             [Paragraph("DC", sBody), Paragraph(str(sonuc.get("dc","-")), sBody), Paragraph("Derin Organik Tabaka Nem Kodu", sBody)],
             [Paragraph("ISI", sBody), Paragraph(str(sonuc.get("isi","-")), sBody), Paragraph("Baslangic Yayilma Indeksi", sBody)],
             [Paragraph("BUI", sBody), Paragraph(str(sonuc.get("bui","-")), sBody), Paragraph("Birikmis Yanici Madde Indeksi", sBody)],
-            [Paragraph("FWI", sBody), Paragraph(str(sonuc.get("fwi","-")), sBold), Paragraph("Yangin Hava Indeksi", sBody)],
+            [Paragraph("FWI", sBody), Paragraph(str(sonuc.get("fwi","-")), sBold), Paragraph("Yangin Hava Indeksi — Van Wagner (1987)", sBody)],
             [Paragraph("DSR", sBody), Paragraph(str(sonuc.get("dsr","-")), sBody), Paragraph("Gunluk Siddet Orani", sBody)],
+            [Paragraph("Angstrom", sBody), Paragraph(str(sonuc.get("angstrom","-")), sBody), Paragraph("Anlik Yangin Tehlike — Angstrom (1942)", sBody)],
+            [Paragraph("Nesterov", sBody), Paragraph(str(sonuc.get("nesterov","-")), sBody), Paragraph("Kumulatif Kuraklik — Nesterov (1949)", sBody)],
+            [Paragraph("KBDI", sBody), Paragraph(str(sonuc.get("kbdi","-")), sBody), Paragraph("Toprak Nem Eksikligi — Keetch-Byram (1968)", sBody)],
+            [Paragraph("Carrega", sBody), Paragraph(str(sonuc.get("carrega","-")), sBody), Paragraph("Akdeniz Yangin Indeksi — Carrega I87 (1991)", sBody)],
         ]
         t2 = Table(indeks_rows, colWidths=[3*cm, 3*cm, 10*cm], hAlign="LEFT")
         t2.setStyle(TableStyle([
@@ -429,33 +433,35 @@ def rapor_pdf():
             story.append(Spacer(1, 12))
 
         story.append(Paragraph("Gunluk Sonuclar", sH1))
-        header = [Paragraph(h, S("rTH", fontName=FB, fontSize=7.5, textColor=BLUE, leading=11))
-                  for h in ["Tarih","T(C)","RH(%)","Ruzgar","Yagis","FFMC","DMC","DC","ISI","BUI","FWI","Sinif"]]
+        header = [Paragraph(h, S("rTH", fontName=FB, fontSize=7, textColor=BLUE, leading=10))
+                  for h in ["Tarih","T","RH","W","P","FWI","Sinif","Ang.","Nes.","KBDI","Car."]]
         rows = [header]
-        sSatir = S("rTD", fontSize=7, textColor=DARK, leading=10)
-        sSatirB = S("rTDB", fontName=FB, fontSize=7, textColor=DARK, leading=10)
+        sSatir = S("rTD", fontSize=6.5, textColor=DARK, leading=9)
+        sSatirB = S("rTDB", fontName=FB, fontSize=6.5, textColor=DARK, leading=9)
 
         for r in satirlar:
             tarih = f"{r['tarih'][:4]}-{r['tarih'][4:6]}-{r['tarih'][6:8]}" if len(str(r.get('tarih',''))) == 8 else str(r.get('tarih',''))
             sinif = r.get("sinif", "")
             renk = sinif_renk.get(sinif, DARK)
-            sSinif = S(f"rSn_{id(r)}", fontName=FB, fontSize=7, textColor=renk, leading=10)
+            sSinif = S(f"rSn_{id(r)}", fontName=FB, fontSize=6.5, textColor=renk, leading=9)
+            nes_val = r.get("nesterov", "")
+            if isinstance(nes_val, (int, float)) and abs(nes_val) >= 1000:
+                nes_val = f"{nes_val/1000:.1f}K"
             rows.append([
                 Paragraph(tarih, sSatir),
                 Paragraph(f"{r.get('temp',0):.1f}", sSatir),
                 Paragraph(f"{r.get('rh',0):.0f}", sSatir),
                 Paragraph(f"{r.get('wind_kmh',0):.1f}", sSatir),
                 Paragraph(f"{r.get('precip',0):.1f}", sSatir),
-                Paragraph(str(r.get("ffmc","")), sSatir),
-                Paragraph(str(r.get("dmc","")), sSatir),
-                Paragraph(str(r.get("dc","")), sSatir),
-                Paragraph(str(r.get("isi","")), sSatir),
-                Paragraph(str(r.get("bui","")), sSatir),
                 Paragraph(str(r.get("fwi","")), sSatirB),
                 Paragraph(sinif_tr.get(sinif, sinif), sSinif),
+                Paragraph(str(r.get("angstrom","")), sSatir),
+                Paragraph(str(nes_val), sSatir),
+                Paragraph(str(r.get("kbdi","")), sSatir),
+                Paragraph(str(r.get("carrega","")), sSatir),
             ])
 
-        cw = [2*cm, 1.2*cm, 1.2*cm, 1.2*cm, 1.2*cm, 1.3*cm, 1.3*cm, 1.3*cm, 1.2*cm, 1.2*cm, 1.2*cm, 1.8*cm]
+        cw = [2*cm, 1*cm, 1*cm, 1*cm, 1*cm, 1.2*cm, 1.6*cm, 1.1*cm, 1.3*cm, 1.2*cm, 1.1*cm]
         tbl = Table(rows, colWidths=cw, hAlign="LEFT", repeatRows=1)
         tbl.setStyle(TableStyle([
             ("BACKGROUND", (0,0), (-1,0), BGHEAD),
@@ -472,7 +478,7 @@ def rapor_pdf():
 
     story.append(Spacer(1, 20))
     story.append(HR())
-    story.append(Paragraph("FWI Yangin Erken Uyari Sistemi  |  Van Wagner (1987)", sFooter))
+    story.append(Paragraph("Fire-EWS  |  FWI + Angstrom + Nesterov + KBDI + Carrega I87", sFooter))
     story.append(Paragraph(f"Rapor olusturma: {now}", sFooter))
 
     doc.build(story)
