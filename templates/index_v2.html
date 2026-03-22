@@ -1047,11 +1047,11 @@
     <div class="bilgi-kart">
       <h3 data-i18n="card_features_title">Özellikler</h3>
       <ul class="komponent-liste">
-        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)">Harita</span><span>İnteraktif uydu haritasıyla konum seçimi</span></li>
-        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)">Tahmin</span><span>7 günlük yangın riski tahmini</span></li>
-        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)">Oto Veri</span><span>Open-Meteo API ile geçmiş/gelecek veri çekimi</span></li>
-        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)">PDF</span><span>Hesaplama sonuçlarını rapor olarak indir</span></li>
-        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)">TR/EN</span><span>Türkçe ve İngilizce dil desteği</span></li>
+        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)" data-i18n="feat_map_badge">Harita</span><span data-i18n="feat_map">İnteraktif uydu haritasıyla konum seçimi</span></li>
+        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)" data-i18n="feat_forecast_badge">Tahmin</span><span data-i18n="feat_forecast">7 günlük yangın riski tahmini</span></li>
+        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)" data-i18n="feat_auto_badge">Oto Veri</span><span data-i18n="feat_auto">Open-Meteo API ile geçmiş/gelecek veri çekimi</span></li>
+        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)">PDF</span><span data-i18n="feat_pdf">Hesaplama sonuçlarını rapor olarak indir</span></li>
+        <li><span class="komponent-badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.3)">TR/EN</span><span data-i18n="feat_lang">Türkçe ve İngilizce dil desteği</span></li>
       </ul>
     </div>
 
@@ -1076,12 +1076,12 @@
           <div class="v-acik" data-i18n="data_precip_desc">Günlük toplam · mm</div>
         </div>
         <div class="veri-chip">
-          <div class="v-etiket">Çiy Noktası</div>
-          <div class="v-acik">12:00 LST anlık · °C</div>
+          <div class="v-etiket" data-i18n="data_dewpoint">Çiy Noktası</div>
+          <div class="v-acik" data-i18n="data_dewpoint_desc">12:00 LST anlık · °C</div>
         </div>
         <div class="veri-chip">
-          <div class="v-etiket">T_max</div>
-          <div class="v-acik">Günlük maksimum · °C</div>
+          <div class="v-etiket" data-i18n="data_tmax">T_max</div>
+          <div class="v-acik" data-i18n="data_tmax_desc">Günlük maksimum · °C</div>
         </div>
       </div>
     </div>
@@ -1160,11 +1160,11 @@
             <input type="number" id="precip" step="0.1" min="0" value="0" />
           </div>
           <div class="form-grup">
-            <label>Çiy Noktası (°C)</label>
+            <label data-i18n="label_dewpoint">Çiy Noktası (°C)</label>
             <input type="number" id="dew_point" step="0.1" value="10" />
           </div>
           <div class="form-grup">
-            <label>T_max (°C)</label>
+            <label data-i18n="label_tmax">T_max (°C)</label>
             <input type="number" id="temp_max" step="0.1" value="20" />
           </div>
           <div class="form-grup">
@@ -1181,19 +1181,19 @@
         </div>
         <details>
           <summary data-i18n="prev_day_summary">&#9881; Gelişmiş Ayarlar</summary>
-          <div style="font-size:0.72rem;color:var(--text-muted);margin:10px 0 8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">FWI Başlangıç</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin:10px 0 8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600" data-i18n="adv_fwi_init">FWI Başlangıç</div>
           <div class="onceki-grid">
             <div class="form-grup"><label>FFMC₀</label><input type="number" id="ffmc0" step="0.1" value="85" /></div>
             <div class="form-grup"><label>DMC₀</label><input type="number" id="dmc0" step="0.1" value="6" /></div>
             <div class="form-grup"><label>DC₀</label><input type="number" id="dc0" step="0.1" value="15" /></div>
           </div>
-          <div style="font-size:0.72rem;color:var(--text-muted);margin:14px 0 8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Kümülatif İndeks Başlangıç</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin:14px 0 8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600" data-i18n="adv_cumul_init">Kümülatif İndeks Başlangıç</div>
           <div class="onceki-grid" style="grid-template-columns:repeat(2,1fr)">
             <div class="form-grup"><label>KBDI₀</label><input type="number" id="kbdi0" step="1" value="0" /></div>
             <div class="form-grup"><label>Nesterov₀</label><input type="number" id="nesterov0" step="1" value="0" /></div>
           </div>
           <div class="form-grup" style="margin-top:12px">
-            <label>Enlem (opsiyonel)</label>
+            <label data-i18n="label_lat_optional">Enlem (opsiyonel)</label>
             <input type="number" id="manuel-lat" step="0.01" placeholder="örn. 37.5" />
           </div>
         </details>
@@ -1220,13 +1220,13 @@
         <input type="file" id="csv-input" accept=".csv,.txt" style="display:none" onchange="csvDosyaSecildi(this)" />
         <details style="margin-top:12px">
           <summary data-i18n="csv_initial_values">&#9881; Başlangıç Değerleri</summary>
-          <div style="font-size:0.72rem;color:var(--text-muted);margin:10px 0 8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">FWI Başlangıç</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin:10px 0 8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600" data-i18n="adv_fwi_init">FWI Başlangıç</div>
           <div class="onceki-grid" style="margin-top:8px">
             <div class="form-grup"><label>FFMC₀</label><input type="number" id="csv-ffmc0" step="0.1" value="85" /></div>
             <div class="form-grup"><label>DMC₀</label><input type="number" id="csv-dmc0" step="0.1" value="6" /></div>
             <div class="form-grup"><label>DC₀</label><input type="number" id="csv-dc0" step="0.1" value="15" /></div>
           </div>
-          <div style="font-size:0.72rem;color:var(--text-muted);margin:14px 0 8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Kümülatif İndeks Başlangıç</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin:14px 0 8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600" data-i18n="adv_cumul_init">Kümülatif İndeks Başlangıç</div>
           <div class="onceki-grid" style="grid-template-columns:repeat(2,1fr)">
             <div class="form-grup"><label>KBDI₀</label><input type="number" id="csv-kbdi0" step="1" value="0" /></div>
             <div class="form-grup"><label>Nesterov₀</label><input type="number" id="csv-nesterov0" step="1" value="0" /></div>
@@ -1288,7 +1288,7 @@
     </div>
     <!-- FWI Alt Bileşenleri — detay -->
     <details class="fwi-detay">
-      <summary>FWI Alt Bileşenleri</summary>
+      <summary data-i18n="fwi_subcomponents">FWI Alt Bileşenleri</summary>
       <div class="indeksler" style="grid-template-columns:repeat(3,1fr);margin-top:10px">
         <div class="indeks-kutu"><div class="etiket">FFMC</div><div class="deger" id="val-ffmc">—</div><div class="birim" data-i18n="idx_ffmc">İnce Üst Tabaka</div></div>
         <div class="indeks-kutu"><div class="etiket">DMC</div><div class="deger" id="val-dmc">—</div><div class="birim" data-i18n="idx_dmc">Döküntü Nemi</div></div>
@@ -2354,8 +2354,25 @@
       month_1: "Ocak", month_2: "Şubat", month_3: "Mart", month_4: "Nisan",
       month_5: "Mayıs", month_6: "Haziran", month_7: "Temmuz", month_8: "Ağustos",
       month_9: "Eylül", month_10: "Ekim", month_11: "Kasım", month_12: "Aralık",
-      prev_day_summary: "⚙ Önceki Gün Değerleri (Gelişmiş)",
+      prev_day_summary: "⚙ Gelişmiş Ayarlar",
       label_lat_optional: "Enlem (isteğe bağlı — Le/Lf düzeltmesi için)",
+      label_dewpoint: "Çiy Noktası (°C)",
+      label_tmax: "T_max (°C)",
+      adv_fwi_init: "FWI Başlangıç",
+      adv_cumul_init: "Kümülatif İndeks Başlangıç",
+      fwi_subcomponents: "FWI Alt Bileşenleri",
+      data_dewpoint: "Çiy Noktası",
+      data_dewpoint_desc: "12:00 LST anlık · °C",
+      data_tmax: "T_max",
+      data_tmax_desc: "Günlük maksimum · °C",
+      feat_map_badge: "Harita",
+      feat_map: "İnteraktif uydu haritasıyla konum seçimi",
+      feat_forecast_badge: "Tahmin",
+      feat_forecast: "7 günlük yangın riski tahmini",
+      feat_auto_badge: "Oto Veri",
+      feat_auto: "Open-Meteo API ile geçmiş/gelecek veri çekimi",
+      feat_pdf: "Hesaplama sonuçlarını rapor olarak indir",
+      feat_lang: "Türkçe ve İngilizce dil desteği",
       placeholder_lat: "örn. 37.5 (Türkiye için boş bırakabilirsiniz)",
       placeholder_lat_short: "örn. 37.5",
       btn_calculate: "Hesapla",
@@ -2482,8 +2499,25 @@
       month_1: "January", month_2: "February", month_3: "March", month_4: "April",
       month_5: "May", month_6: "June", month_7: "July", month_8: "August",
       month_9: "September", month_10: "October", month_11: "November", month_12: "December",
-      prev_day_summary: "⚙ Previous Day Values (Advanced)",
+      prev_day_summary: "⚙ Advanced Settings",
       label_lat_optional: "Latitude (optional — for Le/Lf correction)",
+      label_dewpoint: "Dew Point (°C)",
+      label_tmax: "T_max (°C)",
+      adv_fwi_init: "FWI Initial Values",
+      adv_cumul_init: "Cumulative Index Initial Values",
+      fwi_subcomponents: "FWI Sub-Components",
+      data_dewpoint: "Dew Point",
+      data_dewpoint_desc: "12:00 LST instant · °C",
+      data_tmax: "T_max",
+      data_tmax_desc: "Daily maximum · °C",
+      feat_map_badge: "Map",
+      feat_map: "Interactive satellite map location selection",
+      feat_forecast_badge: "Forecast",
+      feat_forecast: "7-day fire danger forecast",
+      feat_auto_badge: "Auto Data",
+      feat_auto: "Open-Meteo API past/future data retrieval",
+      feat_pdf: "Download calculation results as PDF report",
+      feat_lang: "Turkish and English language support",
       placeholder_lat: "e.g. 37.5 (leave empty for Turkey default)",
       placeholder_lat_short: "e.g. 37.5",
       btn_calculate: "Calculate",
