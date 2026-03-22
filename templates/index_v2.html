@@ -1224,6 +1224,15 @@
       <div class="indeks-kutu"><div class="etiket">BUI</div><div class="deger" id="val-bui">—</div><div class="birim" data-i18n="idx_bui">Birikmiş Yanıcı Madde</div></div>
       <div class="indeks-kutu"><div class="etiket">DSR</div><div class="deger" id="val-dsr">—</div><div class="birim" data-i18n="idx_dsr">Günlük Şiddet Oranı</div></div>
     </div>
+    <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+      <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:700;" data-i18n="idx_extra_title">Ek İndeksler</div>
+      <div class="indeksler">
+        <div class="indeks-kutu"><div class="etiket">Angström</div><div class="deger" id="val-angstrom">—</div><div class="birim" id="val-angstrom-sinif">—</div></div>
+        <div class="indeks-kutu"><div class="etiket">Nesterov</div><div class="deger" id="val-nesterov">—</div><div class="birim" id="val-nesterov-sinif">—</div></div>
+        <div class="indeks-kutu"><div class="etiket">KBDI</div><div class="deger" id="val-kbdi">—</div><div class="birim" id="val-kbdi-sinif">—</div></div>
+        <div class="indeks-kutu"><div class="etiket">Carrega</div><div class="deger" id="val-carrega">—</div><div class="birim" id="val-carrega-sinif">—</div></div>
+      </div>
+    </div>
     <button class="btn rapor-btn" onclick="manuelRaporIndir()" data-i18n="btn_download_pdf">Rapor İndir (PDF)</button>
   </div>
 
@@ -1247,6 +1256,7 @@
           <tr>
             <th data-i18n="th_date">Tarih</th><th data-i18n="th_temp">Sıcaklık (°C)</th><th data-i18n="th_rh">Nem (%)</th><th data-i18n="th_wind">Rüzgar (km/h)</th><th data-i18n="th_precip">Yağış (mm)</th>
             <th>FFMC</th><th>DMC</th><th>DC</th><th>ISI</th><th>BUI</th><th>FWI</th><th data-i18n="th_class">Sınıf</th>
+            <th>Ang.</th><th>Nes.</th><th>KBDI</th><th>Car.</th>
           </tr>
         </thead>
         <tbody id="nasa-tablo-govde"></tbody>
@@ -2146,6 +2156,7 @@
       btn_download_pdf: "Rapor İndir (PDF)",
       idx_ffmc: "İnce Üst Tabaka", idx_dmc: "Döküntü Nemi", idx_dc: "Derin Organik Tabaka",
       idx_isi: "Başlangıç Yayılma", idx_bui: "Birikmiş Yanıcı Madde", idx_dsr: "Günlük Şiddet Oranı",
+      idx_extra_title: "Ek İndeksler",
       stat_max: "En Yüksek FWI", stat_avg: "Ortalama FWI", stat_avg_desc: "dönem ortalaması",
       stat_extreme: "Aşırı Gün", stat_very_high: "Çok Yüksek +",
       chart_title: "FWI Zaman Serisi",
@@ -2268,6 +2279,7 @@
       btn_download_pdf: "Download Report (PDF)",
       idx_ffmc: "Fine Fuel Moisture", idx_dmc: "Duff Moisture", idx_dc: "Drought Code",
       idx_isi: "Initial Spread", idx_bui: "Buildup Index", idx_dsr: "Daily Severity Rating",
+      idx_extra_title: "Additional Indices",
       stat_max: "Highest FWI", stat_avg: "Average FWI", stat_avg_desc: "period average",
       stat_extreme: "Extreme Days", stat_very_high: "Very High +",
       chart_title: "FWI Time Series",
@@ -2485,6 +2497,10 @@
         <td>${r.ffmc}</td><td>${r.dmc}</td><td>${r.dc}</td>
         <td>${r.isi}</td><td>${r.bui}</td><td>${r.fwi}</td>
         <td><span class="sinif-hucre ${renk}">${tr}</span></td>
+        <td>${r.angstrom != null ? r.angstrom : "—"}</td>
+        <td>${r.nesterov != null ? r.nesterov : "—"}</td>
+        <td>${r.kbdi != null ? r.kbdi : "—"}</td>
+        <td>${r.carrega != null ? r.carrega : "—"}</td>
       </tr>`;
     }
     gosterIstatistik(satirlar);
@@ -2603,6 +2619,14 @@
     document.getElementById("val-isi").textContent  = s.isi;
     document.getElementById("val-bui").textContent  = s.bui;
     document.getElementById("val-dsr").textContent  = s.dsr;
+    document.getElementById("val-angstrom").textContent = s.angstrom != null ? s.angstrom : "—";
+    document.getElementById("val-angstrom-sinif").textContent = s.angstrom_sinif || "—";
+    document.getElementById("val-nesterov").textContent = s.nesterov != null ? s.nesterov : "—";
+    document.getElementById("val-nesterov-sinif").textContent = s.nesterov_sinif || "—";
+    document.getElementById("val-kbdi").textContent = s.kbdi != null ? s.kbdi : "—";
+    document.getElementById("val-kbdi-sinif").textContent = s.kbdi_sinif || "—";
+    document.getElementById("val-carrega").textContent = s.carrega != null ? s.carrega : "—";
+    document.getElementById("val-carrega-sinif").textContent = s.carrega_sinif || "—";
     document.getElementById("sonuc-alani").style.display = "block";
     document.getElementById("sonuc-alani").scrollIntoView({ behavior: "smooth" });
   }
@@ -3127,6 +3151,10 @@
             <div class="tahmin-idx"><div class="etiket">ISI</div><div class="deger">${r.isi}</div></div>
             <div class="tahmin-idx"><div class="etiket">BUI</div><div class="deger">${r.bui}</div></div>
             <div class="tahmin-idx"><div class="etiket">DSR</div><div class="deger">${r.dsr}</div></div>
+            <div class="tahmin-idx"><div class="etiket">Ang.</div><div class="deger">${r.angstrom != null ? r.angstrom : "—"}</div></div>
+            <div class="tahmin-idx"><div class="etiket">Nes.</div><div class="deger">${r.nesterov != null ? r.nesterov : "—"}</div></div>
+            <div class="tahmin-idx"><div class="etiket">KBDI</div><div class="deger">${r.kbdi != null ? r.kbdi : "—"}</div></div>
+            <div class="tahmin-idx"><div class="etiket">Car.</div><div class="deger">${r.carrega != null ? r.carrega : "—"}</div></div>
           </div>
         </div>`;
     });

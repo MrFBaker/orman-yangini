@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import fwi_hesap as f
 import openmeteo as om
 import forecast as fc
+import indeksler as idx
 
 app = Flask(__name__)
 
@@ -31,19 +32,30 @@ def require_auth():
         return Response("Giriş gerekli", 401, {"WWW-Authenticate": 'Basic realm="Fire-EWS"'})
 
 
-def warmup_fwi(lat, lon, baslangic):
+def warmup(lat, lon, baslangic):
+    """1 Ocak'tan başlangıç tarihine kadar tüm indeks state'lerini biriktir."""
     jan1 = baslangic[:4] + "0101"
+    state = {
+        "ffmc0": f.FFMC_BASLANGIC, "dmc0": f.DMC_BASLANGIC, "dc0": f.DC_BASLANGIC,
+        "kbdi0": idx.KBDI_BASLANGIC, "nesterov0": idx.NESTEROV_BASLANGIC,
+    }
     if baslangic <= jan1:
-        return f.FFMC_BASLANGIC, f.DMC_BASLANGIC, f.DC_BASLANGIC
+        return state
     prev_str = (datetime.strptime(baslangic, "%Y%m%d") - timedelta(days=1)).strftime("%Y%m%d")
     gunler = om.veri_cek(lat, lon, jan1, prev_str)
-    ffmc0, dmc0, dc0 = f.FFMC_BASLANGIC, f.DMC_BASLANGIC, f.DC_BASLANGIC
     for gun in gunler:
         ay = int(gun["tarih"][4:6])
         r = f.hesapla(temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
-                      precip=gun["precip"], month=ay, ffmc0=ffmc0, dmc0=dmc0, dc0=dc0, lat=lat)
-        ffmc0, dmc0, dc0 = r["ffmc"], r["dmc"], r["dc"]
-    return ffmc0, dmc0, dc0
+                      precip=gun["precip"], month=ay,
+                      ffmc0=state["ffmc0"], dmc0=state["dmc0"], dc0=state["dc0"], lat=lat)
+        state["ffmc0"], state["dmc0"], state["dc0"] = r["ffmc"], r["dmc"], r["dc"]
+        ek = idx.hesapla_ek(temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
+                            precip=gun["precip"], temp_max=gun.get("temp_max", gun["temp"]),
+                            dew_point=gun.get("dew_point", 10.0),
+                            kbdi0=state["kbdi0"], nesterov0=state["nesterov0"])
+        state["kbdi0"] = ek["kbdi"]
+        state["nesterov0"] = ek["nesterov"]
+    return state
 
 
 @app.route("/")
@@ -56,15 +68,21 @@ def hesapla():
     try:
         data = request.get_json()
         lat_v = float(data["lat"]) if "lat" in data and data["lat"] != "" else None
+        temp = float(data["temp"])
+        rh = float(data["rh"])
+        wind = float(data["wind"])
+        precip = float(data["precip"])
         sonuc = f.hesapla(
-            temp=float(data["temp"]), rh=float(data["rh"]),
-            wind=float(data["wind"]), precip=float(data["precip"]),
+            temp=temp, rh=rh, wind=wind, precip=precip,
             month=int(data["month"]),
             ffmc0=float(data.get("ffmc0", f.FFMC_BASLANGIC)),
             dmc0=float(data.get("dmc0", f.DMC_BASLANGIC)),
             dc0=float(data.get("dc0", f.DC_BASLANGIC)),
             lat=lat_v,
         )
+        ek = idx.hesapla_ek(temp=temp, rh=rh, wind=wind, precip=precip,
+                            temp_max=temp, dew_point=float(data.get("dew_point", 10.0)))
+        sonuc.update(ek)
         return jsonify({"ok": True, "sonuc": sonuc})
     except Exception as e:
         return jsonify({"ok": False, "hata": str(e)}), 400
@@ -79,15 +97,22 @@ def nasa_veri():
         baslangic = str(data["baslangic"])
         bitis = str(data["bitis"])
         gunler = om.veri_cek(lat, lon, baslangic, bitis)
-        ffmc0, dmc0, dc0 = warmup_fwi(lat, lon, baslangic)
+        s = warmup(lat, lon, baslangic)
         sonuclar = []
         for gun in gunler:
             ay = int(gun["tarih"][4:6])
             r = f.hesapla(temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
-                          precip=gun["precip"], month=ay, ffmc0=ffmc0, dmc0=dmc0, dc0=dc0, lat=lat)
-            sonuclar.append({"tarih": gun["tarih"], "temp": gun["temp"], "rh": gun["rh"],
-                             "wind_kmh": gun["wind_kmh"], "precip": gun["precip"], **r})
-            ffmc0, dmc0, dc0 = r["ffmc"], r["dmc"], r["dc"]
+                          precip=gun["precip"], month=ay,
+                          ffmc0=s["ffmc0"], dmc0=s["dmc0"], dc0=s["dc0"], lat=lat)
+            ek = idx.hesapla_ek(temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
+                                precip=gun["precip"], temp_max=gun.get("temp_max", gun["temp"]),
+                                dew_point=gun.get("dew_point", 10.0),
+                                kbdi0=s["kbdi0"], nesterov0=s["nesterov0"])
+            satir = {"tarih": gun["tarih"], "temp": gun["temp"], "rh": gun["rh"],
+                     "wind_kmh": gun["wind_kmh"], "precip": gun["precip"], **r, **ek}
+            sonuclar.append(satir)
+            s["ffmc0"], s["dmc0"], s["dc0"] = r["ffmc"], r["dmc"], r["dc"]
+            s["kbdi0"], s["nesterov0"] = ek["kbdi"], ek["nesterov"]
         return jsonify({"ok": True, "sonuclar": sonuclar})
     except Exception as e:
         return jsonify({"ok": False, "hata": str(e)}), 400
@@ -193,7 +218,7 @@ def test_yangin():
     sonuclar = []
     for o in olaylar:
         try:
-            ffmc0, dmc0, dc0 = warmup_fwi(o["lat"], o["lon"], o["tarih"])
+            st = warmup(o["lat"], o["lon"], o["tarih"])
             gunler = om.veri_cek(o["lat"], o["lon"], o["tarih"], o["tarih"])
             if not gunler:
                 raise ValueError("Veri alinamadi")
@@ -201,7 +226,7 @@ def test_yangin():
             ay  = int(gun["tarih"][4:6])
             r   = f.hesapla(temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
                             precip=gun["precip"], month=ay,
-                            ffmc0=ffmc0, dmc0=dmc0, dc0=dc0, lat=o["lat"])
+                            ffmc0=st["ffmc0"], dmc0=st["dmc0"], dc0=st["dc0"], lat=o["lat"])
             sonuclar.append({"isim": o["isim"], "yer": o["yer"], "tarih": o["tarih"],
                              "temp": gun["temp"], "rh": gun["rh"],
                              "wind_kmh": gun["wind_kmh"], "precip": gun["precip"], **r})
@@ -458,19 +483,23 @@ def tahmin():
         data = request.get_json()
         lat = float(data["lat"])
         lon = float(data["lon"])
-        ffmc0, dmc0, dc0 = warmup_fwi(lat, lon,
-                                        datetime.now().strftime("%Y%m%d"))
+        s = warmup(lat, lon, datetime.now().strftime("%Y%m%d"))
         gunler = fc.tahmin_cek(lat, lon)
         sonuclar = []
         for gun in gunler:
             ay = int(gun["tarih"][4:6])
             r = f.hesapla(temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
                           precip=gun["precip"], month=ay,
-                          ffmc0=ffmc0, dmc0=dmc0, dc0=dc0, lat=lat)
+                          ffmc0=s["ffmc0"], dmc0=s["dmc0"], dc0=s["dc0"], lat=lat)
+            ek = idx.hesapla_ek(temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
+                                precip=gun["precip"], temp_max=gun.get("temp_max", gun["temp"]),
+                                dew_point=gun.get("dew_point", 10.0),
+                                kbdi0=s["kbdi0"], nesterov0=s["nesterov0"])
             sonuclar.append({"tarih": gun["tarih"], "temp": gun["temp"],
                              "rh": gun["rh"], "wind_kmh": gun["wind_kmh"],
-                             "precip": gun["precip"], **r})
-            ffmc0, dmc0, dc0 = r["ffmc"], r["dmc"], r["dc"]
+                             "precip": gun["precip"], **r, **ek})
+            s["ffmc0"], s["dmc0"], s["dc0"] = r["ffmc"], r["dmc"], r["dc"]
+            s["kbdi0"], s["nesterov0"] = ek["kbdi"], ek["nesterov"]
         return jsonify({"ok": True, "sonuclar": sonuclar})
     except Exception as e:
         return jsonify({"ok": False, "hata": str(e)}), 400

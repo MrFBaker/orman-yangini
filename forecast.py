@@ -42,7 +42,8 @@ def tahmin_cek(lat, lon):
     """
     url = (
         f"{BASE}?latitude={lat}&longitude={lon}"
-        f"&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation"
+        f"&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,dew_point_2m"
+        f"&daily=temperature_2m_max"
         f"&wind_speed_unit=kmh&timezone=auto&forecast_days=7"
     )
 
@@ -54,6 +55,14 @@ def tahmin_cek(lat, lon):
     rhs = hourly["relative_humidity_2m"]
     winds = hourly["wind_speed_10m"]
     precips = hourly["precipitation"]
+    dews = hourly.get("dew_point_2m", [None] * len(times))
+
+    daily      = data.get("daily", {})
+    daily_dates = daily.get("time", [])
+    daily_tmax  = daily.get("temperature_2m_max", [])
+    tmax_map = {}
+    for j, d in enumerate(daily_dates):
+        tmax_map[d.replace("-", "")] = daily_tmax[j] if j < len(daily_tmax) else None
 
     gunler = {}
     for i, t in enumerate(times):
@@ -68,9 +77,10 @@ def tahmin_cek(lat, lon):
             gunler[tarih]["precip_sum"] += p
 
         if saat == 12:
-            gunler[tarih]["temp"] = temps[i] if temps[i] is not None else 20.0
-            gunler[tarih]["rh"] = rhs[i] if rhs[i] is not None else 50.0
-            gunler[tarih]["wind_kmh"] = winds[i] if winds[i] is not None else 0.0
+            gunler[tarih]["temp"]      = temps[i] if temps[i] is not None else 20.0
+            gunler[tarih]["rh"]        = rhs[i]   if rhs[i]   is not None else 50.0
+            gunler[tarih]["wind_kmh"]  = winds[i]  if winds[i]  is not None else 0.0
+            gunler[tarih]["dew_point"] = dews[i]   if dews[i]   is not None else 10.0
 
     sonuclar = []
     for tarih in sorted(gunler.keys()):
@@ -78,11 +88,13 @@ def tahmin_cek(lat, lon):
         if "temp" not in g:
             continue
         sonuclar.append({
-            "tarih": tarih,
-            "temp": round(g["temp"], 1),
-            "rh": round(g["rh"], 1),
-            "wind_kmh": round(g["wind_kmh"], 1),
-            "precip": round(g["precip_sum"], 1),
+            "tarih":     tarih,
+            "temp":      round(g["temp"], 1),
+            "rh":        round(g["rh"], 1),
+            "wind_kmh":  round(g["wind_kmh"], 1),
+            "precip":    round(g["precip_sum"], 1),
+            "dew_point": round(g["dew_point"], 1),
+            "temp_max":  round(tmax_map.get(tarih, g["temp"]), 1),
         })
 
     return sonuclar
