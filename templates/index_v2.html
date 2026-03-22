@@ -101,9 +101,9 @@
     }
     .lang-toggle { display: flex; gap: 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
     .lang-btn {
-      flex: 1; padding: 8px; text-align: center;
+      flex: 1; padding: 10px 12px; text-align: center;
       background: transparent; border: none; color: var(--text-muted);
-      font-size: 12px; font-weight: 600; cursor: pointer;
+      font-size: 12px; font-weight: 600; cursor: pointer; min-height: 44px;
       font-family: inherit; transition: all 0.15s;
     }
     .lang-btn.aktif { background: var(--accent); color: #fff; }
@@ -566,11 +566,6 @@
       text-align: center; font-size: 0.75rem; color: var(--text-muted);
       margin: -20px 0 32px; line-height: 1.5;
     }
-    @media (max-width: 640px) {
-      .akis-diagram { flex-wrap: wrap; gap: 8px; padding: 20px 12px; }
-      .akis-ok-wrap svg { transform: rotate(90deg); }
-    }
-
     /* ═══ ACCORDION ═══ */
     .yon-accordion {
       margin-bottom: 14px; border-radius: 14px; overflow: hidden;
@@ -758,6 +753,7 @@
       .indeksler { grid-template-columns: 1fr 1fr; gap: 8px; }
       .sonuc-ust-grid { grid-template-columns: 1fr; }
       .istatistik-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .alt-sekme { padding: 10px 14px; min-height: 44px; }
       .test-indeksler { grid-template-columns: repeat(3, 1fr); gap: 6px; }
       .esik-grid { grid-template-columns: 1fr; }
       .formul-satir { grid-template-columns: 1fr; gap: 6px; }
@@ -780,12 +776,15 @@
       .yontem-nav a { padding: 8px 14px; font-size: 0.72rem; min-height: 44px; display: flex; align-items: center; flex-shrink: 0; }
       .formul-kart { padding: 16px 12px; }
       .grafik-kutu { padding: 14px 10px; }
-      table { font-size: 0.68rem; }
-      th, td { padding: 5px 4px; }
+      table { font-size: 0.72rem; }
+      th, td { padding: 6px 5px; }
+      .akis-diagram { flex-wrap: wrap; gap: 8px; padding: 20px 12px; }
+      .akis-ok-wrap svg { transform: rotate(90deg); }
     }
 
     @media (max-width: 480px) {
       .indeksler { grid-template-columns: 1fr 1fr; }
+      .istatistik-grid { grid-template-columns: 1fr; }
       .test-indeksler { grid-template-columns: repeat(2, 1fr); }
       .hero h1 { font-size: 1.1rem; }
       .alt-sekme { padding: 11px 14px; min-height: 44px; }
@@ -796,6 +795,13 @@
       .test-idx .deger { font-size: 0.95rem; }
       .komponent-liste li { font-size: 0.82rem; padding: 8px 0; }
       .komponent-badge { font-size: 0.7rem; padding: 3px 8px; }
+      .harita-container { height: 180px; }
+      .tahmin-grid { grid-template-columns: 1fr; }
+      .tahmin-meteo { grid-template-columns: 1fr 1fr; gap: 6px; }
+      .tahmin-indeksler { grid-template-columns: repeat(2, 1fr); }
+      .tehlike-olcek { height: 42px; }
+      .formul-deger .f { font-size: 0.75rem; padding: 3px 8px; }
+      .f-not { font-size: 0.6rem; padding: 2px 7px; }
     }
 
     /* ═══════════════════════════════════════════ */
