@@ -1285,6 +1285,10 @@
     <a href="#bolum-isi">4 · ISI</a>
     <a href="#bolum-bui">5 · BUI</a>
     <a href="#bolum-fwi">6 · FWI</a>
+    <a href="#bolum-angstrom">7 · Angström</a>
+    <a href="#bolum-nesterov">8 · Nesterov</a>
+    <a href="#bolum-kbdi">9 · KBDI</a>
+    <a href="#bolum-carrega">10 · Carrega</a>
     <a href="#bolum-esik">Eşikler</a>
   </nav>
   <nav class="yontem-nav lang-en">
@@ -1295,6 +1299,10 @@
     <a href="#bolum-isi">4 · ISI</a>
     <a href="#bolum-bui">5 · BUI</a>
     <a href="#bolum-fwi">6 · FWI</a>
+    <a href="#bolum-angstrom">7 · Angström</a>
+    <a href="#bolum-nesterov">8 · Nesterov</a>
+    <a href="#bolum-kbdi">9 · KBDI</a>
+    <a href="#bolum-carrega">10 · Carrega</a>
     <a href="#bolum-esik">Thresholds</a>
   </nav>
 
@@ -1596,6 +1604,130 @@
           </span>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="yon-kategori" style="margin-top:28px"><span>Ek İndeksler (Additional Indices)</span></div>
+
+  <div class="yontem-bolum" id="bolum-angstrom">
+    <h2>7. Angström İndeksi</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">ANG</span>
+        <h3>Anlık yangın tehlike değerlendirmesi · Düşük değer = yüksek tehlike · Aralık: 0–8</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — sıcaklık (°C)</span>
+        <span class="girdi-badge">RH — bağıl nem (%)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Formül</span>
+          <span class="formul-deger">
+            <span class="f">I = RH / 20 + (27 − T) / 10</span>
+            <br><small style="color:#556070">Nem arttıkça I yükselir (düşük risk), sıcaklık arttıkça I düşer (yüksek risk)</small>
+          </span>
+        </div>
+      </div>
+      <div class="formul-not">Kaynak: Angström, A. (1942). Väder och skogsbrand. Svenska Brandförsvarsföreningen, Stockholm.</div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum" id="bolum-nesterov">
+    <h2>8. Nesterov İndeksi</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">NES</span>
+        <h3>Kümülatif yangın tehlike indeksi · Çiy noktası açığı tabanlı · Aralık: 0–∞</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — sıcaklık (°C)</span>
+        <span class="girdi-badge">Td — çiy noktası sıcaklığı (°C)</span>
+        <span class="girdi-badge">r — yağış (mm)</span>
+        <span class="girdi-badge">G₀ — önceki gün Nesterov değeri</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Günlük bileşen</span>
+          <span class="formul-deger">
+            <span class="f">d = T × (T − Td)</span>
+            <br><small style="color:#556070">T−Td: çiy noktası açığı — havadaki kuruluğu temsil eder</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Kümülatif toplam</span>
+          <span class="formul-deger">
+            r &lt; 3 mm: <span class="f">G = G₀ + d</span> <span class="f-not">toplama devam</span>
+            <br>r ≥ 3 mm: <span class="f">G = 0</span> <span class="f-not">reset</span>
+            <br><small style="color:#556070">3 mm ve üstü yağış indeksi sıfırlar (Nesterov 1949 orijinal kuralı)</small>
+          </span>
+        </div>
+      </div>
+      <div class="formul-not">Kaynak: Nesterov, V.G. (1949). Gorimostʹ lesa i metody eë opredeleniia. Goslesbumizdat, Moskova. Eşikler: Shetinsky (1994).</div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum" id="bolum-kbdi">
+    <h2>9. KBDI — Keetch-Byram Kuraklık İndeksi</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">KBDI</span>
+        <h3>Toprak nem eksikliği · Kümülatif kuraklık göstergesi · Aralık: 0–800</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T_max — günlük maksimum sıcaklık (°C)</span>
+        <span class="girdi-badge">r — yağış (mm)</span>
+        <span class="girdi-badge">KBDI₀ — önceki gün KBDI değeri</span>
+        <span class="girdi-badge">R_yıl — yıllık ortalama yağış (mm)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 1 — Yağış etkisi</span>
+          <span class="formul-deger">
+            <span class="f">net_rain = max(0, r − 5.08)</span> <span class="f-not">5.08 mm = 0.20 inç eşik</span>
+            <br><span class="f">Q = max(KBDI₀ − net_rain, 0)</span>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 2 — Kuraklık artışı<br><small style="font-weight:400">(yalnızca T_max ≥ 10°C ise)</small></span>
+          <span class="formul-deger">
+            <span class="f">DF = (800 − Q) × (0.968 × e^(0.0486 × T_F) − 8.30) × 10⁻³ / (1 + 10.88 × e^(−0.0441 × R_inç))</span>
+            <br><small style="color:#556070">T_F: °C→°F dönüşümü · R_inç: mm→inç dönüşümü · T_max &lt; 10°C ise DF = 0</small>
+          </span>
+        </div>
+        <div class="formul-satir">
+          <span class="formul-etiket">Adım 3 — Yeni KBDI</span>
+          <span class="formul-deger">
+            <span class="f">KBDI = Q + max(DF, 0)</span> <span class="f-not">0–800 aralığında</span>
+          </span>
+        </div>
+      </div>
+      <div class="formul-not">Kaynak: Keetch, J.J. & Byram, G.M. (1968). A Drought Index for Forest Fire Control. USDA Forest Service, Research Paper SE-38.</div>
+    </div>
+  </div>
+
+  <div class="yontem-bolum" id="bolum-carrega">
+    <h2>10. Carrega I87 İndeksi</h2>
+    <div class="formul-kart">
+      <div class="formul-kart-baslik">
+        <span class="formul-badge">CAR</span>
+        <h3>Akdeniz iklimi için yangın tehlike indeksi · Regresyon modeli</h3>
+      </div>
+      <div class="girdi-etiketler" style="margin-bottom:14px">
+        <span class="girdi-badge">T — sıcaklık (°C)</span>
+        <span class="girdi-badge">Td — çiy noktası sıcaklığı (°C)</span>
+        <span class="girdi-badge">RH — bağıl nem (%)</span>
+      </div>
+      <div class="formul-satirlar">
+        <div class="formul-satir">
+          <span class="formul-etiket">Formül</span>
+          <span class="formul-deger">
+            <span class="f">I87 = −4.51 + 0.236×T + 0.095×(T − Td) − 0.038×RH</span>
+            <br><small style="color:#556070">T−Td: çiy noktası açığı · RH yükseldikçe risk düşer · Güney Fransa/Akdeniz verilerinden kalibre</small>
+          </span>
+        </div>
+      </div>
+      <div class="formul-not">Kaynak: Carrega, P. (1991). A meteorological index of forest fire hazard in Mediterranean France. Int. J. Wildland Fire, 1(2), 79–86.</div>
     </div>
   </div>
 
