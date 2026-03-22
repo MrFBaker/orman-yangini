@@ -1092,7 +1092,7 @@
     <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-top:16px;">
       <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
         <div class="akis-kutu girdi" style="min-width:120px">
-          <strong>Meteorolojik Veri</strong>
+          <strong data-i18n="flow_meteo_data">Meteorolojik Veri</strong>
           T · RH · W · P · Td · T_max
         </div>
         <div class="akis-ok-sutun">→</div>
@@ -1105,8 +1105,8 @@
         </div>
         <div class="akis-ok-sutun">→</div>
         <div class="akis-kutu girdi" style="min-width:100px; border-color:var(--accent)">
-          <strong style="color:var(--accent)">Tehlike Seviyesi</strong>
-          <span style="font-size:0.7rem">5 indeks birlikte</span>
+          <strong style="color:var(--accent)" data-i18n="flow_danger_level">Tehlike Seviyesi</strong>
+          <span style="font-size:0.7rem" data-i18n="flow_5_indices">5 indeks birlikte</span>
         </div>
       </div>
     </div>
@@ -1342,7 +1342,7 @@
   </div>
 
   <div class="yontem-sekmeler">
-    <button class="yontem-sekme aktif" onclick="yontemSekmeAc('yon-fwi', this)">FWI Sistemi</button>
+    <button class="yontem-sekme aktif" onclick="yontemSekmeAc('yon-fwi', this)" data-i18n="tab_fwi">FWI Sistemi</button>
     <button class="yontem-sekme" onclick="yontemSekmeAc('yon-angstrom', this)">Angström</button>
     <button class="yontem-sekme" onclick="yontemSekmeAc('yon-nesterov', this)">Nesterov</button>
     <button class="yontem-sekme" onclick="yontemSekmeAc('yon-kbdi', this)">KBDI</button>
@@ -2253,10 +2253,10 @@
     <div class="bilgi-kart" style="margin-bottom:16px">
       <h3 data-i18n="valid_formula_title">FWI Formül Doğruluğu</h3>
       <p data-i18n="valid_formula_desc" data-i18n-html="1">Van Wagner (1987) yayınında Tablo 1 olarak verilen referans girdi/çıktı değerleriyle karşılaştırma yapılır. Hesaplanan değerler beklenen değerlerden <strong>±0.1</strong> sapma içindeyse test geçer.</p>
-      <div style="margin-top:10px;font-size:0.82rem;color:var(--text-muted)">
+      <div style="margin-top:10px;font-size:0.82rem;color:var(--text-muted)" data-i18n="valid_input_info">
         Girdi: T=17°C, H=42%, W=25 km/h, r=0 mm, Ay=7 &nbsp;|&nbsp; FFMC₀=85, DMC₀=6, DC₀=15
       </div>
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:0.78rem;color:var(--text-muted)">
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:0.78rem;color:var(--text-muted)" data-i18n="valid_extra_note" data-i18n-html="1">
         <strong style="color:var(--text)">Ek indeks doğrulaması:</strong> Angström, Nesterov, KBDI ve Carrega I87 formülleri <code>test_indeksler.py</code> birim testleriyle (35 test) doğrulanmıştır. Detaylar için <strong>bilimsel_referanslar.md</strong> dosyasına bakınız.
       </div>
     </div>
@@ -2338,12 +2338,21 @@
       card_risk_title: "Tehlike Sınıfları",
       risk_low: "Düşük", risk_moderate: "Orta", risk_high: "Yüksek",
       risk_very_high: "Çok Yüksek", risk_extreme: "Aşırı",
+      card_features_title: "Özellikler",
+      comp_fwi_full: "6 bileşenli Kanada sistemi — Van Wagner (1987)",
+      comp_ang: "Anlık yangın tehlike değerlendirmesi — Angström (1942)",
+      comp_nes: "Kümülatif kuraklık takibi — Nesterov (1949)",
+      comp_kbdi: "Toprak nem eksikliği indeksi — Keetch-Byram (1968)",
+      comp_car: "Akdeniz iklimi için özel — Carrega I87 (1991)",
       card_datasrc_title: "Veri Kaynağı",
       card_datasrc_desc: "Open-Meteo saatlik yeniden analiz verisi — <strong style=\"color:var(--text)\">öğlen 12:00 LST</strong> anlık değerler",
       data_temp: "Sıcaklık", data_rh: "Bağıl Nem", data_wind: "Rüzgar", data_precip: "Yağış",
       data_temp_desc: "12:00 LST anlık · °C", data_rh_desc: "12:00 LST anlık · %",
       data_wind_desc: "12:00 LST anlık · km/h", data_precip_desc: "Günlük toplam · mm",
-      flow_title: "Hesaplama Akışı",
+      flow_title: "Sistem Mimarisi",
+      flow_meteo_data: "Meteorolojik Veri",
+      flow_danger_level: "Tehlike Seviyesi",
+      flow_5_indices: "5 indeks birlikte",
       flow_input: "Girdi", flow_ffmc: "Üst tabaka", flow_dmc: "Döküntü", flow_dc: "Derin tabaka",
       flow_isi: "Yayılma", flow_bui: "Birikim", flow_fwi: "Sonuç",
       btn_goto_calc: "Hesaplayıcıya Geç →",
@@ -2409,6 +2418,9 @@
       event_1: "Manavgat Yangını — 28 Temmuz 2021, Antalya",
       event_2: "Marmaris Yangını — 30 Temmuz 2021, Muğla",
       event_3: "İzmir Yangını — 19 Ağustos 2019, İzmir",
+      valid_input_info: "Girdi: T=17°C, H=42%, W=25 km/h, r=0 mm, Ay=7 &nbsp;|&nbsp; FFMC₀=85, DMC₀=6, DC₀=15",
+      valid_extra_note: "<strong style=\"color:var(--text)\">Ek indeks doğrulaması:</strong> Angström, Nesterov, KBDI ve Carrega I87 formülleri <code>test_indeksler.py</code> birim testleriyle (35 test) doğrulanmıştır. Detaylar için <strong>bilimsel_referanslar.md</strong> dosyasına bakınız.",
+      tab_fwi: "FWI Sistemi",
       footer_text: "Meteoroloji Mühendisliği Tasarım Projesi · Open-Meteo Saatlik Veri",
       sinif_dusuk: "DÜŞÜK", sinif_orta: "ORTA", sinif_yuksek: "YÜKSEK",
       sinif_cok_yuksek: "ÇOK YÜKSEK", sinif_asiri: "AŞIRI", sinif_tehlike_yok: "TEHLİKE YOK",
@@ -2483,12 +2495,21 @@
       card_risk_title: "Danger Classes",
       risk_low: "Low", risk_moderate: "Moderate", risk_high: "High",
       risk_very_high: "Very High", risk_extreme: "Extreme",
+      card_features_title: "Features",
+      comp_fwi_full: "6-component Canadian system — Van Wagner (1987)",
+      comp_ang: "Instant fire danger assessment — Angström (1942)",
+      comp_nes: "Cumulative drought tracking — Nesterov (1949)",
+      comp_kbdi: "Soil moisture deficit index — Keetch-Byram (1968)",
+      comp_car: "Mediterranean climate specialized — Carrega I87 (1991)",
       card_datasrc_title: "Data Source",
       card_datasrc_desc: "Open-Meteo hourly reanalysis data — <strong style=\"color:var(--text)\">noon 12:00 LST</strong> instantaneous values",
       data_temp: "Temperature", data_rh: "Relative Humidity", data_wind: "Wind", data_precip: "Precipitation",
       data_temp_desc: "12:00 LST instant · °C", data_rh_desc: "12:00 LST instant · %",
       data_wind_desc: "12:00 LST instant · km/h", data_precip_desc: "Daily total · mm",
-      flow_title: "Calculation Flow",
+      flow_title: "System Architecture",
+      flow_meteo_data: "Meteorological Data",
+      flow_danger_level: "Danger Level",
+      flow_5_indices: "5 indices combined",
       flow_input: "Input", flow_ffmc: "Fine fuel", flow_dmc: "Duff", flow_dc: "Drought",
       flow_isi: "Spread", flow_bui: "Buildup", flow_fwi: "Result",
       btn_goto_calc: "Go to Calculator →",
@@ -2554,6 +2575,9 @@
       event_1: "Manavgat Fire — July 28, 2021, Antalya",
       event_2: "Marmaris Fire — July 30, 2021, Muğla",
       event_3: "İzmir Fire — August 19, 2019, İzmir",
+      valid_input_info: "Input: T=17°C, H=42%, W=25 km/h, r=0 mm, Month=7 &nbsp;|&nbsp; FFMC₀=85, DMC₀=6, DC₀=15",
+      valid_extra_note: "<strong style=\"color:var(--text)\">Additional index validation:</strong> Angström, Nesterov, KBDI and Carrega I87 formulas are validated with <code>test_indeksler.py</code> unit tests (35 tests). See <strong>bilimsel_referanslar.md</strong> for details.",
+      tab_fwi: "FWI System",
       footer_text: "Meteorological Engineering Design Project · Open-Meteo Hourly Data",
       sinif_dusuk: "LOW", sinif_orta: "MODERATE", sinif_yuksek: "HIGH",
       sinif_cok_yuksek: "VERY HIGH", sinif_asiri: "EXTREME", sinif_tehlike_yok: "NO DANGER",
@@ -2638,8 +2662,8 @@
 
     // Update page title
     document.title = lang === "en"
-      ? "FWI - Forest Fire Early Warning System"
-      : "FWI - Orman Yangını Erken Uyarı Sistemi";
+      ? "Fire-EWS | Forest Fire Early Warning System"
+      : "Fire-EWS | Orman Yangını Erken Uyarı Sistemi";
 
     localStorage.setItem("fwi-lang", lang);
   }
