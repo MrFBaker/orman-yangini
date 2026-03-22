@@ -1287,7 +1287,7 @@
       </div>
       <div class="grafik-kutu">
         <div class="grafik-baslik" data-i18n="chart_title">Yangın Tehlike Zaman Serisi</div>
-        <div id="nasa-heatmap" class="tahmin-heatmap"></div>
+        <canvas id="fwi-grafik"></canvas>
       </div>
     </div>
     <div class="tablo-wrapper" style="margin-top:16px;">
@@ -2202,7 +2202,7 @@
       </div>
       <div class="grafik-kutu">
         <div class="grafik-baslik" data-i18n="forecast_chart_title">7 Günlük Yangın Tehlike Tahmini</div>
-        <div id="tahmin-heatmap" class="tahmin-heatmap"></div>
+        <canvas id="tahmin-grafik"></canvas>
       </div>
     </div>
     <div class="tahmin-grid" id="tahmin-kartlar"></div>
@@ -2277,6 +2277,7 @@
 
 <script>
   // ═══ GLOBAL STATE ═══
+  let fwiChart = null;
   let sonManuelSonuc = null;
   let sonManuelGirdi = null;
   let sonCokluSatirlar = null;
@@ -2788,50 +2789,62 @@
   }
 
   function cizGrafik(satirlar) {
-    const hmRenk = {
-      "Tehlike Yok": { bg: "#052e16", renk: "#4ade80", border: "#166534" },
-      "Dusuk":       { bg: "#052e16", renk: "#4ade80", border: "#166534" },
-      "Orta":        { bg: "#422006", renk: "#fbbf24", border: "#713f12" },
-      "Yuksek":      { bg: "#431407", renk: "#fb923c", border: "#7c2d12" },
-      "Cok Yuksek":  { bg: "#450a0a", renk: "#f87171", border: "#7f1d1d" },
-      "Asiri":       { bg: "#2e1065", renk: "#c084fc", border: "#581c87" },
-    };
-    const idxList = [
-      { key: "sinif",          valKey: "fwi",      ad: "FWI",  fmt: v => v != null ? v : "—" },
-      { key: "angstrom_sinif", valKey: "angstrom",  ad: "Ang.", fmt: v => v != null ? v : "—" },
-      { key: "nesterov_sinif", valKey: "nesterov",  ad: "Nes.", fmt: v => fmtK(v) },
-      { key: "kbdi_sinif",     valKey: "kbdi",      ad: "KBDI", fmt: v => v != null ? v : "—" },
-      { key: "carrega_sinif",  valKey: "carrega",   ad: "Car.", fmt: v => v != null ? v : "—" },
-    ];
-
+    const sinifSeviye = {"Tehlike Yok":0,"Dusuk":1,"Orta":2,"Yuksek":3,"Cok Yuksek":4,"Asiri":5};
+    const labels = satirlar.map(r => r.tarih.slice(0,4)+"-"+r.tarih.slice(4,6)+"-"+r.tarih.slice(6,8));
     const n = satirlar.length;
-    const colW = n <= 7 ? "1fr" : (n <= 14 ? "minmax(52px,1fr)" : "minmax(38px,1fr)");
-    let html = `<div class="tahmin-hm-grid" style="grid-template-columns:72px repeat(${n},${colW});min-width:${Math.max(480, n*46+72)}px">`;
 
-    // Header
-    html += '<div class="tahmin-hm-header"></div>';
-    satirlar.forEach(r => {
-      const t2 = r.tarih;
-      const lbl = t2.slice(4,6)+"-"+t2.slice(6,8);
-      html += `<div class="tahmin-hm-header">${lbl}</div>`;
-    });
+    const datasets = [
+      { label: "FWI",      key: "sinif",          color: "#f97316" },
+      { label: "Angström",  key: "angstrom_sinif",  color: "#38bdf8" },
+      { label: "Nesterov",  key: "nesterov_sinif",  color: "#a78bfa" },
+      { label: "KBDI",      key: "kbdi_sinif",      color: "#fb7185" },
+      { label: "Carrega",   key: "carrega_sinif",   color: "#34d399" },
+    ].map(ds => ({
+      label: ds.label,
+      data: satirlar.map(r => sinifSeviye[r[ds.key]] || 0),
+      borderColor: ds.color,
+      backgroundColor: ds.color + "18",
+      pointRadius: n > 30 ? 1 : 3,
+      pointHoverRadius: 5,
+      tension: 0.3,
+      borderWidth: 2,
+      fill: false,
+    }));
 
-    // İndeks satırları
-    for (const idx of idxList) {
-      html += `<div class="tahmin-hm-label">${idx.ad}</div>`;
-      for (const r of satirlar) {
-        const sinif = r[idx.key] || "Dusuk";
-        const c = hmRenk[sinif] || hmRenk["Orta"];
-        const val = idx.fmt(r[idx.valKey]);
-        const sinifAd = sinifCevir(sinif);
-        html += `<div class="tahmin-hm-cell" style="background:${c.bg};color:${c.renk};border-color:${c.border}" title="${idx.ad}: ${val} (${sinifAd})">
-          <span class="hm-val">${n <= 14 ? val : ""}</span>
-          <span class="hm-sinif">${n <= 14 ? sinifAd : ""}</span>
-        </div>`;
+    if (fwiChart) fwiChart.destroy();
+    const ctx = document.getElementById("fwi-grafik").getContext("2d");
+    const seviyeLabels = [t("sinif_tehlike_yok") || "—", t("sinif_dusuk"), t("sinif_orta"), t("sinif_yuksek"), t("sinif_cok_yuksek"), t("sinif_asiri")];
+    fwiChart = new Chart(ctx, {
+      type: "line",
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { labels: { color: "#9ca3af", font: { size: 11 }, usePointStyle: true, pointStyle: "line" } },
+          tooltip: {
+            backgroundColor: "#111827", borderColor: "#374151", borderWidth: 1,
+            callbacks: {
+              label: ctx2 => ctx2.dataset.label + ": " + (seviyeLabels[ctx2.parsed.y] || "—")
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: "#9ca3af", maxTicksLimit: 12, maxRotation: 30, font: { size: 10 } },
+            grid: { color: "#1f2937" }
+          },
+          y: {
+            min: 0, max: 5,
+            ticks: {
+              color: "#9ca3af", font: { size: 10 }, stepSize: 1,
+              callback: v => seviyeLabels[v] || ""
+            },
+            grid: { color: "#1f2937" }
+          }
+        }
       }
-    }
-    html += '</div>';
-    document.getElementById("nasa-heatmap").innerHTML = html;
+    });
   }
 
   function gosterSonuc(s) {
@@ -3182,6 +3195,7 @@
   // ═══════════════════════════════════════════
   let nasaMap = null, nasaMarker = null;
   let tahminMap = null, tahminMarker = null;
+  let tahminChart = null;
   let tahminLat = null, tahminLon = null;
 
   function initNasaMap() {
@@ -3420,49 +3434,64 @@
   }
 
   function tahminGrafikCiz(satirlar) {
-    const hmRenk = {
-      "Tehlike Yok": { bg: "#052e16", renk: "#4ade80", border: "#166534" },
-      "Dusuk":       { bg: "#052e16", renk: "#4ade80", border: "#166534" },
-      "Orta":        { bg: "#422006", renk: "#fbbf24", border: "#713f12" },
-      "Yuksek":      { bg: "#431407", renk: "#fb923c", border: "#7c2d12" },
-      "Cok Yuksek":  { bg: "#450a0a", renk: "#f87171", border: "#7f1d1d" },
-      "Asiri":       { bg: "#2e1065", renk: "#c084fc", border: "#581c87" },
-    };
-    const indeksler = [
-      { key: "sinif",          valKey: "fwi",      ad: "FWI",  fmt: v => v != null ? v : "—" },
-      { key: "angstrom_sinif", valKey: "angstrom",  ad: "Ang.", fmt: v => v != null ? v : "—" },
-      { key: "nesterov_sinif", valKey: "nesterov",  ad: "Nes.", fmt: v => fmtK(v) },
-      { key: "kbdi_sinif",     valKey: "kbdi",      ad: "KBDI", fmt: v => v != null ? v : "—" },
-      { key: "carrega_sinif",  valKey: "carrega",   ad: "Car.", fmt: v => v != null ? v : "—" },
-    ];
-
+    const sinifSeviye = {"Tehlike Yok":0,"Dusuk":1,"Orta":2,"Yuksek":3,"Cok Yuksek":4,"Asiri":5};
     const bugun = new Date();
-    let html = '<div class="tahmin-hm-grid">';
-    // Header row — boş köşe + gün isimleri
-    html += '<div class="tahmin-hm-header"></div>';
-    satirlar.forEach((r, i) => {
+    const labels = satirlar.map((r, i) => {
+      if (i === 0) return t("forecast_today");
+      if (i === 1) return t("forecast_tomorrow");
       const d = new Date(bugun); d.setDate(d.getDate() + i);
-      const gun = i === 0 ? t("forecast_today") : i === 1 ? t("forecast_tomorrow") : t("forecast_days")[d.getDay()];
-      const tarih = formatTarih(r.tarih);
-      html += `<div class="tahmin-hm-header">${gun}<br><span style="opacity:0.6">${tarih.slice(5)}</span></div>`;
+      return t("forecast_days")[d.getDay()];
     });
 
-    // İndeks satırları
-    for (const idx of indeksler) {
-      html += `<div class="tahmin-hm-label">${idx.ad}</div>`;
-      for (const r of satirlar) {
-        const sinif = r[idx.key] || "Dusuk";
-        const c = hmRenk[sinif] || hmRenk["Orta"];
-        const val = idx.fmt(r[idx.valKey]);
-        const sinifAd = sinifCevir(sinif);
-        html += `<div class="tahmin-hm-cell" style="background:${c.bg};color:${c.renk};border-color:${c.border}" title="${idx.ad}: ${val} (${sinifAd})">
-          <span class="hm-val">${val}</span>
-          <span class="hm-sinif">${sinifAd}</span>
-        </div>`;
+    const datasets = [
+      { label: "FWI",      key: "sinif",          color: "#f97316" },
+      { label: "Angström",  key: "angstrom_sinif",  color: "#38bdf8" },
+      { label: "Nesterov",  key: "nesterov_sinif",  color: "#a78bfa" },
+      { label: "KBDI",      key: "kbdi_sinif",      color: "#fb7185" },
+      { label: "Carrega",   key: "carrega_sinif",   color: "#34d399" },
+    ].map(ds => ({
+      label: ds.label,
+      data: satirlar.map(r => sinifSeviye[r[ds.key]] || 0),
+      borderColor: ds.color,
+      backgroundColor: ds.color + "18",
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      tension: 0.3,
+      borderWidth: 2,
+      fill: false,
+    }));
+
+    if (tahminChart) tahminChart.destroy();
+    const ctx = document.getElementById("tahmin-grafik").getContext("2d");
+    const seviyeLabels = [t("sinif_tehlike_yok") || "—", t("sinif_dusuk"), t("sinif_orta"), t("sinif_yuksek"), t("sinif_cok_yuksek"), t("sinif_asiri")];
+    tahminChart = new Chart(ctx, {
+      type: "line",
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { labels: { color: "#9ca3af", font: { size: 11 }, usePointStyle: true, pointStyle: "line" } },
+          tooltip: {
+            backgroundColor: "#111827", borderColor: "#374151", borderWidth: 1,
+            callbacks: {
+              label: ctx2 => ctx2.dataset.label + ": " + (seviyeLabels[ctx2.parsed.y] || "—")
+            }
+          }
+        },
+        scales: {
+          x: { ticks: { color: "#9ca3af", font: { size: 10 } }, grid: { color: "#1f2937" } },
+          y: {
+            min: 0, max: 5,
+            ticks: {
+              color: "#9ca3af", font: { size: 10 }, stepSize: 1,
+              callback: v => seviyeLabels[v] || ""
+            },
+            grid: { color: "#1f2937" }
+          }
+        }
       }
-    }
-    html += '</div>';
-    document.getElementById("tahmin-heatmap").innerHTML = html;
+    });
   }
 
   function formatTarih(t) {
