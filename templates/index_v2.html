@@ -2657,7 +2657,7 @@
         <td>${r.wind_kmh.toFixed(1)}</td><td>${r.precip.toFixed(1)}</td>
         <td><span class="sinif-hucre ${fwiR}">${r.fwi}</span></td>
         <td><span class="sinif-hucre ${angR}">${r.angstrom != null ? r.angstrom : "—"}</span></td>
-        <td><span class="sinif-hucre ${nesR}">${r.nesterov != null ? r.nesterov : "—"}</span></td>
+        <td><span class="sinif-hucre ${nesR}">${fmtK(r.nesterov)}</span></td>
         <td><span class="sinif-hucre ${kbdR}">${r.kbdi != null ? r.kbdi : "—"}</span></td>
         <td><span class="sinif-hucre ${carR}">${r.carrega != null ? r.carrega : "—"}</span></td>
       </tr>`;
@@ -2780,7 +2780,7 @@
     document.getElementById("val-dsr").textContent  = s.dsr;
     document.getElementById("val-angstrom").textContent = s.angstrom != null ? s.angstrom : "—";
     document.getElementById("val-angstrom-sinif").textContent = s.angstrom_sinif ? sinifCevir(s.angstrom_sinif) : "—";
-    document.getElementById("val-nesterov").textContent = s.nesterov != null ? s.nesterov : "—";
+    document.getElementById("val-nesterov").textContent = fmtK(s.nesterov);
     document.getElementById("val-nesterov-sinif").textContent = s.nesterov_sinif ? sinifCevir(s.nesterov_sinif) : "—";
     document.getElementById("val-kbdi").textContent = s.kbdi != null ? s.kbdi : "—";
     document.getElementById("val-kbdi-sinif").textContent = s.kbdi_sinif ? sinifCevir(s.kbdi_sinif) : "—";
@@ -3303,7 +3303,7 @@
           <div class="tahmin-indeksler" style="grid-template-columns:repeat(5,1fr);margin-top:12px">
             <div class="tahmin-idx" style="background:${renkler.bg};border-color:${renkler.border}"><div class="etiket" style="color:${renkler.renk}">FWI</div><div class="deger" style="color:${renkler.renk}">${r.fwi}</div></div>
             <div class="tahmin-idx" style="background:${angRenk.bg};border-color:${angRenk.border}"><div class="etiket" style="color:${angRenk.renk}">Ang.</div><div class="deger" style="color:${angRenk.renk}">${r.angstrom != null ? r.angstrom : "—"}</div></div>
-            <div class="tahmin-idx" style="background:${nesRenk.bg};border-color:${nesRenk.border}"><div class="etiket" style="color:${nesRenk.renk}">Nes.</div><div class="deger" style="color:${nesRenk.renk}">${r.nesterov != null ? r.nesterov : "—"}</div></div>
+            <div class="tahmin-idx" style="background:${nesRenk.bg};border-color:${nesRenk.border}"><div class="etiket" style="color:${nesRenk.renk}">Nes.</div><div class="deger" style="color:${nesRenk.renk}">${fmtK(r.nesterov)}</div></div>
             <div class="tahmin-idx" style="background:${kbdRenk.bg};border-color:${kbdRenk.border}"><div class="etiket" style="color:${kbdRenk.renk}">KBDI</div><div class="deger" style="color:${kbdRenk.renk}">${r.kbdi != null ? r.kbdi : "—"}</div></div>
             <div class="tahmin-idx" style="background:${carRenk.bg};border-color:${carRenk.border}"><div class="etiket" style="color:${carRenk.renk}">Car.</div><div class="deger" style="color:${carRenk.renk}">${r.carrega != null ? r.carrega : "—"}</div></div>
           </div>
@@ -3362,6 +3362,11 @@
 
   function formatTarih(t) {
     return t.slice(0,4) + "-" + t.slice(4,6) + "-" + t.slice(6,8);
+  }
+  function fmtK(v) {
+    if (v == null) return "—";
+    if (Math.abs(v) >= 1000) return (v / 1000).toFixed(1) + "K";
+    return v;
   }
 
   // ═══ MAP INIT on page open ═══
