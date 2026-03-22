@@ -1278,11 +1278,6 @@
 
   <!-- MANUEL SONUÇ -->
   <div id="sonuc-alani">
-    <div class="sinif-banner" id="sinif-banner">
-      <div class="sinif-adi" id="sinif-adi"></div>
-      <div class="fwi-deger" id="genel-tehlike-text"></div>
-      <div class="sinif-aciklama" id="sinif-aciklama"></div>
-    </div>
     <!-- 5 Ana İndeks — eşit seviyede -->
     <div class="indeksler ana-indeksler" style="grid-template-columns:repeat(5,1fr);margin-bottom:14px">
       <div class="indeks-kutu" id="box-fwi"><div class="etiket">FWI</div><div class="deger" id="val-fwi-ana">—</div><div class="birim" id="val-fwi-sinif">—</div></div>
@@ -2895,20 +2890,6 @@
       month:  document.getElementById("month").value,
       lat:    document.getElementById("manuel-lat").value || null,
     };
-    // Tüm indekslerde en yüksek tehlike sınıfını bul
-    const sinifSira = {"Tehlike Yok":0,"Dusuk":1,"Orta":2,"Yuksek":3,"Cok Yuksek":4,"Asiri":5};
-    const tumSiniflar = [s.sinif, s.angstrom_sinif, s.nesterov_sinif, s.kbdi_sinif, s.carrega_sinif].filter(Boolean);
-    let genelMax = "Dusuk";
-    for (const sn of tumSiniflar) {
-      if ((sinifSira[sn]||0) > (sinifSira[genelMax]||0)) genelMax = sn;
-    }
-    const info = SINIF_MAP[genelMax] || { tr: () => genelMax, renk: "Orta", aciklama: () => "" };
-    const banner = document.getElementById("sinif-banner");
-    banner.className = "sinif-banner renk-" + info.renk;
-    document.getElementById("sinif-adi").textContent = info.tr();
-    document.getElementById("genel-tehlike-text").textContent = t("forecast_general_danger_label") || "Genel Yangın Tehlikesi";
-    document.getElementById("sinif-aciklama").textContent = info.aciklama();
-
     // 5 ana indeks — değer + sınıf + renk
     const renkCSS = {
       "Tehlike Yok": { bg: "#052e16", renk: "#4ade80", border: "#166534" },
