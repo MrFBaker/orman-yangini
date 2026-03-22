@@ -128,7 +128,12 @@
     }
     .hamburger:hover { background: rgba(255,255,255,0.08); }
     .mobile-header .sidebar-logo { width: 30px; height: 30px; font-size: 14px; }
-    .mobile-header .mob-title { font-size: 15px; font-weight: 700; color: #fff; }
+    .mobile-header .mob-title { font-size: 15px; font-weight: 700; color: #fff; flex: 1; }
+    .mob-lang {
+      padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border);
+      background: transparent; color: var(--accent); font-size: 12px;
+      font-weight: 700; cursor: pointer; font-family: inherit; min-height: 32px;
+    }
 
     .overlay {
       display: none; position: fixed; inset: 0;
@@ -467,23 +472,24 @@
     #sayfa-yontem { max-width: 1060px; }
 
     .yontem-sekmeler {
-      display: flex; gap: 0; flex-wrap: wrap;
+      display: flex; gap: 4px;
       background: var(--sidebar-bg); border: 1px solid var(--border);
-      border-radius: 12px; overflow: hidden;
-      position: sticky; top: 0; z-index: 50;
-      margin-bottom: 28px;
+      border-radius: 12px; overflow-x: auto;
+      position: sticky; top: 0; z-index: 10;
+      margin-bottom: 28px; padding: 4px;
     }
     .yontem-sekme {
-      flex: 1; min-width: 120px; padding: 14px 16px;
-      background: transparent; border: none; border-bottom: 3px solid transparent;
+      flex: 1; min-width: 80px; padding: 12px 14px;
+      background: transparent; border: none; border-radius: 8px;
       color: var(--text-muted); font-size: 0.82rem; font-weight: 700;
       cursor: pointer; transition: all 0.2s; font-family: inherit;
       text-align: center; white-space: nowrap;
     }
-    .yontem-sekme:hover { color: var(--text); background: rgba(255,255,255,0.03); }
-    .yontem-sekme.aktif { color: var(--accent); border-bottom-color: var(--accent); background: rgba(249,115,22,0.06); }
+    .yontem-sekme:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .yontem-sekme.aktif { color: var(--accent); background: rgba(249,115,22,0.12); }
     @media (max-width: 768px) {
-      .yontem-sekme { min-width: 0; padding: 12px 10px; font-size: 0.72rem; }
+      .yontem-sekmeler { gap: 2px; padding: 3px; }
+      .yontem-sekme { min-width: 0; padding: 10px 8px; font-size: 0.7rem; flex: 0 0 auto; }
     }
 
     .yontem-panel { display: none; }
@@ -865,12 +871,12 @@
       width: 100%; height: 300px;
       border-radius: 12px; overflow: hidden;
       border: 1px solid var(--border);
-      margin-bottom: 16px; position: relative;
+      margin-bottom: 16px; position: relative; z-index: 0;
     }
-    .harita-container .leaflet-container { background: var(--main-bg); }
+    .harita-container .leaflet-container { background: var(--main-bg); z-index: 0; }
     .harita-ipucu {
       position: absolute; bottom: 8px; left: 50%;
-      transform: translateX(-50%); z-index: 1000;
+      transform: translateX(-50%); z-index: 5;
       background: rgba(0,0,0,0.75); color: #e5e7eb;
       padding: 6px 14px; border-radius: 20px;
       font-size: 0.72rem; pointer-events: none;
@@ -983,6 +989,7 @@
   <button class="hamburger" onclick="toggleSidebar()" aria-label="Menü">&#9776;</button>
   <div class="sidebar-logo">&#x1F525;</div>
   <span class="mob-title">Fire-EWS</span>
+  <button class="mob-lang" onclick="setLang(currentLang==='tr'?'en':'tr')" id="mob-lang-btn">EN</button>
 </div>
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
@@ -2668,6 +2675,10 @@
     document.title = lang === "en"
       ? "Fire-EWS | Forest Fire Early Warning System"
       : "Fire-EWS | Orman Yangını Erken Uyarı Sistemi";
+
+    // Update mobile lang button
+    const mobBtn = document.getElementById("mob-lang-btn");
+    if (mobBtn) mobBtn.textContent = lang === "tr" ? "EN" : "TR";
 
     localStorage.setItem("fwi-lang", lang);
   }
