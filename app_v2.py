@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
-import sentry_sdk
-sentry_sdk.init(
-    dsn="https://3c46d86740823152fba5c5738ffa1987@o4511089160683520.ingest.de.sentry.io/4511089167433808",
-    send_default_pii=True,
-)
+try:
+    import sentry_sdk
+    sentry_sdk.init(
+        dsn="https://3c46d86740823152fba5c5738ffa1987@o4511089160683520.ingest.de.sentry.io/4511089167433808",
+        send_default_pii=True,
+    )
+except ImportError:
+    pass  # Sentry opsiyonel — local dev'de gerekmez
 
 from flask import Flask, render_template, request, jsonify, send_file, Response
 from datetime import datetime, timedelta
@@ -13,22 +16,13 @@ import fwi_hesap as f
 import openmeteo as om
 import forecast as fc
 import indeksler as idx
+import istasyon as ist
 
 app = Flask(__name__)
 
-AUTH_USER = "admin"
-AUTH_PASS = "fire2026"
-
-def check_auth(username, password):
-    return username == AUTH_USER and password == AUTH_PASS
-
-@app.before_request
-def require_auth():
-    if request.path.startswith("/deploy"):
-        return
-    auth = request.authorization
-    if not auth or not check_auth(auth.username, auth.password):
-        return Response("Giriş gerekli", 401, {"WWW-Authenticate": 'Basic realm="Fire-EWS"'})
+# Basic Auth devre dışı — site herkese açık
+# AUTH_USER = "admin"
+# AUTH_PASS = "fire2026"
 
 
 def warmup(lat, lon, baslangic):
@@ -219,12 +213,135 @@ def referans_test():
                     "adimlar": adimlar, "karsilastirma": karsilastirma})
 
 
+# ═══ İSTASYON VERİSİ API ═══
+
+@app.route("/api/station", methods=["POST"])
+def station_push():
+    """İstasyondan gelen ölçümü kaydet ve indeks hesapla."""
+    d = request.get_json(force=True)
+    station_id = d.get("station_id")
+    timestamp  = d.get("timestamp")
+    temp       = d.get("temp")
+    rh         = d.get("rh")
+    wind       = d.get("wind")
+    precip     = d.get("precip", 0)
+
+    if not all([station_id, timestamp, temp is not None, rh is not None]):
+        return jsonify({"ok": False, "hata": "Eksik alan: station_id, timestamp, temp, rh zorunlu"}), 400
+
+    dew_point = d.get("dew_point")
+    temp_max  = d.get("temp_max", temp)
+
+    # Veritabanına kaydet
+    ist.veri_ekle(station_id, timestamp, temp, rh, wind or 0, precip,
+                  dew_point=dew_point, temp_max=temp_max)
+
+    # Anlık indeks hesapla
+    try:
+        ek = idx.hesapla_ek(
+            temp=float(temp), rh=float(rh), wind=float(wind or 0),
+            precip=float(precip), temp_max=float(temp_max or temp),
+            dew_point=float(dew_point) if dew_point else 10.0)
+        # Basit FWI (varsayılan başlangıç değerleri ile)
+        ay = int(timestamp[5:7]) if len(timestamp) >= 7 else 6
+        fwi_r = f.hesapla(temp=float(temp), rh=float(rh),
+                          wind=float(wind or 0), precip=float(precip),
+                          month=ay, ffmc0=85.0, dmc0=6.0, dc0=15.0, lat=39.0)
+        indeksler = {**fwi_r, **ek}
+    except Exception as e:
+        indeksler = {"hata": str(e)}
+
+    return jsonify({"ok": True, "indeksler": indeksler})
+
+
+@app.route("/api/station/list", methods=["GET"])
+def station_list():
+    """Kayıtlı istasyonları listele."""
+    return jsonify({"ok": True, "istasyonlar": ist.istasyon_listele()})
+
+
+@app.route("/api/station/data", methods=["POST"])
+def station_data():
+    """İstasyon verisini sorgula ve indeks hesapla."""
+    d = request.get_json(force=True)
+    station_id = d.get("station_id")
+    limit      = d.get("limit", 100)
+
+    if not station_id:
+        return jsonify({"ok": False, "hata": "station_id zorunlu"}), 400
+
+    okumalar = ist.son_okumalar(station_id, limit=limit)
+    if not okumalar:
+        return jsonify({"ok": False, "hata": "Bu istasyonda veri bulunamadı"})
+
+    # Günlük özetler çıkar
+    gunluk = ist.gunluk_ozet(okumalar)
+
+    # Her gün için indeks hesapla
+    sonuclar = []
+    ffmc0, dmc0, dc0, kbdi0, nesterov0 = 85.0, 6.0, 15.0, 0.0, 0.0
+    for gun in gunluk:
+        try:
+            ay = int(gun["tarih"][4:6])
+            r = f.hesapla(temp=gun["temp"], rh=gun["rh"],
+                          wind=gun["wind_kmh"] or 0, precip=gun["precip"],
+                          month=ay, ffmc0=ffmc0, dmc0=dmc0, dc0=dc0, lat=39.0)
+            ek = idx.hesapla_ek(
+                temp=gun["temp"], rh=gun["rh"],
+                wind=gun["wind_kmh"] or 0, precip=gun["precip"],
+                temp_max=gun["temp_max"] or gun["temp"],
+                dew_point=gun["dew_point"] or 10.0,
+                kbdi0=kbdi0, nesterov0=nesterov0)
+
+            ffmc0, dmc0, dc0 = r["ffmc"], r["dmc"], r["dc"]
+            kbdi0 = ek["kbdi"]
+            nesterov0 = ek["nesterov"]
+
+            sonuclar.append({
+                "tarih": gun["tarih"],
+                "temp": gun["temp"], "rh": gun["rh"],
+                "wind_kmh": gun["wind_kmh"] or 0, "precip": gun["precip"],
+                **r, **ek
+            })
+        except Exception as e:
+            sonuclar.append({"tarih": gun["tarih"], "hata": str(e)})
+
+    stats = ist.istatistik(station_id)
+    return jsonify({"ok": True, "sonuclar": sonuclar, "istatistik": stats,
+                    "ham_okuma_sayisi": len(okumalar)})
+
+
+@app.route("/api/station/register", methods=["POST"])
+def station_register():
+    """Yeni istasyon kaydı."""
+    d = request.get_json(force=True)
+    station_id = d.get("station_id")
+    isim       = d.get("isim", station_id)
+    lat        = d.get("lat", 0)
+    lon        = d.get("lon", 0)
+    alt        = d.get("alt", 0)
+    api_key    = d.get("api_key")
+
+    if not station_id:
+        return jsonify({"ok": False, "hata": "station_id zorunlu"}), 400
+
+    ist.istasyon_kaydet(station_id, isim, lat, lon, alt, api_key)
+    return jsonify({"ok": True, "mesaj": f"İstasyon '{station_id}' kaydedildi"})
+
+
 @app.route("/test", methods=["GET"])
 def test_yangin():
     olaylar = [
-        {"isim_key": "event_1_name", "isim": "Manavgat Yangını", "yer": "Antalya",  "tarih": "20210728", "lat": 36.78, "lon": 31.44},
-        {"isim_key": "event_2_name", "isim": "Marmaris Yangını", "yer": "Muğla",    "tarih": "20210730", "lat": 36.85, "lon": 28.27},
-        {"isim_key": "event_3_name", "isim": "İzmir Yangını",    "yer": "İzmir",    "tarih": "20190819", "lat": 38.42, "lon": 27.14},
+        {"isim_key": "event_1_name",  "isim": "Manavgat Yangını",        "yer": "Antalya",   "tarih": "20210728", "lat": 36.78, "lon": 31.44},
+        {"isim_key": "event_2_name",  "isim": "Marmaris Yangını",        "yer": "Muğla",     "tarih": "20210730", "lat": 36.85, "lon": 28.27},
+        {"isim_key": "event_3_name",  "isim": "İzmir Yangını",           "yer": "İzmir",     "tarih": "20190819", "lat": 38.42, "lon": 27.14},
+        {"isim_key": "event_4_name",  "isim": "Bodrum Yangını",          "yer": "Muğla",     "tarih": "20210729", "lat": 37.04, "lon": 27.43},
+        {"isim_key": "event_5_name",  "isim": "Köyceğiz Yangını",        "yer": "Muğla",     "tarih": "20210801", "lat": 36.97, "lon": 28.68},
+        {"isim_key": "event_6_name",  "isim": "Aydıncık Yangını",        "yer": "Mersin",    "tarih": "20210728", "lat": 36.15, "lon": 33.32},
+        {"isim_key": "event_7_name",  "isim": "Akseki Yangını",          "yer": "Antalya",   "tarih": "20210728", "lat": 37.05, "lon": 31.79},
+        {"isim_key": "event_8_name",  "isim": "Milas Yangını",           "yer": "Muğla",     "tarih": "20210802", "lat": 37.28, "lon": 27.78},
+        {"isim_key": "event_9_name",  "isim": "Aladağ Yangını",          "yer": "Adana",     "tarih": "20210728", "lat": 37.55, "lon": 35.40},
+        {"isim_key": "event_10_name", "isim": "Osmaniye Yangını",        "yer": "Osmaniye",  "tarih": "20210728", "lat": 37.07, "lon": 36.25},
     ]
     sonuclar = []
     for o in olaylar:
@@ -242,11 +359,11 @@ def test_yangin():
                                 precip=gun["precip"], temp_max=gun.get("temp_max", gun["temp"]),
                                 dew_point=gun.get("dew_point", 10.0),
                                 kbdi0=st["kbdi0"], nesterov0=st["nesterov0"])
-            sonuclar.append({"isim": o["isim"], "yer": o["yer"], "tarih": o["tarih"],
+            sonuclar.append({"isim_key": o["isim_key"], "isim": o["isim"], "yer": o["yer"], "tarih": o["tarih"],
                              "temp": gun["temp"], "rh": gun["rh"],
                              "wind_kmh": gun["wind_kmh"], "precip": gun["precip"], **r, **ek})
         except Exception as e:
-            sonuclar.append({"isim": o["isim"], "yer": o["yer"], "tarih": o["tarih"], "hata": str(e)})
+            sonuclar.append({"isim_key": o["isim_key"], "isim": o["isim"], "yer": o["yer"], "tarih": o["tarih"], "hata": str(e)})
     return jsonify({"ok": True, "sonuclar": sonuclar})
 
 
