@@ -8,7 +8,7 @@ try:
 except ImportError:
     pass  # Sentry opsiyonel — local dev'de gerekmez
 
-from flask import Flask, render_template, request, jsonify, send_file, Response
+from flask import Flask, render_template, request, jsonify, send_file
 from datetime import datetime, timedelta
 import sys, os, io
 sys.path.insert(0, os.path.dirname(__file__))
@@ -16,7 +16,10 @@ import fwi_hesap as f
 import openmeteo as om
 import forecast as fc
 import indeksler as idx
-import istasyon as ist
+try:
+    import istasyon as ist
+except ImportError:
+    ist = None
 
 app = Flask(__name__)
 
@@ -214,10 +217,18 @@ def referans_test():
 
 
 # ═══ İSTASYON VERİSİ API ═══
+# istasyon modülü yoksa endpoint'ler 503 döner
+
+def _ist_gerekli():
+    if ist is None:
+        return jsonify({"ok": False, "hata": "İstasyon modülü yüklenmedi"}), 503
+    return None
 
 @app.route("/api/station", methods=["POST"])
 def station_push():
     """İstasyondan gelen ölçümü kaydet ve indeks hesapla."""
+    err = _ist_gerekli()
+    if err: return err
     d = request.get_json(force=True)
     station_id = d.get("station_id")
     timestamp  = d.get("timestamp")
@@ -232,17 +243,14 @@ def station_push():
     dew_point = d.get("dew_point")
     temp_max  = d.get("temp_max", temp)
 
-    # Veritabanına kaydet
     ist.veri_ekle(station_id, timestamp, temp, rh, wind or 0, precip,
                   dew_point=dew_point, temp_max=temp_max)
 
-    # Anlık indeks hesapla
     try:
         ek = idx.hesapla_ek(
             temp=float(temp), rh=float(rh), wind=float(wind or 0),
             precip=float(precip), temp_max=float(temp_max or temp),
             dew_point=float(dew_point) if dew_point else 10.0)
-        # Basit FWI (varsayılan başlangıç değerleri ile)
         ay = int(timestamp[5:7]) if len(timestamp) >= 7 else 6
         fwi_r = f.hesapla(temp=float(temp), rh=float(rh),
                           wind=float(wind or 0), precip=float(precip),
@@ -257,12 +265,16 @@ def station_push():
 @app.route("/api/station/list", methods=["GET"])
 def station_list():
     """Kayıtlı istasyonları listele."""
+    err = _ist_gerekli()
+    if err: return err
     return jsonify({"ok": True, "istasyonlar": ist.istasyon_listele()})
 
 
 @app.route("/api/station/data", methods=["POST"])
 def station_data():
     """İstasyon verisini sorgula ve indeks hesapla."""
+    err = _ist_gerekli()
+    if err: return err
     d = request.get_json(force=True)
     station_id = d.get("station_id")
     limit      = d.get("limit", 100)
@@ -274,10 +286,8 @@ def station_data():
     if not okumalar:
         return jsonify({"ok": False, "hata": "Bu istasyonda veri bulunamadı"})
 
-    # Günlük özetler çıkar
     gunluk = ist.gunluk_ozet(okumalar)
 
-    # Her gün için indeks hesapla
     sonuclar = []
     ffmc0, dmc0, dc0, kbdi0, nesterov0 = 85.0, 6.0, 15.0, 0.0, 0.0
     for gun in gunluk:
@@ -314,6 +324,8 @@ def station_data():
 @app.route("/api/station/register", methods=["POST"])
 def station_register():
     """Yeni istasyon kaydı."""
+    err = _ist_gerekli()
+    if err: return err
     d = request.get_json(force=True)
     station_id = d.get("station_id")
     isim       = d.get("isim", station_id)
