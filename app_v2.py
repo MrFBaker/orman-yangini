@@ -8,7 +8,7 @@ try:
 except ImportError:
     pass  # Sentry opsiyonel — local dev'de gerekmez
 
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, session, redirect, url_for
 from datetime import datetime, timedelta
 import sys, os, io
 sys.path.insert(0, os.path.dirname(__file__))
@@ -22,10 +22,46 @@ except ImportError:
     ist = None
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET", "fire-ews-secret-2026")
 
-# Basic Auth devre dışı — site herkese açık
-# AUTH_USER = "admin"
-# AUTH_PASS = "fire2026"
+# Kullanıcı bilgileri
+AUTH_USER = "admin"
+AUTH_PASS = "fire2026"
+
+
+@app.before_request
+def login_required():
+    """Her istekte session kontrolü — giriş yapılmamışsa login sayfasına yönlendir."""
+    allowed = ["/login", "/static"]
+    if any(request.path.startswith(p) for p in allowed):
+        return
+    if not session.get("logged_in"):
+        if request.path == "/" or request.headers.get("Accept", "").startswith("text/html"):
+            return redirect(url_for("login_page"))
+        return jsonify({"ok": False, "hata": "Giriş yapılmamış"}), 401
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login_page():
+    if request.method == "POST":
+        data = request.get_json() if request.is_json else request.form
+        user = data.get("username", "")
+        pw = data.get("password", "")
+        if user == AUTH_USER and pw == AUTH_PASS:
+            session["logged_in"] = True
+            session.permanent = True
+            if request.is_json:
+                return jsonify({"ok": True})
+            return redirect(url_for("index"))
+        if request.is_json:
+            return jsonify({"ok": False, "hata": "Hatalı kullanıcı adı veya şifre"}), 401
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login_page"))
 
 
 def warmup(lat, lon, baslangic):
