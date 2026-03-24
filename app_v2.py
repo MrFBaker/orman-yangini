@@ -656,8 +656,13 @@ def rapor_pdf():
 
     doc.build(story)
     buf.seek(0)
-    return send_file(buf, mimetype="application/pdf",
-                     as_attachment=True, download_name="fwi_rapor.pdf")
+    try:
+        return send_file(buf, mimetype="application/pdf",
+                         as_attachment=True, download_name="fire_ews_rapor.pdf")
+    except TypeError:
+        buf.seek(0)
+        return send_file(buf, mimetype="application/pdf",
+                         as_attachment=True, attachment_filename="fire_ews_rapor.pdf")
 
 
 @app.route("/tahmin", methods=["POST"])
