@@ -1053,6 +1053,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       Doğrulama
     </button>
+    <button class="nav-link" onclick="sayfaAc('calisma', this)" data-i18n="nav_study">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Çalışma Alanı
+    </button>
     <div class="lang-toggle" style="margin-top:12px">
       <button class="lang-btn aktif" id="lang-opt-tr" onclick="setLang('tr')">TR</button>
       <button class="lang-btn" id="lang-opt-en" onclick="setLang('en')">EN</button>
@@ -2408,6 +2412,109 @@ Content-Type: application/json
 
 </div>
 
+<!-- ══════════ ÇALIŞMA ALANI SAYFASI ══════════ -->
+<div class="sayfa" id="sayfa-calisma">
+
+  <div class="hero">
+    <h1 data-i18n="study_title">Çalışma Alanı</h1>
+    <p data-i18n="study_desc">Marmaris, Muğla — Orman yangınlarına en hassas bölgelerden biri. Koordinatlar Muğla Orman Bölge Şube Müdürlüğü'nden alınmıştır.</p>
+  </div>
+
+  <!-- Lokasyon Bilgi Kartı -->
+  <div class="bilgi-grid" style="margin-bottom:24px">
+    <div class="bilgi-kart">
+      <h3 data-i18n="study_location_title">Lokasyon Bilgileri</h3>
+      <table style="width:100%;font-size:0.9rem">
+        <tr><td style="color:var(--text-muted);padding:6px 0" data-i18n="study_province">İl / İlçe</td><td style="padding:6px 0;font-weight:600">Muğla / Marmaris</td></tr>
+        <tr><td style="color:var(--text-muted);padding:6px 0" data-i18n="study_coords">Koordinatlar</td><td style="padding:6px 0;font-weight:600">36°53'54.0"N &nbsp; 28°05'07.0"E</td></tr>
+        <tr><td style="color:var(--text-muted);padding:6px 0" data-i18n="study_decimal">Ondalık</td><td style="padding:6px 0;font-weight:600">36.8983°N &nbsp; 28.0853°E</td></tr>
+        <tr><td style="color:var(--text-muted);padding:6px 0" data-i18n="study_elevation">Rakım</td><td style="padding:6px 0;font-weight:600">~151 m</td></tr>
+        <tr><td style="color:var(--text-muted);padding:6px 0" data-i18n="study_source">Kaynak</td><td style="padding:6px 0;font-weight:600" data-i18n="study_source_val">Muğla Orman Bölge Şube Müdürlüğü</td></tr>
+      </table>
+    </div>
+    <div class="bilgi-kart">
+      <h3 data-i18n="study_why_title">Neden Bu Lokasyon?</h3>
+      <ul style="list-style:none;padding:0;margin:0;font-size:0.88rem;line-height:1.8">
+        <li>🌲 <span data-i18n="study_why_1">Akdeniz iklimi — sıcak ve kurak yazlar</span></li>
+        <li>🔥 <span data-i18n="study_why_2">Yüksek yangın riski bölgesi</span></li>
+        <li>🌿 <span data-i18n="study_why_3">Kızılçam ve maki bitki örtüsü</span></li>
+        <li>📊 <span data-i18n="study_why_4">İklim-yangın ilişkisi araştırması için uygun</span></li>
+        <li>🏔️ <span data-i18n="study_why_5">Denizden 151m yükseklik — tipik kıyı ormanı</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Harita -->
+  <div class="bilgi-kart" style="margin-bottom:24px">
+    <h3 data-i18n="study_map_title">Lokasyon Haritası</h3>
+    <div id="calisma-harita" style="height:350px;border-radius:8px;margin-top:12px;background:#1a1a2e"></div>
+  </div>
+
+  <!-- Veri Çek Butonu -->
+  <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+    <button class="basla-btn" onclick="calismaVeriCek('gecmis')" data-i18n="study_btn_hist">
+      Son 30 Gün Hesapla
+    </button>
+    <button class="basla-btn" style="background:var(--accent-hover)" onclick="calismaVeriCek('tahmin')" data-i18n="study_btn_forecast">
+      7 Günlük Tahmin
+    </button>
+  </div>
+
+  <!-- Sonuç Alanı -->
+  <div id="calisma-sonuc" style="display:none">
+
+    <!-- Güncel Durum Kartları -->
+    <div id="calisma-guncel" style="margin-bottom:24px"></div>
+
+    <!-- Tablo -->
+    <div class="bilgi-kart" style="overflow-x:auto">
+      <h3 id="calisma-tablo-baslik" data-i18n="study_table_title">Hesaplama Sonuçları</h3>
+      <table id="calisma-tablo" class="veri-tablo" style="width:100%;margin-top:12px;font-size:0.82rem">
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Yükleniyor -->
+  <div id="calisma-yukleniyor" style="display:none;text-align:center;padding:40px">
+    <div style="display:inline-block;width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite"></div>
+    <p style="margin-top:12px;color:var(--text-muted)" data-i18n="study_loading">Veriler hesaplanıyor...</p>
+  </div>
+  <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+  <!-- Bölgesel Yangın Doğrulaması -->
+  <div style="margin-top:32px">
+    <div class="yontem-bolum" style="margin-bottom:16px">
+      <h2 data-i18n="study_fire_title">Bölgesel Yangın Doğrulaması</h2>
+    </div>
+    <div class="bilgi-kart" style="margin-bottom:16px">
+      <p data-i18n="study_fire_desc" data-i18n-html="1">Çalışma alanı olarak Marmaris'in seçilmesinin en önemli nedenlerinden biri, bölgenin tarihinde büyük ve yıkıcı orman yangınlarına sahne olmasıdır. Aşağıdaki yangın olaylarında <strong>tüm indeksler Ocak 1'den itibaren biriktirilip</strong> yangın günü değerleri hesaplanır — yüksek tehlike sınıfları beklenmektedir.</p>
+    </div>
+    <div class="bilgi-grid" style="margin-bottom:16px">
+      <div class="bilgi-kart">
+        <h3 data-i18n="study_events_title">Muğla Bölgesi Yangınları</h3>
+        <ul class="komponent-liste" style="gap:10px">
+          <li><span class="komponent-badge">1</span><span>Marmaris Yangını — 29 Temmuz 2021</span></li>
+          <li><span class="komponent-badge">2</span><span>Köyceğiz Yangını — 29 Temmuz 2021</span></li>
+          <li><span class="komponent-badge">3</span><span>Milas Yangını — 28 Temmuz 2021</span></li>
+          <li><span class="komponent-badge">4</span><span>Marmaris Yangını — 21 Haziran 2012</span></li>
+        </ul>
+      </div>
+      <div class="bilgi-kart">
+        <h3 data-i18n="study_fire_method_title">Yöntem</h3>
+        <p data-i18n="study_fire_method_desc" data-i18n-html="1">Her yangın olayı için <strong>Ocak 1'den yangın gününe kadar</strong> tüm indeks durumları biriktirilir (warmup). Yangın günü öğlen 12:00 meteorolojik verisi <strong>Open-Meteo</strong>'dan alınarak 5 indeks hesaplanır. Koordinat olarak çalışma alanı lokasyonu (<strong>36.8983°N, 28.0853°E</strong>) kullanılır.</p>
+      </div>
+    </div>
+    <button class="basla-btn" onclick="calismaBolgeselTest()" data-i18n="study_btn_fire_test">Bölgesel Yangın Testini Çalıştır</button>
+    <div id="calisma-yangin-sonuc" style="display:none;margin-top:24px"></div>
+    <div id="calisma-yangin-yuk" style="display:none;text-align:center;padding:30px">
+      <div style="display:inline-block;width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite"></div>
+      <p style="margin-top:10px;color:var(--text-muted)">Yangın olayları hesaplanıyor...</p>
+    </div>
+  </div>
+
+</div>
+
 <footer>
   Fire-EWS · FWI · Angström · Nesterov · KBDI · Carrega I87<br>
   <span data-i18n="footer_text">İklim Bilimi ve Meteoroloji Mühendisliği Tasarım Projesi · Open-Meteo Veri</span>
@@ -2438,6 +2545,27 @@ Content-Type: application/json
       nav_calc: "Hesaplayıcı",
       nav_method: "Hesaplama Yöntemi",
       nav_valid: "Doğrulama",
+      nav_study: "Çalışma Alanı",
+      study_title: "Çalışma Alanı",
+      study_desc: "Marmaris, Muğla — Orman yangınlarına en hassas bölgelerden biri. Koordinatlar Muğla Orman Bölge Şube Müdürlüğü'nden alınmıştır.",
+      study_location_title: "Lokasyon Bilgileri",
+      study_province: "İl / İlçe",
+      study_coords: "Koordinatlar",
+      study_decimal: "Ondalık",
+      study_elevation: "Rakım",
+      study_source: "Kaynak",
+      study_source_val: "Muğla Orman Bölge Şube Müdürlüğü",
+      study_why_title: "Neden Bu Lokasyon?",
+      study_why_1: "Akdeniz iklimi — sıcak ve kurak yazlar",
+      study_why_2: "Yüksek yangın riski bölgesi",
+      study_why_3: "Kızılçam ve maki bitki örtüsü",
+      study_why_4: "İklim-yangın ilişkisi araştırması için uygun",
+      study_why_5: "Denizden 151m yükseklik — tipik kıyı ormanı",
+      study_map_title: "Lokasyon Haritası",
+      study_btn_hist: "Son 30 Gün Hesapla",
+      study_btn_forecast: "7 Günlük Tahmin",
+      study_table_title: "Hesaplama Sonuçları",
+      study_loading: "Veriler hesaplanıyor...",
       hero_title: "🔥 Orman Yangını Erken Uyarı Sistemi",
       hero_desc: "Meteorolojik verilerden gerçek zamanlı orman yangını tehlike seviyesi hesaplayan sistem. Van Wagner (1987) Kanada Orman Yangını Hava İndeksi yöntemini esas alır.",
       card_about_title: "Proje Hakkında",
@@ -2619,6 +2747,27 @@ Content-Type: application/json
       nav_calc: "Calculator",
       nav_method: "Methodology",
       nav_valid: "Validation",
+      nav_study: "Study Area",
+      study_title: "Study Area",
+      study_desc: "Marmaris, Muğla — One of the most fire-prone regions. Coordinates obtained from Muğla Regional Forest Directorate.",
+      study_location_title: "Location Info",
+      study_province: "Province / District",
+      study_coords: "Coordinates",
+      study_decimal: "Decimal",
+      study_elevation: "Elevation",
+      study_source: "Source",
+      study_source_val: "Muğla Regional Forest Directorate",
+      study_why_title: "Why This Location?",
+      study_why_1: "Mediterranean climate — hot and dry summers",
+      study_why_2: "High fire risk zone",
+      study_why_3: "Turkish pine and maquis vegetation",
+      study_why_4: "Suitable for climate-fire relationship research",
+      study_why_5: "151m elevation — typical coastal forest",
+      study_map_title: "Location Map",
+      study_btn_hist: "Last 30 Days Calculate",
+      study_btn_forecast: "7-Day Forecast",
+      study_table_title: "Calculation Results",
+      study_loading: "Calculating data...",
       hero_title: "🔥 Forest Fire Early Warning System",
       hero_desc: "A system that calculates real-time forest fire danger levels from meteorological data. Based on the Van Wagner (1987) Canadian Forest Fire Weather Index method.",
       card_about_title: "About the Project",
@@ -3864,13 +4013,204 @@ Content-Type: application/json
     }
   }
 
+  // ═══ ÇALIŞMA ALANI ═══
+  const CALISMA_LAT = 36.8983;
+  const CALISMA_LON = 28.0853;
+  let calismaMap = null;
+
+  function initCalismaMap() {
+    if (calismaMap) return;
+    const el = document.getElementById("calisma-harita");
+    if (!el) return;
+    calismaMap = L.map(el, { zoomControl: true, scrollWheelZoom: true }).setView([CALISMA_LAT, CALISMA_LON], 13);
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+      attribution: "Esri Satellite"
+    }).addTo(calismaMap);
+    const marker = L.marker([CALISMA_LAT, CALISMA_LON]).addTo(calismaMap);
+    marker.bindPopup("<b>Çalışma Alanı</b><br>Marmaris, Muğla<br>36°53'54\"N 28°05'07\"E<br>Rakım: ~151m").openPopup();
+    // Radius circle 2km
+    L.circle([CALISMA_LAT, CALISMA_LON], { radius: 2000, color: "#f97316", fillColor: "#f97316", fillOpacity: 0.1, weight: 2 }).addTo(calismaMap);
+  }
+
+  async function calismaVeriCek(tip) {
+    const sonucDiv = document.getElementById("calisma-sonuc");
+    const yukDiv = document.getElementById("calisma-yukleniyor");
+    sonucDiv.style.display = "none";
+    yukDiv.style.display = "block";
+
+    try {
+      let res, json;
+      if (tip === "gecmis") {
+        const bugun = new Date();
+        const bitis = bugun.toISOString().slice(0, 10).replace(/-/g, "");
+        const bas = new Date(bugun);
+        bas.setDate(bas.getDate() - 30);
+        const baslangic = bas.toISOString().slice(0, 10).replace(/-/g, "");
+        res = await fetch("/nasa", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lat: CALISMA_LAT, lon: CALISMA_LON, baslangic, bitis })
+        });
+      } else {
+        res = await fetch("/tahmin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lat: CALISMA_LAT, lon: CALISMA_LON })
+        });
+      }
+      json = await res.json();
+      if (!json.ok) { alert(json.hata || "Hata"); yukDiv.style.display = "none"; return; }
+
+      const satirlar = json.sonuclar || json.satirlar || json.gunler || [];
+      if (!satirlar.length) { alert("Veri bulunamadı"); yukDiv.style.display = "none"; return; }
+
+      // Güncel durum — son gün
+      const son = satirlar[satirlar.length - 1];
+      const guncelDiv = document.getElementById("calisma-guncel");
+      const renkCSS = {
+        "Tehlike Yok": { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+        "Düşük":       { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+        "Dusuk":       { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+        "Orta":        { bg: "#422006", renk: "#fbbf24", border: "#713f12" },
+        "Yüksek":      { bg: "#431407", renk: "#fb923c", border: "#7c2d12" },
+        "Yuksek":      { bg: "#431407", renk: "#fb923c", border: "#7c2d12" },
+        "Çok Yüksek":  { bg: "#450a0a", renk: "#f87171", border: "#7f1d1d" },
+        "Cok Yuksek":  { bg: "#450a0a", renk: "#f87171", border: "#7f1d1d" },
+        "Aşırı":       { bg: "#2e1065", renk: "#c084fc", border: "#581c87" },
+        "Asiri":       { bg: "#2e1065", renk: "#c084fc", border: "#581c87" },
+      };
+      const idxs = [
+        { key: "fwi", sinif: "sinif", label: "FWI" },
+        { key: "angstrom", sinif: "angstrom_sinif", label: "Angström" },
+        { key: "nesterov", sinif: "nesterov_sinif", label: "Nesterov" },
+        { key: "kbdi", sinif: "kbdi_sinif", label: "KBDI" },
+        { key: "carrega", sinif: "carrega_sinif", label: "Carrega" },
+      ];
+      let guncelHTML = `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:8px">`;
+      idxs.forEach(idx => {
+        const val = son[idx.key] != null ? (typeof son[idx.key] === "number" ? son[idx.key].toFixed(1) : son[idx.key]) : "—";
+        const cls = son[idx.sinif] || "Düşük";
+        const r = renkCSS[cls] || renkCSS["Düşük"];
+        guncelHTML += `<div style="background:${r.bg};border:1px solid ${r.border};border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:0.75rem;color:${r.renk};font-weight:700;text-transform:uppercase">${idx.label}</div>
+          <div style="font-size:1.4rem;font-weight:800;color:#fff;margin:4px 0">${val}</div>
+          <div style="font-size:0.72rem;color:${r.renk}">${cls}</div>
+        </div>`;
+      });
+      guncelHTML += `</div>`;
+      guncelHTML += `<p style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-bottom:20px">${son.tarih || son.gun || ""} — Marmaris, Muğla (36.90°N, 28.09°E)</p>`;
+      guncelDiv.innerHTML = guncelHTML;
+
+      // Tablo
+      const tablo = document.getElementById("calisma-tablo");
+      let th = `<thead><tr><th>Tarih</th><th>T°C</th><th>RH%</th><th>W km/h</th><th>P mm</th>`;
+      idxs.forEach(i => th += `<th>${i.label}</th>`);
+      th += `</tr></thead>`;
+      let tb = `<tbody>`;
+      satirlar.forEach(s => {
+        const t = s.tarih || s.gun || "";
+        const tFmt = t.length === 8 ? t.slice(0,4)+'-'+t.slice(4,6)+'-'+t.slice(6) : t;
+        tb += `<tr><td>${tFmt}</td>`;
+        tb += `<td>${s.temp != null ? s.temp.toFixed(1) : "—"}</td>`;
+        tb += `<td>${s.rh != null ? s.rh.toFixed(0) : "—"}</td>`;
+        tb += `<td>${(s.wind_kmh || s.wind) != null ? (s.wind_kmh || s.wind).toFixed(1) : "—"}</td>`;
+        tb += `<td>${s.precip != null ? s.precip.toFixed(1) : "—"}</td>`;
+        idxs.forEach(idx => {
+          const val = s[idx.key] != null ? (typeof s[idx.key] === "number" ? s[idx.key].toFixed(1) : s[idx.key]) : "—";
+          const cls = s[idx.sinif] || "";
+          const r = renkCSS[cls] || { renk: "#fff" };
+          tb += `<td style="color:${r.renk};font-weight:600">${val}</td>`;
+        });
+        tb += `</tr>`;
+      });
+      tb += `</tbody>`;
+      tablo.innerHTML = th + tb;
+
+      yukDiv.style.display = "none";
+      sonucDiv.style.display = "block";
+    } catch(e) {
+      yukDiv.style.display = "none";
+      alert("Hata: " + e.message);
+    }
+  }
+
+  async function calismaBolgeselTest() {
+    const sonucDiv = document.getElementById("calisma-yangin-sonuc");
+    const yukDiv = document.getElementById("calisma-yangin-yuk");
+    sonucDiv.style.display = "none";
+    yukDiv.style.display = "block";
+    try {
+      const res = await fetch("/test-bolgesel");
+      const json = await res.json();
+      if (!json.ok) { alert(json.hata || "Hata"); yukDiv.style.display = "none"; return; }
+
+      const renkCSS = {
+        "Tehlike Yok": { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+        "Düşük": { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+        "Dusuk": { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+        "Orta": { bg: "#422006", renk: "#fbbf24", border: "#713f12" },
+        "Yüksek": { bg: "#431407", renk: "#fb923c", border: "#7c2d12" },
+        "Yuksek": { bg: "#431407", renk: "#fb923c", border: "#7c2d12" },
+        "Çok Yüksek": { bg: "#450a0a", renk: "#f87171", border: "#7f1d1d" },
+        "Cok Yuksek": { bg: "#450a0a", renk: "#f87171", border: "#7f1d1d" },
+        "Aşırı": { bg: "#2e1065", renk: "#c084fc", border: "#581c87" },
+        "Asiri": { bg: "#2e1065", renk: "#c084fc", border: "#581c87" },
+      };
+      const idxs = [
+        { key: "fwi", sinif: "sinif", label: "FWI" },
+        { key: "angstrom", sinif: "angstrom_sinif", label: "ANG." },
+        { key: "nesterov", sinif: "nesterov_sinif", label: "NES." },
+        { key: "kbdi", sinif: "kbdi_sinif", label: "KBDI" },
+        { key: "carrega", sinif: "carrega_sinif", label: "CAR." },
+      ];
+      let html = '';
+      json.sonuclar.forEach(s => {
+        const tarihFmt = s.tarih ? s.tarih.slice(0,4)+'-'+s.tarih.slice(4,6)+'-'+s.tarih.slice(6) : "";
+        html += `<div class="bilgi-kart" style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <h3 style="margin:0">${s.isim}</h3>
+            <span style="font-size:0.82rem;color:var(--text-muted)">${tarihFmt} · Muğla</span>
+          </div>`;
+        if (s.aciklama) {
+          html += `<p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">${s.aciklama}</p>`;
+        }
+        if (s.hata) {
+          html += `<p style="color:#f87171">Hata: ${s.hata}</p>`;
+        } else {
+          html += `<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px">T: <b>${s.temp?.toFixed(1)}°C</b> &nbsp; RH: <b>${s.rh?.toFixed(0)}%</b> &nbsp; W: <b>${s.wind_kmh?.toFixed(1)} km/h</b> &nbsp; P: <b>${s.precip?.toFixed(1)} mm</b></div>`;
+          html += `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">`;
+          idxs.forEach(idx => {
+            const val = s[idx.key] != null ? (typeof s[idx.key]==="number" ? s[idx.key].toFixed(1) : s[idx.key]) : "—";
+            const cls = s[idx.sinif] || "Düşük";
+            const r = renkCSS[cls] || renkCSS["Düşük"];
+            html += `<div style="background:${r.bg};border:1px solid ${r.border};border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:0.7rem;color:${r.renk};font-weight:700">${idx.label}</div>
+              <div style="font-size:1.1rem;font-weight:800;color:#fff;margin:2px 0">${val}</div>
+              <div style="font-size:0.68rem;color:${r.renk}">${cls}</div>
+            </div>`;
+          });
+          html += `</div>`;
+        }
+        html += `</div>`;
+      });
+      html += `<div class="bilgi-kart" style="border-left:3px solid var(--accent);margin-top:8px">
+        <p style="font-size:0.82rem;color:var(--text-muted)"><strong style="color:var(--text)">Koordinat:</strong> 36.8983°N, 28.0853°E (Çalışma Alanı) — Tüm yangınlar bu koordinat üzerinden hesaplanmıştır. Ocak 1'den yangın gününe kadar kümülatif indeks biriktirmesi (warmup) yapılmıştır.</p>
+      </div>`;
+      sonucDiv.innerHTML = html;
+      yukDiv.style.display = "none";
+      sonucDiv.style.display = "block";
+    } catch(e) {
+      yukDiv.style.display = "none";
+      alert("Hata: " + e.message);
+    }
+  }
+
   // ═══ MAP INIT on page open ═══
   const origSayfaAc = sayfaAc;
   sayfaAc = function(id, el) {
     origSayfaAc(id, el);
     if (id === "hesap") {
       setTimeout(() => {
-        // Only init nasa map if auto tab is active
         const nasaPanel = document.getElementById("panel-nasa");
         if (nasaPanel && nasaPanel.classList.contains("aktif")) {
           initNasaMap();
@@ -3882,6 +4222,12 @@ Content-Type: application/json
       setTimeout(() => {
         initTahminMap();
         if (tahminMap) tahminMap.invalidateSize();
+      }, 200);
+    }
+    if (id === "calisma") {
+      setTimeout(() => {
+        initCalismaMap();
+        if (calismaMap) calismaMap.invalidateSize();
       }, 200);
     }
   };

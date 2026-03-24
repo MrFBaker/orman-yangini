@@ -378,6 +378,40 @@ def test_yangin():
     return jsonify({"ok": True, "sonuclar": sonuclar})
 
 
+@app.route("/test-bolgesel", methods=["GET"])
+def test_bolgesel():
+    """Çalışma alanı (Marmaris 36.8983N,28.0853E) için bölgesel yangın doğrulaması."""
+    CALISMA_LAT = 36.8983
+    CALISMA_LON = 28.0853
+    olaylar = [
+        {"isim": "Marmaris Yangını",  "tarih": "20210729", "aciklama": "73.000+ hektar, 1 itfaiyeci şehit"},
+        {"isim": "Köyceğiz Yangını",  "tarih": "20210729", "aciklama": "Muğla genelinde eş zamanlı yangınlar"},
+        {"isim": "Milas Yangını",     "tarih": "20210728", "aciklama": "Kemerköy Termik Santrali tehdit altında"},
+        {"isim": "Marmaris Yangını",  "tarih": "20120621", "aciklama": "İçmeler-Turunç arası, 1000+ hektar"},
+    ]
+    sonuclar = []
+    for o in olaylar:
+        try:
+            st = warmup(CALISMA_LAT, CALISMA_LON, o["tarih"])
+            gunler = om.veri_cek(CALISMA_LAT, CALISMA_LON, o["tarih"], o["tarih"])
+            if not gunler:
+                raise ValueError("Veri alınamadı")
+            gun = gunler[0]
+            ay = int(gun["tarih"][4:6])
+            r = f.hesapla(temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
+                          precip=gun["precip"], month=ay,
+                          ffmc0=st["ffmc0"], dmc0=st["dmc0"], dc0=st["dc0"], lat=CALISMA_LAT)
+            ek = idx.hesapla_ek(temp=gun["temp"], rh=gun["rh"], wind=gun["wind_kmh"],
+                                precip=gun["precip"], temp_max=gun.get("temp_max", gun["temp"]),
+                                dew_point=gun.get("dew_point", 10.0),
+                                kbdi0=st["kbdi0"], nesterov0=st["nesterov0"])
+            sonuclar.append({**o, "temp": gun["temp"], "rh": gun["rh"],
+                             "wind_kmh": gun["wind_kmh"], "precip": gun["precip"], **r, **ek})
+        except Exception as e:
+            sonuclar.append({**o, "hata": str(e)})
+    return jsonify({"ok": True, "sonuclar": sonuclar, "koordinat": {"lat": CALISMA_LAT, "lon": CALISMA_LON}})
+
+
 @app.route("/rapor-pdf", methods=["POST"])
 def rapor_pdf():
     from reportlab.lib.pagesizes import A4
