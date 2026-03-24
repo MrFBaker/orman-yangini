@@ -440,6 +440,27 @@
     .grafik-scroll canvas { min-width: 500px; }
     .grafik-baslik { font-size: 0.78rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
 
+    /* SPARKLINE MINI CHARTS */
+    .sparkline-container { display: flex; flex-direction: column; gap: 8px; }
+    .sparkline-row {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 12px;
+    }
+    .sparkline-label {
+      min-width: 70px; font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .sparkline-chart { flex: 1; height: 50px; position: relative; }
+    .sparkline-chart canvas { width: 100% !important; height: 50px !important; }
+    .sparkline-val {
+      min-width: 55px; text-align: right; font-size: 0.8rem; font-weight: 600;
+    }
+    .sparkline-sinif {
+      min-width: 60px; text-align: center; font-size: 0.65rem; font-weight: 600;
+      padding: 2px 6px; border-radius: 4px;
+    }
+
     /* TABLO */
     .tablo-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
     table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
@@ -1015,6 +1036,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
       Hesaplayıcı
     </button>
+    <button class="nav-link" onclick="sayfaAc('istasyon', this)" data-i18n="nav_station">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4c0 3 4 6 4 6s4-3 4-6a4 4 0 0 0-4-4z"/><circle cx="12" cy="6" r="1.5"/><path d="M12 14v8"/><path d="M8 22h8"/></svg>
+      İstasyon Verisi
+    </button>
     <button class="nav-link" onclick="sayfaAc('tahmin', this)" data-i18n="nav_forecast">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4m-7.07-3.93l2.83-2.83m8.48-8.48l2.83-2.83M2 12h4m12 0h4m-3.93 7.07l-2.83-2.83M6.76 6.76L3.93 3.93"/></svg>
       7 Günlük Tahmin
@@ -1210,7 +1235,7 @@
             <input type="number" id="manuel-lat" step="0.01" placeholder="örn. 37.5" />
           </div>
         </details>
-        <button class="btn" onclick="hesapla()" data-i18n="btn_calculate">Hesapla</button>
+        <button class="btn" id="manuel-btn" onclick="hesapla()" data-i18n="btn_calculate">Hesapla</button>
       </div>
 
       <!-- Alt panel: CSV -->
@@ -1316,10 +1341,8 @@
 
   <!-- NASA / MULTI-DAY SONUÇ TABLOSU -->
   <div id="nasa-sonuc-alani">
-    <div class="grafik-kutu" style="margin-bottom:16px">
-      <div class="grafik-baslik" data-i18n="chart_title">Yangın Tehlike Zaman Serisi</div>
-      <div class="grafik-scroll"><canvas id="fwi-grafik"></canvas></div>
-    </div>
+    <div class="grafik-baslik" data-i18n="chart_title" style="margin-bottom:12px">Yangın Tehlike Zaman Serisi</div>
+    <div id="sparkline-container" class="sparkline-container"></div>
     <div class="tablo-wrapper" style="margin-top:16px;">
       <table>
         <thead>
@@ -2189,6 +2212,102 @@
 </div><!-- sayfa-yontem -->
 
 <!-- ══════════════════════════════════════════ -->
+<!-- SAYFA: İSTASYON VERİSİ                     -->
+<!-- ══════════════════════════════════════════ -->
+<div class="sayfa" id="sayfa-istasyon">
+  <h2 class="sayfa-baslik" data-i18n="station_title">İstasyon Verisi</h2>
+
+  <!-- Açıklama -->
+  <div class="info-kutu" style="margin-bottom:24px">
+    <span data-i18n="station_desc" data-i18n-html="1">
+      Kendi meteoroloji istasyonunuzdan (IoT sensör, ESP32, özel cihaz) gelen verileri entegre edin.
+      İstasyon <code>POST /api/station</code> endpoint'ine JSON formatında veri gönderir,
+      sistem otomatik olarak 5 yangın indeksini hesaplar.
+    </span>
+  </div>
+
+  <!-- İstasyon Seçimi + Durum -->
+  <div class="kart" style="margin-bottom:20px">
+    <h3 style="color:var(--accent);margin-bottom:16px" data-i18n="station_select">İstasyon Seçimi</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px" id="istasyon-chip-alani">
+      <span style="color:var(--text-muted);font-size:0.85rem" data-i18n="station_no_station">Henüz kayıtlı istasyon yok. Simülatörü çalıştırarak test edebilirsiniz.</span>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end">
+      <button class="btn" id="istasyon-yenile-btn" onclick="istasyonYenile()" data-i18n="station_refresh">İstasyonları Yenile</button>
+      <button class="btn" style="background:var(--card-bg);border:1px solid var(--border);color:var(--text)" onclick="istasyonSimKaydet()" data-i18n="station_register_sim">Simüle İstasyon Kaydet</button>
+    </div>
+  </div>
+
+  <!-- Seçili istasyon bilgisi + veri çekme -->
+  <div class="kart" id="istasyon-detay" style="display:none;margin-bottom:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+      <div>
+        <h3 style="color:var(--accent);margin:0" id="istasyon-isim">—</h3>
+        <span style="color:var(--text-muted);font-size:0.85rem" id="istasyon-meta">—</span>
+      </div>
+      <div id="istasyon-stats" style="display:flex;gap:16px;flex-wrap:wrap">
+        <div style="text-align:center">
+          <div style="color:var(--accent);font-size:1.2rem;font-weight:700" id="ist-toplam-okuma">—</div>
+          <div style="color:var(--text-muted);font-size:0.75rem" data-i18n="station_total_readings">Toplam Okuma</div>
+        </div>
+        <div style="text-align:center">
+          <div style="color:var(--green);font-size:1.2rem;font-weight:700" id="ist-son-okuma">—</div>
+          <div style="color:var(--text-muted);font-size:0.75rem" data-i18n="station_last_reading">Son Okuma</div>
+        </div>
+      </div>
+    </div>
+    <button class="basla-btn" id="istasyon-hesapla-btn" onclick="istasyonHesapla()" data-i18n="station_calc">Verileri Çek ve Hesapla</button>
+  </div>
+
+  <!-- Sonuçlar -->
+  <div id="istasyon-sonuc-alani" style="display:none">
+
+    <!-- Son Anlık Okuma -->
+    <div class="kart" style="margin-bottom:20px">
+      <h3 style="color:var(--accent);margin-bottom:12px" data-i18n="station_last_instant">Son Anlık Okuma</h3>
+      <div id="istasyon-anlik-veri" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px">
+      </div>
+    </div>
+
+    <!-- Günlük Tablo -->
+    <div class="kart" style="margin-bottom:20px;overflow-x:auto">
+      <h3 style="color:var(--accent);margin-bottom:12px" data-i18n="station_daily_table">Günlük Hesaplama Sonuçları</h3>
+      <table class="tablo">
+        <thead><tr>
+          <th data-i18n="tablo_tarih">Tarih</th>
+          <th>T °C</th><th>RH %</th><th>W km/h</th><th>P mm</th>
+          <th>FWI</th><th>Ang.</th><th>Nes.</th><th>KBDI</th><th>Car.</th>
+        </tr></thead>
+        <tbody id="istasyon-tablo-govde"></tbody>
+      </table>
+    </div>
+
+    <!-- API Bilgisi -->
+    <div class="kart">
+      <h3 style="color:var(--accent);margin-bottom:12px" data-i18n="station_api_info">API Entegrasyon Bilgisi</h3>
+      <div style="background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:16px;font-family:monospace;font-size:0.8rem;color:#e6edf3;overflow-x:auto;white-space:pre;line-height:1.6" data-i18n="station_api_example" data-i18n-html="1">POST /api/station
+Content-Type: application/json
+
+{
+  "station_id": "IST-001",
+  "api_key": "your-api-key",
+  "timestamp": "2026-03-23T14:00:00",
+  "temp": 25.3,        <span style="color:#8b949e">// Sıcaklık (°C) — zorunlu</span>
+  "rh": 42.0,          <span style="color:#8b949e">// Bağıl Nem (%) — zorunlu</span>
+  "wind": 12.5,        <span style="color:#8b949e">// Rüzgar (km/h)</span>
+  "precip": 0.0,       <span style="color:#8b949e">// Yağış (mm)</span>
+  "dew_point": 11.2,   <span style="color:#8b949e">// Çiy Noktası (°C)</span>
+  "temp_max": 28.1     <span style="color:#8b949e">// Günlük Maks T (°C)</span>
+}</div>
+      <p style="color:var(--text-muted);font-size:0.8rem;margin-top:12px" data-i18n="station_sim_hint" data-i18n-html="1">
+        Test için simülatörü çalıştırın: <code>python simulasyon.py --toplu 7</code> (son 7 günlük simüle veri)
+        veya <code>python simulasyon.py</code> (canlı simülasyon, her 10 dk)
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
 <!-- SAYFA 5: 7 GÜNLÜK TAHMİN                  -->
 <!-- ══════════════════════════════════════════ -->
 <div class="sayfa" id="sayfa-tahmin">
@@ -2223,10 +2342,8 @@
   </button>
 
   <div id="tahmin-sonuc-alani" style="display:none">
-    <div class="grafik-kutu" style="margin-bottom:20px">
-      <div class="grafik-baslik" data-i18n="forecast_chart_title">7 Günlük Yangın Tehlike Tahmini</div>
-      <div class="grafik-scroll"><canvas id="tahmin-grafik"></canvas></div>
-    </div>
+    <div class="grafik-baslik" data-i18n="forecast_chart_title" style="margin-bottom:12px">7 Günlük Yangın Tehlike Tahmini</div>
+    <div id="tahmin-sparkline-container" class="sparkline-container"></div>
     <div class="tahmin-grid" id="tahmin-kartlar"></div>
   </div>
 
@@ -2415,12 +2532,16 @@
       valid_method_title: "Yöntem",
       valid_method_desc: "Her olay için Ocak 1'den yangın gününe kadar FWI durumu biriktirilir. Yangın günü öğlen 12:00 Open-Meteo verisi kullanılır. Beklenti: tüm olayların <strong>Çok Yüksek</strong> veya <strong>Aşırı</strong> sınıfına girmesi.",
       btn_run_tests: "Yangın Testlerini Çalıştır",
-      event_1: "Manavgat Yangını — 28 Temmuz 2021, Antalya",
       event_1_name: "Manavgat Yangını",
-      event_2: "Marmaris Yangını — 30 Temmuz 2021, Muğla",
       event_2_name: "Marmaris Yangını",
-      event_3: "İzmir Yangını — 19 Ağustos 2019, İzmir",
       event_3_name: "İzmir Yangını",
+      event_4_name: "Bodrum Yangını",
+      event_5_name: "Köyceğiz Yangını",
+      event_6_name: "Aydıncık Yangını",
+      event_7_name: "Akseki Yangını",
+      event_8_name: "Milas Yangını",
+      event_9_name: "Aladağ Yangını",
+      event_10_name: "Osmaniye Yangını",
       valid_input_info: "Girdi: T=17°C, H=42%, W=25 km/h, r=0 mm, Ay=7 &nbsp;|&nbsp; FFMC₀=85, DMC₀=6, DC₀=15",
       valid_extra_note: "<strong style=\"color:var(--text)\">Ek indeks doğrulaması:</strong> Angström, Nesterov, KBDI ve Carrega I87 formülleri <code>test_indeksler.py</code> birim testleriyle (35 test) doğrulanmıştır. Detaylar için <strong>bilimsel_referanslar.md</strong> dosyasına bakınız.",
       tab_fwi: "FWI Sistemi",
@@ -2454,6 +2575,20 @@
       beklenti_ok: "✓ Beklenti karşılandı",
       beklenti_fail: "✗ Beklentinin altında",
       csv_hata: "Hata: geçerli veri bulunamadı",
+      nav_station: "İstasyon Verisi",
+      station_title: "İstasyon Verisi",
+      station_desc: 'Kendi meteoroloji istasyonunuzdan (IoT sensör, ESP32, özel cihaz) gelen verileri entegre edin. İstasyon <code>POST /api/station</code> endpoint\'ine JSON formatında veri gönderir, sistem otomatik olarak 5 yangın indeksini hesaplar.',
+      station_select: "İstasyon Seçimi",
+      station_no_station: "Henüz kayıtlı istasyon yok. Simülatörü çalıştırarak test edebilirsiniz.",
+      station_refresh: "İstasyonları Yenile",
+      station_register_sim: "Simüle İstasyon Kaydet",
+      station_calc: "Verileri Çek ve Hesapla",
+      station_last_instant: "Son Anlık Okuma",
+      station_daily_table: "Günlük Hesaplama Sonuçları",
+      station_api_info: "API Entegrasyon Bilgisi",
+      station_total_readings: "Toplam Okuma",
+      station_last_reading: "Son Okuma",
+      station_sim_hint: 'Test için simülatörü çalıştırın: <code>python simulasyon.py --toplu 7</code> (son 7 günlük simüle veri) veya <code>python simulasyon.py</code> (canlı simülasyon, her 10 dk)',
       nav_forecast: "7 Günlük Tahmin",
       forecast_title: "7 Günlük Yangın Tehlike Tahmini",
       forecast_desc: "Open-Meteo hava tahmin verisini kullanarak önümüzdeki 7 gün için 5 farklı yangın tehlike indeksini hesaplar. Haritadan konum seçin ve tahmini başlatın.",
@@ -2578,12 +2713,16 @@
       valid_method_title: "Method",
       valid_method_desc: "For each event, FWI state is accumulated from January 1st to the fire date. Noon 12:00 Open-Meteo data is used for the fire day. Expectation: all events should fall in <strong>Very High</strong> or <strong>Extreme</strong> class.",
       btn_run_tests: "Run Fire Tests",
-      event_1: "Manavgat Fire — July 28, 2021, Antalya",
       event_1_name: "Manavgat Fire",
-      event_2: "Marmaris Fire — July 30, 2021, Muğla",
       event_2_name: "Marmaris Fire",
-      event_3: "İzmir Fire — August 19, 2019, İzmir",
       event_3_name: "İzmir Fire",
+      event_4_name: "Bodrum Fire",
+      event_5_name: "Köyceğiz Fire",
+      event_6_name: "Aydıncık Fire",
+      event_7_name: "Akseki Fire",
+      event_8_name: "Milas Fire",
+      event_9_name: "Aladağ Fire",
+      event_10_name: "Osmaniye Fire",
       valid_input_info: "Input: T=17°C, H=42%, W=25 km/h, r=0 mm, Month=7 &nbsp;|&nbsp; FFMC₀=85, DMC₀=6, DC₀=15",
       valid_extra_note: "<strong style=\"color:var(--text)\">Additional index validation:</strong> Angström, Nesterov, KBDI and Carrega I87 formulas are validated with <code>test_indeksler.py</code> unit tests (35 tests). See <strong>bilimsel_referanslar.md</strong> for details.",
       tab_fwi: "FWI System",
@@ -2617,6 +2756,20 @@
       beklenti_ok: "✓ Expectation met",
       beklenti_fail: "✗ Below expectation",
       csv_hata: "Error: no valid data found",
+      nav_station: "Station Data",
+      station_title: "Station Data",
+      station_desc: 'Integrate data from your own weather station (IoT sensor, ESP32, custom device). The station sends JSON data via <code>POST /api/station</code>, and the system automatically calculates all 5 fire indices.',
+      station_select: "Station Selection",
+      station_no_station: "No registered stations yet. Run the simulator to test.",
+      station_refresh: "Refresh Stations",
+      station_register_sim: "Register Simulated Station",
+      station_calc: "Fetch Data & Calculate",
+      station_last_instant: "Last Instant Reading",
+      station_daily_table: "Daily Calculation Results",
+      station_api_info: "API Integration Info",
+      station_total_readings: "Total Readings",
+      station_last_reading: "Last Reading",
+      station_sim_hint: 'Run the simulator for testing: <code>python simulasyon.py --toplu 7</code> (bulk 7-day simulated data) or <code>python simulasyon.py</code> (live simulation, every 10 min)',
       nav_forecast: "7-Day Forecast",
       forecast_title: "7-Day Fire Danger Forecast",
       forecast_desc: "Calculates 5 different fire danger indices for the next 7 days using Open-Meteo weather forecast data. Select a location on the map and start the forecast.",
@@ -2733,6 +2886,8 @@
   }
 
   async function hesapla() {
+    const btn = document.getElementById("manuel-btn");
+    btnLoading(btn, true);
     document.getElementById("hata-mesaji").style.display = "none";
     const payload = {
       temp:      parseFloat(document.getElementById("temp").value),
@@ -2750,19 +2905,19 @@
     };
     const latVal = document.getElementById("manuel-lat").value;
     if (latVal !== "") payload.lat = parseFloat(latVal);
-    if (Object.values(payload).some(v => isNaN(v))) { gosterHata(t("hata_bos")); return; }
+    if (Object.values(payload).some(v => isNaN(v))) { gosterHata(t("hata_bos")); btnLoading(btn, false, "btn_calculate"); return; }
     try {
       const res  = await fetch("/hesapla", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const json = await res.json();
       if (!json.ok) { gosterHata(json.hata); return; }
       gosterSonuc(json.sonuc);
     } catch (e) { gosterHata(t("hata_baglanti") + e.message); }
+    finally { btnLoading(btn, false, "btn_calculate"); }
   }
 
   async function nasaHesapla() {
     const btn = document.getElementById("nasa-btn");
-    btn.disabled = true;
-    btn.textContent = t("btn_fetching");
+    btnLoading(btn, true);
     document.getElementById("hata-mesaji").style.display = "none";
     document.getElementById("nasa-sonuc-alani").style.display = "none";
 
@@ -2786,8 +2941,7 @@
     } catch (e) {
       gosterHata(t("hata_genel") + e.message);
     } finally {
-      btn.disabled = false;
-      btn.textContent = t("btn_fetch_calc");
+      btnLoading(btn, false, "btn_fetch_calc");
     }
   }
 
@@ -2839,68 +2993,127 @@
     return "#c084fc";
   }
 
-  function cizGrafik(satirlar) {
-    const sinifSeviye = {"Tehlike Yok":0,"Dusuk":1,"Orta":2,"Yuksek":3,"Cok Yuksek":4,"Asiri":5};
-    const labels = satirlar.map(r => r.tarih.slice(0,4)+"-"+r.tarih.slice(4,6)+"-"+r.tarih.slice(6,8));
-    const n = satirlar.length;
+  // Sparkline mini chart sistemi
+  const sparklineCharts = [];
 
-    const ofsetler = [-0.12, -0.06, 0, 0.06, 0.12];
-    const stiller = [
-      { label: "FWI",       key: "sinif",          color: "#f97316", dash: [],      point: "circle" },
-      { label: "Angström",  key: "angstrom_sinif",  color: "#38bdf8", dash: [8,4],   point: "rectRot" },
-      { label: "Nesterov",  key: "nesterov_sinif",  color: "#a78bfa", dash: [4,4],   point: "triangle" },
-      { label: "KBDI",      key: "kbdi_sinif",      color: "#fb7185", dash: [12,4,4,4], point: "rect" },
-      { label: "Carrega",   key: "carrega_sinif",   color: "#34d399", dash: [2,3],   point: "star" },
-    ];
-    const datasets = stiller.map((ds, i) => ({
-      label: ds.label,
-      data: satirlar.map(r => (sinifSeviye[r[ds.key]] || 0) + ofsetler[i]),
-      borderColor: ds.color,
-      backgroundColor: ds.color + "30",
-      pointRadius: n > 30 ? 3 : 5,
-      pointHoverRadius: n > 30 ? 5 : 8,
-      pointStyle: ds.point,
-      borderDash: ds.dash,
-      tension: 0.3,
-      borderWidth: 2.5,
-      fill: false,
-    }));
+  const sparklineConfig = [
+    { label: "FWI",       valKey: "fwi",      sinifKey: "sinif",          color: "#f97316",
+      zones: [{max:5,c:"#16a34a"},{max:10,c:"#ca8a04"},{max:20,c:"#ea580c"},{max:30,c:"#dc2626"},{max:999,c:"#9333ea"}] },
+    { label: "Angström",  valKey: "angstrom",  sinifKey: "angstrom_sinif", color: "#38bdf8",
+      zones: [{max:2,c:"#9333ea"},{max:2.5,c:"#dc2626"},{max:4,c:"#ca8a04"},{max:999,c:"#16a34a"}] },
+    { label: "Nesterov",  valKey: "nesterov",  sinifKey: "nesterov_sinif", color: "#a78bfa",
+      zones: [{max:300,c:"#16a34a"},{max:1000,c:"#ca8a04"},{max:4000,c:"#ea580c"},{max:10000,c:"#dc2626"},{max:999999,c:"#9333ea"}] },
+    { label: "KBDI",      valKey: "kbdi",      sinifKey: "kbdi_sinif",     color: "#fb7185",
+      zones: [{max:200,c:"#16a34a"},{max:400,c:"#ca8a04"},{max:600,c:"#dc2626"},{max:999,c:"#9333ea"}] },
+    { label: "Carrega",   valKey: "carrega",   sinifKey: "carrega_sinif",  color: "#34d399",
+      zones: [{max:5,c:"#16a34a"},{max:10,c:"#ca8a04"},{max:15,c:"#ea580c"},{max:20,c:"#dc2626"},{max:999,c:"#9333ea"}] },
+  ];
 
-    if (fwiChart) fwiChart.destroy();
-    const ctx = document.getElementById("fwi-grafik").getContext("2d");
-    const mob = window.innerWidth < 768;
-    const seviyeLabels = mob ? ["—","D","O","Y","ÇY","A"] : [t("sinif_tehlike_yok") || "—", t("sinif_dusuk"), t("sinif_orta"), t("sinif_yuksek"), t("sinif_cok_yuksek"), t("sinif_asiri")];
-    fwiChart = new Chart(ctx, {
-      type: "line",
-      data: { labels, datasets },
-      options: {
-        responsive: true,
-        interaction: { mode: "index", intersect: false },
-        plugins: {
-          legend: { position: mob ? "bottom" : "top", labels: { color: "#9ca3af", font: { size: mob ? 9 : 11 }, usePointStyle: true, padding: mob ? 8 : 12 } },
-          tooltip: {
-            backgroundColor: "#111827", borderColor: "#374151", borderWidth: 1,
-            callbacks: {
-              label: ctx2 => ctx2.dataset.label + ": " + (seviyeLabels[Math.round(ctx2.parsed.y)] || "—")
-            }
-          }
+  function sinifBgRenk(sinif) {
+    const m = {"Tehlike Yok":"#052e16","Dusuk":"#052e16","Orta":"#422006","Yuksek":"#431407","Cok Yuksek":"#450a0a","Asiri":"#2e1065"};
+    return m[sinif] || "#1f2937";
+  }
+  function sinifFgRenk(sinif) {
+    const m = {"Tehlike Yok":"#4ade80","Dusuk":"#4ade80","Orta":"#fbbf24","Yuksek":"#fb923c","Cok Yuksek":"#f87171","Asiri":"#c084fc"};
+    return m[sinif] || "#9ca3af";
+  }
+
+  function cizSparklines(satirlar, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    // Destroy old charts
+    sparklineCharts.forEach(c => c.destroy());
+    sparklineCharts.length = 0;
+
+    const labels = satirlar.map(r => {
+      if (r.tarih && r.tarih.length === 8) return r.tarih.slice(4,6)+"/"+r.tarih.slice(6,8);
+      return r.tarih || "";
+    });
+
+    sparklineConfig.forEach(cfg => {
+      const vals = satirlar.map(r => r[cfg.valKey] != null ? parseFloat(r[cfg.valKey]) : null);
+      const siniflar = satirlar.map(r => r[cfg.sinifKey] || "Dusuk");
+      const sonSinif = siniflar[siniflar.length - 1] || "Dusuk";
+      const sonVal = vals[vals.length - 1];
+
+      const row = document.createElement("div");
+      row.className = "sparkline-row";
+
+      // Label
+      const lbl = document.createElement("div");
+      lbl.className = "sparkline-label";
+      lbl.style.color = cfg.color;
+      lbl.textContent = cfg.label;
+      row.appendChild(lbl);
+
+      // Chart area
+      const chartDiv = document.createElement("div");
+      chartDiv.className = "sparkline-chart";
+      const canvas = document.createElement("canvas");
+      chartDiv.appendChild(canvas);
+      row.appendChild(chartDiv);
+
+      // Son değer
+      const valDiv = document.createElement("div");
+      valDiv.className = "sparkline-val";
+      valDiv.style.color = sinifFgRenk(sonSinif);
+      valDiv.textContent = sonVal != null ? fmtK(sonVal) : "—";
+      row.appendChild(valDiv);
+
+      // Son sınıf badge
+      const sinifDiv = document.createElement("div");
+      sinifDiv.className = "sparkline-sinif";
+      sinifDiv.style.background = sinifBgRenk(sonSinif);
+      sinifDiv.style.color = sinifFgRenk(sonSinif);
+      sinifDiv.textContent = sinifCevir(sonSinif);
+      row.appendChild(sinifDiv);
+
+      container.appendChild(row);
+
+      // Draw mini chart
+      const pointColors = vals.map((v, i) => sinifFgRenk(siniflar[i]));
+      const chart = new Chart(canvas, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [{
+            data: vals,
+            borderColor: cfg.color,
+            backgroundColor: cfg.color + "20",
+            pointBackgroundColor: pointColors,
+            pointRadius: vals.length > 20 ? 2 : 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true,
+          }]
         },
-        scales: {
-          x: {
-            ticks: { color: "#9ca3af", maxTicksLimit: 12, maxRotation: 30, font: { size: 10 } },
-            grid: { color: "#1f2937" }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "#111827", borderColor: "#374151", borderWidth: 1,
+              displayColors: false,
+              callbacks: {
+                title: ctx2 => labels[ctx2[0].dataIndex],
+                label: ctx2 => cfg.label + ": " + fmtK(ctx2.parsed.y) + " (" + sinifCevir(siniflar[ctx2.dataIndex]) + ")"
+              }
+            }
           },
-          y: {
-            min: -0.3, max: 5.3,
-            ticks: {
-              color: "#9ca3af", font: { size: 10 }, stepSize: 1,
-              callback: v => seviyeLabels[v] || ""
-            },
-            grid: { color: "#1f2937" }
+          scales: {
+            x: { display: false },
+            y: { display: false, beginAtZero: cfg.valKey !== "angstrom" && cfg.valKey !== "carrega" }
           }
         }
-      }
+      });
+      sparklineCharts.push(chart);
     });
+  }
+
+  function cizGrafik(satirlar) {
+    cizSparklines(satirlar, "sparkline-container");
   }
 
   function gosterSonuc(s) {
@@ -3014,7 +3227,7 @@
     document.getElementById("hata-mesaji").style.display = "none";
     document.getElementById("nasa-sonuc-alani").style.display = "none";
     const btn = document.getElementById("csv-btn");
-    btn.disabled = true; btn.textContent = t("btn_calculating");
+    btnLoading(btn, true);
 
     const payload = {
       satirlar: csvSatirlar,
@@ -3035,26 +3248,24 @@
     } catch (e) {
       gosterHata(t("hata_genel") + e.message);
     } finally {
-      btn.disabled = false; btn.textContent = t("btn_csv_calc");
+      btnLoading(btn, false, "btn_csv_calc");
     }
   }
 
   async function referansCalistir() {
     const btn = document.getElementById("ref-btn");
-    btn.disabled = true;
-    btn.textContent = t("btn_calculating");
+    btnLoading(btn, true);
     document.getElementById("ref-sonuc-alani").style.display = "none";
     try {
       const res  = await fetch("/referans");
       const json = await res.json();
-      if (!json.ok) { btn.textContent = t("btn_error"); btn.disabled = false; return; }
+      if (!json.ok) { btnLoading(btn, false, "btn_run_ref"); return; }
       gosterReferansSonucu(json.karsilastirma, json.adimlar);
       document.getElementById("ref-sonuc-alani").style.display = "block";
     } catch (e) {
-      btn.textContent = t("btn_server_error");
+      btn.innerHTML = t("btn_server_error");
     } finally {
-      btn.disabled = false;
-      btn.textContent = t("btn_run_ref");
+      btnLoading(btn, false, "btn_run_ref");
     }
   }
 
@@ -3152,8 +3363,7 @@
 
   async function testCalistir() {
     const btn = document.getElementById("test-btn");
-    btn.disabled = true;
-    btn.textContent = t("btn_test_running");
+    btnLoading(btn, true);
     document.getElementById("test-sonuc-alani").style.display = "none";
 
     try {
@@ -3162,10 +3372,9 @@
       if (!json.ok) { btn.textContent = t("btn_error"); btn.disabled = false; return; }
       gosterTestSonuclari(json.sonuclar);
     } catch (e) {
-      btn.textContent = t("btn_conn_error");
+      btn.innerHTML = t("btn_conn_error");
     } finally {
-      btn.disabled = false;
-      btn.textContent = t("btn_test_rerun");
+      btnLoading(btn, false, "btn_run_tests");
     }
   }
 
@@ -3230,6 +3439,17 @@
 
     document.getElementById("test-sonuc-alani").style.display = "block";
     document.getElementById("test-sonuc-alani").scrollIntoView({ behavior: "smooth" });
+  }
+
+  function btnLoading(btn, loading, labelKey) {
+    if (!btn) return;
+    if (loading) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> ' + t("btn_calculating");
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = t(labelKey);
+    }
   }
 
   function gosterHata(mesaj) {
@@ -3380,7 +3600,7 @@
     }
     const btn = document.getElementById("tahmin-btn");
     btn.disabled = true;
-    btn.querySelector("span").textContent = t("btn_forecast_loading");
+    btn.innerHTML = '<span class="spinner"></span> ' + t("btn_forecast_loading");
     document.getElementById("tahmin-sonuc-alani").style.display = "none";
 
     try {
@@ -3396,7 +3616,7 @@
       gosterHata(t("hata_baglanti") + e.message);
     } finally {
       btn.disabled = false;
-      btn.querySelector("span").textContent = t("btn_forecast_ready");
+      btn.innerHTML = '<span data-i18n="btn_forecast_ready">' + t("btn_forecast_ready") + '</span>';
     }
   }
 
@@ -3471,70 +3691,17 @@
   }
 
   function tahminGrafikCiz(satirlar) {
-    const sinifSeviye = {"Tehlike Yok":0,"Dusuk":1,"Orta":2,"Yuksek":3,"Cok Yuksek":4,"Asiri":5};
+    // Tahmin için tarih label'larını gün isimlerine çevir
     const bugun = new Date();
-    const labels = satirlar.map((r, i) => {
-      if (i === 0) return t("forecast_today");
-      if (i === 1) return t("forecast_tomorrow");
-      const d = new Date(bugun); d.setDate(d.getDate() + i);
-      return t("forecast_days")[d.getDay()];
-    });
-
-    // Çakışma önleme: aynı seviyedeki indekslere küçük ofset
-    const ofsetler = [-0.12, -0.06, 0, 0.06, 0.12];
-    const stiller = [
-      { label: "FWI",       key: "sinif",          color: "#f97316", dash: [],      point: "circle" },
-      { label: "Angström",  key: "angstrom_sinif",  color: "#38bdf8", dash: [8,4],   point: "rectRot" },
-      { label: "Nesterov",  key: "nesterov_sinif",  color: "#a78bfa", dash: [4,4],   point: "triangle" },
-      { label: "KBDI",      key: "kbdi_sinif",      color: "#fb7185", dash: [12,4,4,4], point: "rect" },
-      { label: "Carrega",   key: "carrega_sinif",   color: "#34d399", dash: [2,3],   point: "star" },
-    ];
-    const datasets = stiller.map((ds, i) => ({
-      label: ds.label,
-      data: satirlar.map(r => (sinifSeviye[r[ds.key]] || 0) + ofsetler[i]),
-      borderColor: ds.color,
-      backgroundColor: ds.color + "30",
-      pointRadius: 6,
-      pointHoverRadius: 9,
-      pointStyle: ds.point,
-      borderDash: ds.dash,
-      tension: 0.3,
-      borderWidth: 2.5,
-      fill: false,
-    }));
-
-    if (tahminChart) tahminChart.destroy();
-    const ctx = document.getElementById("tahmin-grafik").getContext("2d");
-    const mob = window.innerWidth < 768;
-    const seviyeLabels = mob ? ["—","D","O","Y","ÇY","A"] : [t("sinif_tehlike_yok") || "—", t("sinif_dusuk"), t("sinif_orta"), t("sinif_yuksek"), t("sinif_cok_yuksek"), t("sinif_asiri")];
-    tahminChart = new Chart(ctx, {
-      type: "line",
-      data: { labels, datasets },
-      options: {
-        responsive: true,
-        interaction: { mode: "index", intersect: false },
-        plugins: {
-          legend: { position: mob ? "bottom" : "top", labels: { color: "#9ca3af", font: { size: mob ? 9 : 11 }, usePointStyle: true, padding: mob ? 8 : 12 } },
-          tooltip: {
-            backgroundColor: "#111827", borderColor: "#374151", borderWidth: 1,
-            callbacks: {
-              label: ctx2 => ctx2.dataset.label + ": " + (seviyeLabels[Math.round(ctx2.parsed.y)] || "—")
-            }
-          }
-        },
-        scales: {
-          x: { ticks: { color: "#9ca3af", font: { size: 10 } }, grid: { color: "#1f2937" } },
-          y: {
-            min: -0.3, max: 5.3,
-            ticks: {
-              color: "#9ca3af", font: { size: 10 }, stepSize: 1,
-              callback: v => seviyeLabels[v] || ""
-            },
-            grid: { color: "#1f2937" }
-          }
-        }
+    satirlar.forEach((r, i) => {
+      if (i === 0) r.tarih = t("forecast_today");
+      else if (i === 1) r.tarih = t("forecast_tomorrow");
+      else {
+        const d = new Date(bugun); d.setDate(d.getDate() + i);
+        r.tarih = t("forecast_days")[d.getDay()];
       }
     });
+    cizSparklines(satirlar, "tahmin-sparkline-container");
   }
 
   function formatTarih(t) {
@@ -3544,6 +3711,156 @@
     if (v == null) return "—";
     if (Math.abs(v) >= 1000) return (v / 1000).toFixed(1) + "K";
     return v;
+  }
+
+  // ═══ İSTASYON VERİSİ ═══
+  let seciliIstasyon = null;
+
+  async function istasyonYenile() {
+    const btn = document.getElementById("istasyon-yenile-btn");
+    btnLoading(btn, true);
+    try {
+      const res = await fetch("/api/station/list");
+      const json = await res.json();
+      const alan = document.getElementById("istasyon-chip-alani");
+      if (!json.ok || !json.istasyonlar.length) {
+        alan.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem">' + t("station_no_station") + '</span>';
+        document.getElementById("istasyon-detay").style.display = "none";
+        return;
+      }
+      alan.innerHTML = "";
+      json.istasyonlar.forEach(ist => {
+        const chip = document.createElement("button");
+        chip.className = "sekme-btn";
+        chip.textContent = ist.isim || ist.station_id;
+        chip.style.cssText = "padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);cursor:pointer;font-size:0.85rem";
+        chip.onclick = () => istasyonSec(ist);
+        alan.appendChild(chip);
+      });
+    } catch (e) {
+      console.error("İstasyon listesi hatası:", e);
+    } finally {
+      btnLoading(btn, false, "station_refresh");
+    }
+  }
+
+  function istasyonSec(ist) {
+    seciliIstasyon = ist.station_id;
+    document.getElementById("istasyon-isim").textContent = ist.isim || ist.station_id;
+    document.getElementById("istasyon-meta").textContent =
+      (ist.lat ? ist.lat.toFixed(2) + "°N, " + ist.lon.toFixed(2) + "°E" : "") +
+      (ist.alt ? " · " + ist.alt + "m" : "") +
+      " · ID: " + ist.station_id;
+    document.getElementById("istasyon-detay").style.display = "block";
+
+    // Seçili chip'i vurgula
+    document.querySelectorAll("#istasyon-chip-alani button").forEach(b => {
+      b.style.borderColor = b.textContent === (ist.isim || ist.station_id) ? "var(--accent)" : "var(--border)";
+      b.style.color = b.textContent === (ist.isim || ist.station_id) ? "var(--accent)" : "var(--text)";
+    });
+  }
+
+  async function istasyonSimKaydet() {
+    try {
+      await fetch("/api/station/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          station_id: "SIM-001",
+          isim: "Simüle İstasyon (Antalya)",
+          lat: 36.90, lon: 30.80, alt: 51,
+          api_key: "test-key-2026"
+        })
+      });
+      istasyonYenile();
+    } catch (e) {
+      console.error("Kayıt hatası:", e);
+    }
+  }
+
+  async function istasyonHesapla() {
+    if (!seciliIstasyon) return;
+    const btn = document.getElementById("istasyon-hesapla-btn");
+    btnLoading(btn, true);
+    document.getElementById("istasyon-sonuc-alani").style.display = "none";
+
+    try {
+      const res = await fetch("/api/station/data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ station_id: seciliIstasyon, limit: 500 })
+      });
+      const json = await res.json();
+      if (!json.ok) {
+        alert(json.hata || "Veri bulunamadı");
+        return;
+      }
+
+      // İstatistikleri göster
+      if (json.istatistik) {
+        document.getElementById("ist-toplam-okuma").textContent = json.ham_okuma_sayisi || json.istatistik.toplam_okuma || "—";
+        document.getElementById("ist-son-okuma").textContent = json.istatistik.son_okuma ? json.istatistik.son_okuma.slice(0, 16).replace("T", " ") : "—";
+      }
+
+      // Son anlık okuma
+      if (json.sonuclar.length > 0) {
+        const son = json.sonuclar[json.sonuclar.length - 1];
+        const anlikDiv = document.getElementById("istasyon-anlik-veri");
+        const renkCSS = {
+          "Tehlike Yok": { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+          "Dusuk":       { bg: "#052e16", renk: "#4ade80", border: "#166534" },
+          "Orta":        { bg: "#422006", renk: "#fbbf24", border: "#713f12" },
+          "Yuksek":      { bg: "#431407", renk: "#fb923c", border: "#7c2d12" },
+          "Cok Yuksek":  { bg: "#450a0a", renk: "#f87171", border: "#7f1d1d" },
+          "Asiri":       { bg: "#2e1065", renk: "#c084fc", border: "#581c87" },
+        };
+        const idxList = [
+          { key: "fwi", sinif: "sinif", label: "FWI" },
+          { key: "angstrom", sinif: "angstrom_sinif", label: "Angström" },
+          { key: "nesterov", sinif: "nesterov_sinif", label: "Nesterov" },
+          { key: "kbdi", sinif: "kbdi_sinif", label: "KBDI" },
+          { key: "carrega", sinif: "carrega_sinif", label: "Carrega" },
+        ];
+        anlikDiv.innerHTML = idxList.map(ix => {
+          const val = ix.key === "nesterov" ? fmtK(son[ix.key]) : (son[ix.key] != null ? son[ix.key] : "—");
+          const cls = son[ix.sinif] || "Dusuk";
+          const c = renkCSS[cls] || renkCSS["Dusuk"];
+          return `<div style="background:${c.bg};border:1px solid ${c.border};border-radius:8px;padding:12px;text-align:center">
+            <div style="color:${c.renk};font-size:0.75rem;font-weight:600;text-transform:uppercase">${ix.label}</div>
+            <div style="color:${c.renk};font-size:1.3rem;font-weight:700">${val}</div>
+            <div style="color:${c.renk};font-size:0.7rem">${sinifCevir(cls)}</div>
+          </div>`;
+        }).join("");
+      }
+
+      // Günlük tablo
+      const sinifRenk = { "Dusuk": "sc-Dusuk", "Orta": "sc-Orta", "Yuksek": "sc-Yuksek", "Cok Yuksek": "sc-CokYuksek", "Asiri": "sc-Asiri", "Tehlike Yok": "sc-Dusuk" };
+      const tbody = document.getElementById("istasyon-tablo-govde");
+      tbody.innerHTML = "";
+      for (const r of json.sonuclar) {
+        if (r.hata) continue;
+        const tarih = r.tarih.slice(0,4) + "-" + r.tarih.slice(4,6) + "-" + r.tarih.slice(6,8);
+        tbody.innerHTML += `<tr>
+          <td>${tarih}</td>
+          <td>${r.temp != null ? r.temp.toFixed(1) : "—"}</td>
+          <td>${r.rh != null ? r.rh.toFixed(0) : "—"}</td>
+          <td>${r.wind_kmh != null ? r.wind_kmh.toFixed(1) : "—"}</td>
+          <td>${r.precip != null ? r.precip.toFixed(1) : "—"}</td>
+          <td><span class="sinif-hucre ${sinifRenk[r.sinif] || ""}">${r.fwi}</span></td>
+          <td><span class="sinif-hucre ${sinifRenk[r.angstrom_sinif] || ""}">${r.angstrom != null ? r.angstrom : "—"}</span></td>
+          <td><span class="sinif-hucre ${sinifRenk[r.nesterov_sinif] || ""}">${fmtK(r.nesterov)}</span></td>
+          <td><span class="sinif-hucre ${sinifRenk[r.kbdi_sinif] || ""}">${r.kbdi != null ? r.kbdi : "—"}</span></td>
+          <td><span class="sinif-hucre ${sinifRenk[r.carrega_sinif] || ""}">${r.carrega != null ? r.carrega : "—"}</span></td>
+        </tr>`;
+      }
+
+      document.getElementById("istasyon-sonuc-alani").style.display = "block";
+      document.getElementById("istasyon-sonuc-alani").scrollIntoView({ behavior: "smooth" });
+    } catch (e) {
+      alert("Bağlantı hatası: " + e.message);
+    } finally {
+      btnLoading(btn, false, "station_calc");
+    }
   }
 
   // ═══ MAP INIT on page open ═══
