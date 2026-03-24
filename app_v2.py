@@ -25,8 +25,10 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET", "fire-ews-secret-2026")
 
 # Kullanıcı bilgileri
-AUTH_USER = "admin"
-AUTH_PASS = "fire2026"
+USERS = {
+    "admin": "fire2026",
+    "reyhan21": "123456",
+}
 
 
 @app.before_request
@@ -47,7 +49,7 @@ def login_page():
         data = request.get_json() if request.is_json else request.form
         user = data.get("username", "")
         pw = data.get("password", "")
-        if user == AUTH_USER and pw == AUTH_PASS:
+        if user in USERS and USERS[user] == pw:
             session["logged_in"] = True
             session.permanent = True
             if request.is_json:
